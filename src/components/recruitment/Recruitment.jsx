@@ -134,6 +134,22 @@ const Recruitment = () => {
           applicants: 18,
           deadline: '2026-03-01',
           avatar: 'HR'
+        },
+        {
+          id: 6,
+          title: 'Data Analyst',
+          department: 'Analytics',
+          location: 'San Francisco, CA',
+          type: 'Full-time',
+          experience: '2-4 years',
+          salary: '$80,000 - $100,000',
+          description: 'Analyze data trends and provide actionable insights for business decisions.',
+          requirements: ['SQL', 'Python', 'Tableau', 'Statistics'],
+          status: 'Active',
+          postedDate: '2026-01-14',
+          applicants: 40,
+          deadline: '2026-02-28',
+          avatar: 'DA'
         }
       ];
 
