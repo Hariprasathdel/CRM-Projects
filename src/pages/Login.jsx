@@ -82,8 +82,8 @@ const Login = () => {
                 <div className="brand-icon">
                   <FaBuilding />
                 </div>
-                <h1 className="brand-name">EMS</h1>
-                <p className="brand-tagline">Employee Management System</p>
+                <h1 className="brand-name">CRM</h1>
+                <p className="brand-tagline">Customer Relationship Management</p>
               </div>
 
               <Card className="login-card">
