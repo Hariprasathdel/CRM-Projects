@@ -1,0 +1,518 @@
+/* Department List Styles */
+.department-list-wrapper {
+    padding: 0;
+  }
+  
+  /* Toolbar */
+  .list-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 15px;
+    border-bottom: 1px solid #e9ecef;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: #f8f9fa;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Department Count */
+  .department-count {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    color: #6c757d;
+    border-bottom: 1px solid #e9ecef;
+    background: #ffffff;
+  }
+  
+  /* Department Table */
+  .department-table {
+    margin: 0;
+  }
+  
+  .department-table thead th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e9ecef;
+    white-space: nowrap;
+  }
+  
+  .department-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+  }
+  
+  .department-table tbody tr:hover {
+    background: #f8f9fa;
+  }
+  
+  .department-table tbody tr.table-active {
+    background: #e7f1ff;
+  }
+  
+  /* Department Info */
+  .department-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .department-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .department-icon {
+    color: #ffffff;
+    font-size: 1rem;
+  }
+  
+  .department-details {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .department-name {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.9rem;
+  }
+  
+  .department-location {
+    font-size: 0.75rem;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Badges */
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .code-badge {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+  
+  .employee-count-badge {
+    display: inline-flex;
+    align-items: center;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  
+  .action-buttons .btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+  
+  /* Sort Icons */
+  .sort-icon {
+    margin-left: 4px;
+    color: #adb5bd;
+    font-size: 0.7rem;
+  }
+  
+  .sort-icon.active {
+    color: #3498db;
+  }
+  
+  /* Table Footer */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 16px 16px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .footer-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .items-per-page {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    padding: 40px 20px;
+  }
+  
+  .empty-state .text-muted {
+    font-size: 1rem;
+  }
+  
+  /* View Department Modal */
+  .view-department-content {
+    padding: 10px 0;
+  }
+  
+  .view-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 20px;
+  }
+  
+  .view-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+  
+  .view-title {
+    flex: 1;
+  }
+  
+  .view-title h4 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .view-code {
+    margin-right: 8px;
+  }
+  
+  .view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .view-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .view-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+  
+  .view-value {
+    font-size: 0.95rem;
+    color: #2c3e50;
+    font-weight: 500;
+  }
+  
+  .view-description {
+    margin-bottom: 20px;
+  }
+  
+  .view-description h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .view-description p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  .view-projects,
+  .view-employees {
+    margin-bottom: 15px;
+  }
+  
+  .view-projects h6,
+  .view-employees h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .projects-list,
+  .employees-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .project-badge,
+  .employee-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .list-toolbar {
+      background: #2c3e50;
+      border-bottom-color: #34495e;
+    }
+  
+    .department-count {
+      background: #2c3e50;
+      border-bottom-color: #34495e;
+      color: #adb5bd;
+    }
+  
+    .department-table thead th {
+      background: #2c3e50;
+      color: #ecf0f1;
+      border-bottom-color: #34495e;
+    }
+  
+    .department-table tbody td {
+      border-bottom-color: #34495e;
+      color: #ecf0f1;
+    }
+  
+    .department-table tbody tr:hover {
+      background: #34495e;
+    }
+  
+    .department-table tbody tr.table-active {
+      background: #1e3a5f;
+    }
+  
+    .department-name {
+      color: #ecf0f1;
+    }
+  
+    .department-location {
+      color: #adb5bd;
+    }
+  
+    .employee-count-badge {
+      color: #ecf0f1;
+    }
+  
+    .table-footer {
+      background: #2c3e50;
+      border-top-color: #34495e;
+    }
+  
+    .list-toolbar .btn-outline-secondary {
+      color: #adb5bd;
+      border-color: #34495e;
+    }
+  
+    .list-toolbar .btn-outline-secondary:hover {
+      background: #34495e;
+      color: #ecf0f1;
+    }
+  
+    .list-toolbar .form-control {
+      background: #34495e;
+      border-color: #3d566e;
+      color: #ecf0f1;
+    }
+  
+    .list-toolbar .form-control::placeholder {
+      color: #6c757d;
+    }
+  
+    .list-toolbar .input-group-text {
+      background: #34495e;
+      border-color: #3d566e;
+      color: #adb5bd;
+    }
+  
+    .view-header {
+      border-bottom-color: #34495e;
+    }
+  
+    .view-title h4 {
+      color: #ecf0f1;
+    }
+  
+    .view-value {
+      color: #ecf0f1;
+    }
+  
+    .view-description h6,
+    .view-projects h6,
+    .view-employees h6 {
+      color: #ecf0f1;
+    }
+  
+    .view-description p {
+      color: #adb5bd;
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .list-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .toolbar-left {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .toolbar-left .input-group {
+      width: 100% !important;
+    }
+  
+    .toolbar-right {
+      justify-content: flex-start;
+    }
+  
+    .table-footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .footer-right {
+      justify-content: space-between;
+    }
+  
+    .view-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .department-table {
+      font-size: 0.85rem;
+    }
+  
+    .department-table thead th,
+    .department-table tbody td {
+      padding: 8px 10px;
+    }
+  
+    .department-icon-wrapper {
+      width: 28px;
+      height: 28px;
+    }
+  
+    .department-name {
+      font-size: 0.8rem;
+    }
+  
+    .action-buttons .btn {
+      padding: 2px 6px;
+      font-size: 0.7rem;
+    }
+  
+    .footer-right {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .view-header {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .department-table {
+      font-size: 0.75rem;
+    }
+  
+    .department-table thead th {
+      font-size: 0.65rem;
+      padding: 6px 8px;
+    }
+  
+    .department-table tbody td {
+      padding: 6px 8px;
+    }
+  
+    .department-icon-wrapper {
+      width: 24px;
+      height: 24px;
+    }
+  
+    .department-icon {
+      font-size: 0.7rem;
+    }
+  
+    .department-location {
+      display: none;
+    }
+  
+    .action-buttons {
+      flex-direction: column;
+      gap: 2px;
+    }
+  
+    .action-buttons .btn {
+      padding: 2px 5px;
+      font-size: 0.6rem;
+    }
+  
+    .code-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  
+    .status-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  }

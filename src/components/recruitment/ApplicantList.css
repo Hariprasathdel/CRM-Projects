@@ -1,0 +1,453 @@
+/* Applicant List Styles */
+.applicant-list-wrapper {
+    padding: 0;
+  }
+  
+  /* Toolbar */
+  .list-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Applicant Count */
+  .applicant-count {
+    padding: 10px 0 15px;
+    font-size: 0.85rem;
+    color: #6c757d;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  /* Applicant Table */
+  .applicant-table {
+    margin: 0;
+  }
+  
+  .applicant-table thead th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e9ecef;
+    white-space: nowrap;
+  }
+  
+  .applicant-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+  }
+  
+  .applicant-table tbody tr:hover {
+    background: #f8f9fa;
+  }
+  
+  .applicant-table tbody tr.table-active {
+    background: #e7f1ff;
+  }
+  
+  /* Applicant Info */
+  .applicant-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .applicant-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  
+  .applicant-details {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .applicant-name {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.9rem;
+  }
+  
+  .applicant-email {
+    font-size: 0.75rem;
+    color: #6c757d;
+  }
+  
+  /* Badges */
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .position-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .skill-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    margin: 2px;
+  }
+  
+  .skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+  
+  .action-buttons .btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+  
+  /* Sort Icons */
+  .sort-icon {
+    margin-left: 4px;
+    color: #adb5bd;
+    font-size: 0.7rem;
+  }
+  
+  .sort-icon.active {
+    color: #3498db;
+  }
+  
+  /* Table Footer */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .footer-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .items-per-page {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* Resume View */
+  .resume-view {
+    padding: 10px 0;
+  }
+  
+  .resume-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .resume-avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  
+  .resume-info {
+    flex: 1;
+  }
+  
+  .resume-info h4 {
+    margin: 0;
+    color: #2c3e50;
+  }
+  
+  .resume-info p {
+    margin: 4px 0;
+  }
+  
+  .resume-section {
+    margin-bottom: 20px;
+  }
+  
+  .resume-section h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .resume-section p {
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  .skill-badge-large {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin: 3px;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    padding: 40px 20px;
+  }
+  
+  .empty-state .text-muted {
+    font-size: 1rem;
+  }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .applicant-count {
+      border-bottom-color: #34495e;
+      color: #adb5bd;
+    }
+  
+    .applicant-table thead th {
+      background: #2c3e50;
+      color: #ecf0f1;
+      border-bottom-color: #34495e;
+    }
+  
+    .applicant-table tbody td {
+      border-bottom-color: #34495e;
+      color: #ecf0f1;
+    }
+  
+    .applicant-table tbody tr:hover {
+      background: #34495e;
+    }
+  
+    .applicant-table tbody tr.table-active {
+      background: #1e3a5f;
+    }
+  
+    .applicant-name {
+      color: #ecf0f1;
+    }
+  
+    .applicant-email {
+      color: #adb5bd;
+    }
+  
+    .table-footer {
+      border-top-color: #34495e;
+    }
+  
+    .list-toolbar .btn-outline-secondary {
+      color: #adb5bd;
+      border-color: #34495e;
+    }
+  
+    .list-toolbar .btn-outline-secondary:hover {
+      background: #34495e;
+      color: #ecf0f1;
+    }
+  
+    .list-toolbar .form-control {
+      background: #34495e;
+      border-color: #3d566e;
+      color: #ecf0f1;
+    }
+  
+    .list-toolbar .form-control::placeholder {
+      color: #6c757d;
+    }
+  
+    .list-toolbar .input-group-text {
+      background: #34495e;
+      border-color: #3d566e;
+      color: #adb5bd;
+    }
+  
+    .resume-info h4 {
+      color: #ecf0f1;
+    }
+  
+    .resume-info p {
+      color: #adb5bd;
+    }
+  
+    .resume-section h6 {
+      color: #ecf0f1;
+    }
+  
+    .resume-section p {
+      color: #adb5bd;
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .list-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .toolbar-left {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .toolbar-left .input-group {
+      width: 100% !important;
+    }
+  
+    .toolbar-right {
+      justify-content: flex-start;
+    }
+  
+    .table-footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .footer-right {
+      justify-content: space-between;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .applicant-table {
+      font-size: 0.85rem;
+    }
+  
+    .applicant-table thead th,
+    .applicant-table tbody td {
+      padding: 8px 10px;
+    }
+  
+    .applicant-avatar {
+      width: 28px;
+      height: 28px;
+      font-size: 0.7rem;
+    }
+  
+    .applicant-name {
+      font-size: 0.8rem;
+    }
+  
+    .action-buttons .btn {
+      padding: 2px 6px;
+      font-size: 0.7rem;
+    }
+  
+    .footer-right {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .resume-header {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .applicant-table {
+      font-size: 0.75rem;
+    }
+  
+    .applicant-table thead th {
+      font-size: 0.65rem;
+      padding: 6px 8px;
+    }
+  
+    .applicant-table tbody td {
+      padding: 6px 8px;
+    }
+  
+    .applicant-email {
+      display: none;
+    }
+  
+    .action-buttons {
+      flex-direction: column;
+      gap: 2px;
+    }
+  
+    .action-buttons .btn {
+      padding: 2px 5px;
+      font-size: 0.6rem;
+    }
+  
+    .status-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  
+    .position-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  
+    .skill-badge {
+      font-size: 0.55rem;
+      padding: 1px 4px;
+    }
+  }

@@ -1,0 +1,43 @@
+.dashboard-wrapper {
+  --sidebar-width: 280px;
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f9fa;
+  overflow-x: hidden;
+}
+
+/*
+ * The sidebar is fixed, so reserve its width for the dashboard rather than
+ * allowing the content to render underneath it.
+ */
+.main-content {
+  width: calc(100% - var(--sidebar-width));
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: var(--sidebar-width);
+  overflow-x: hidden;
+}
+
+.main-content > .container-fluid {
+  width: 100%;
+  max-width: none;
+}
+
+/* On phones the sidebar becomes an off-canvas menu, so dashboard content
+   should again use the entire viewport width. */
+@media (max-width: 768px) {
+  .dashboard-wrapper {
+    display: block;
+  }
+
+  .main-content {
+    width: 100%;
+    min-height: 100vh;
+    margin-left: 0;
+  }
+
+  .main-content > .container-fluid {
+    padding: 1rem !important;
+  }
+}

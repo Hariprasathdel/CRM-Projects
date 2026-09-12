@@ -1,0 +1,318 @@
+/* Employee Details Styles */
+.employee-details-wrapper {
+    padding: 0;
+  }
+  
+  /* Header */
+  .details-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 0 20px;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 20px;
+  }
+  
+  .details-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+  
+  .details-title {
+    flex: 1;
+  }
+  
+  .employee-name-large {
+    margin: 0;
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.5rem;
+  }
+  
+  .employee-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  
+  .meta-item {
+    color: #6c757d;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .meta-divider {
+    color: #dee2e6;
+  }
+  
+  /* Action Buttons */
+  .details-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .details-actions .btn {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+  
+  /* Content */
+  .details-content {
+    margin-top: 0;
+  }
+  
+  .details-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .details-card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px 20px;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .details-card-header h6 {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  /* List Items */
+  .details-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f8f9fa;
+    background: transparent;
+  }
+  
+  .list-item-label {
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 0.85rem;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .label-icon {
+    color: #3498db;
+  }
+  
+  .list-item-value {
+    flex: 1;
+    text-align: right;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    word-break: break-word;
+  }
+  
+  /* Badges */
+  .status-badge-large {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .performance-badge-large {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  .department-badge-large {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  /* Skills & Projects */
+  .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  
+  .skill-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .projects-container {
+    text-align: right;
+  }
+  
+  .project-item {
+    color: #2c3e50;
+    font-size: 0.85rem;
+    margin: 2px 0;
+  }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .details-header {
+      border-bottom-color: #34495e;
+    }
+  
+    .employee-name-large {
+      color: #ecf0f1;
+    }
+  
+    .meta-item {
+      color: #adb5bd;
+    }
+  
+    .meta-divider {
+      color: #34495e;
+    }
+  
+    .details-card {
+      background: #2c3e50;
+    }
+  
+    .details-card-header {
+      background: #34495e;
+      border-bottom-color: #3d566e;
+    }
+  
+    .details-card-header h6 {
+      color: #ecf0f1;
+    }
+  
+    .details-list-item {
+      border-bottom-color: #34495e;
+    }
+  
+    .details-list-item:hover {
+      background: #34495e;
+    }
+  
+    .list-item-label {
+      color: #adb5bd;
+    }
+  
+    .list-item-value {
+      color: #ecf0f1;
+    }
+  
+    .project-item {
+      color: #ecf0f1;
+    }
+  
+    .employee-details-wrapper .btn-outline-secondary {
+      color: #adb5bd;
+      border-color: #34495e;
+    }
+  
+    .employee-details-wrapper .btn-outline-secondary:hover {
+      background: #34495e;
+      color: #ecf0f1;
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .details-header {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .employee-meta {
+      justify-content: center;
+    }
+  
+    .details-actions {
+      justify-content: center;
+    }
+  
+    .details-list-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+  
+    .list-item-value {
+      text-align: left;
+      width: 100%;
+    }
+  
+    .skills-container {
+      justify-content: flex-start;
+    }
+  
+    .projects-container {
+      text-align: left;
+    }
+  
+    .employee-name-large {
+      font-size: 1.3rem;
+    }
+  
+    .details-avatar-large {
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .details-header {
+      padding-bottom: 15px;
+      margin-bottom: 15px;
+    }
+  
+    .employee-meta {
+      font-size: 0.8rem;
+    }
+  
+    .details-actions .btn {
+      font-size: 0.75rem;
+      padding: 4px 12px;
+    }
+  
+    .details-card-header {
+      padding: 10px 15px;
+    }
+  
+    .details-list-item {
+      padding: 10px 15px;
+    }
+  
+    .list-item-label {
+      font-size: 0.8rem;
+      min-width: 100px;
+    }
+  
+    .list-item-value {
+      font-size: 0.85rem;
+    }
+  }

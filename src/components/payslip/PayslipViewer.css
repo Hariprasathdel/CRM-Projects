@@ -1,0 +1,307 @@
+.payslip-viewer {
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+  }
+  
+  .payslip-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 20px;
+  }
+  
+  .company-info h4 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin: 0;
+  }
+  
+  .company-info p {
+    margin: 4px 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+  }
+  
+  .payslip-title {
+    text-align: right;
+  }
+  
+  .payslip-title h3 {
+    color: #3498db;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.8rem;
+  }
+  
+  .payslip-title p {
+    margin: 4px 0;
+    color: #6c757d;
+    font-weight: 500;
+  }
+  
+  .payslip-employee-details {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+  
+  .detail-label {
+    color: #6c757d;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .payslip-salary-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+  }
+  
+  .payslip-salary-card .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px 16px;
+  }
+  
+  .payslip-salary-card .card-header h6 {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .payslip-table-details {
+    margin: 0;
+  }
+  
+  .payslip-table-details td {
+    padding: 12px 16px;
+    border-color: #e9ecef;
+  }
+  
+  .label-cell {
+    font-weight: 500;
+    color: #6c757d;
+    width: 40%;
+  }
+  
+  .value-cell {
+    font-weight: 500;
+    color: #2c3e50;
+    text-align: right;
+  }
+  
+  .total-row {
+    background: #f8f9fa;
+  }
+  
+  .total-row .label-cell {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .total-row .value-cell {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+  
+  .net-salary-row {
+    background: #e7f1ff;
+  }
+  
+  .net-salary-row .label-cell {
+    font-weight: 700;
+    color: #2c3e50;
+  }
+  
+  .net-salary-row .value-cell {
+    font-weight: 700;
+    color: #28a745;
+    font-size: 1.1rem;
+  }
+  
+  .payslip-additional-details {
+    margin-bottom: 20px;
+  }
+  
+  .detail-section {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .detail-section h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .payslip-viewer-footer {
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+    margin-bottom: 20px;
+  }
+  
+  .payslip-viewer-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+  }
+  
+  .payslip-viewer-actions .btn {
+    padding: 8px 20px;
+    min-width: 120px;
+  }
+  
+  .status-badge-large {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  @media (prefers-color-scheme: dark) {
+    .payslip-viewer {
+      background: #2c3e50;
+    }
+  
+    .payslip-viewer-header {
+      border-bottom-color: #34495e;
+    }
+  
+    .company-info h4 {
+      color: #ecf0f1;
+    }
+  
+    .company-info p {
+      color: #adb5bd;
+    }
+  
+    .payslip-title p {
+      color: #adb5bd;
+    }
+  
+    .payslip-employee-details {
+      background: #34495e;
+    }
+  
+    .detail-row {
+      border-bottom-color: #3d566e;
+    }
+  
+    .detail-label {
+      color: #adb5bd;
+    }
+  
+    .detail-value {
+      color: #ecf0f1;
+    }
+  
+    .payslip-salary-card {
+      background: #2c3e50;
+    }
+  
+    .payslip-salary-card .card-header {
+      background: #34495e;
+      border-bottom-color: #3d566e;
+    }
+  
+    .payslip-salary-card .card-header h6 {
+      color: #ecf0f1;
+    }
+  
+    .payslip-table-details td {
+      border-color: #34495e;
+    }
+  
+    .label-cell {
+      color: #adb5bd;
+    }
+  
+    .value-cell {
+      color: #ecf0f1;
+    }
+  
+    .total-row {
+      background: #34495e;
+    }
+  
+    .total-row .label-cell {
+      color: #ecf0f1;
+    }
+  
+    .total-row .value-cell {
+      color: #ecf0f1;
+    }
+  
+    .net-salary-row {
+      background: #1e3a5f;
+    }
+  
+    .detail-section {
+      background: #34495e;
+    }
+  
+    .detail-section h6 {
+      color: #ecf0f1;
+    }
+  
+    .payslip-viewer-footer {
+      border-top-color: #34495e;
+    }
+  
+    .payslip-viewer-actions {
+      border-top-color: #34495e;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .payslip-viewer-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  
+    .payslip-title {
+      text-align: center;
+      margin-top: 15px;
+    }
+  
+    .payslip-viewer-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .payslip-viewer-actions .btn {
+      width: 100%;
+    }
+  
+    .payslip-table-details td {
+      padding: 8px 12px;
+    }
+  }

@@ -1,0 +1,589 @@
+/* Project List Styles */
+.project-list-wrapper {
+    padding: 0;
+  }
+  
+  /* Toolbar */
+  .list-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 15px;
+    border-bottom: 1px solid #e9ecef;
+    flex-wrap: wrap;
+    gap: 15px;
+    background: #f8f9fa;
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Project Count */
+  .project-count {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    color: #6c757d;
+    border-bottom: 1px solid #e9ecef;
+    background: #ffffff;
+  }
+  
+  /* Project Table */
+  .project-table {
+    margin: 0;
+  }
+  
+  .project-table thead th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e9ecef;
+    white-space: nowrap;
+  }
+  
+  .project-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+  }
+  
+  .project-table tbody tr:hover {
+    background: #f8f9fa;
+  }
+  
+  .project-table tbody tr.table-active {
+    background: #e7f1ff;
+  }
+  
+  /* Project Info */
+  .project-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .project-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .project-icon {
+    color: #ffffff;
+    font-size: 1rem;
+  }
+  
+  .project-details {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .project-name {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.9rem;
+  }
+  
+  .project-description {
+    font-size: 0.75rem;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Badges */
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .priority-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  
+  .priority-badge-wrapper {
+    margin-top: 4px;
+  }
+  
+  .code-badge {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+  
+  .department-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  /* Progress */
+  .progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .project-progress {
+    flex: 1;
+    border-radius: 10px;
+  }
+  
+  .progress-label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #2c3e50;
+    min-width: 40px;
+  }
+  
+  .task-info {
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-top: 2px;
+  }
+  
+  /* Action Buttons */
+  .action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+  }
+  
+  .action-buttons .btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+  
+  /* Sort Icons */
+  .sort-icon {
+    margin-left: 4px;
+    color: #adb5bd;
+    font-size: 0.7rem;
+  }
+  
+  .sort-icon.active {
+    color: #3498db;
+  }
+  
+  /* Table Footer */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 16px 16px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .footer-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .items-per-page {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* View Project Modal */
+  .view-project-content {
+    padding: 10px 0;
+  }
+  
+  .view-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+    margin-bottom: 20px;
+  }
+  
+  .view-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+  
+  .view-title {
+    flex: 1;
+  }
+  
+  .view-title h4 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .view-code {
+    margin-right: 8px;
+  }
+  
+  .view-description {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .view-description p {
+    margin: 0;
+    color: #6c757d;
+  }
+  
+  .view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .view-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .view-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+  
+  .view-value {
+    font-size: 0.95rem;
+    color: #2c3e50;
+    font-weight: 500;
+  }
+  
+  .view-team,
+  .view-tasks {
+    margin-top: 20px;
+  }
+  
+  .view-team h6,
+  .view-tasks h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .team-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .member-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+  
+  .task-stats {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .task-stat {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #2c3e50;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    padding: 40px 20px;
+  }
+  
+  .empty-state .text-muted {
+    font-size: 1rem;
+  }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .list-toolbar {
+      background: #2c3e50;
+      border-bottom-color: #34495e;
+    }
+  
+    .project-count {
+      background: #2c3e50;
+      border-bottom-color: #34495e;
+      color: #adb5bd;
+    }
+  
+    .project-table thead th {
+      background: #2c3e50;
+      color: #ecf0f1;
+      border-bottom-color: #34495e;
+    }
+  
+    .project-table tbody td {
+      border-bottom-color: #34495e;
+      color: #ecf0f1;
+    }
+  
+    .project-table tbody tr:hover {
+      background: #34495e;
+    }
+  
+    .project-table tbody tr.table-active {
+      background: #1e3a5f;
+    }
+  
+    .project-name {
+      color: #ecf0f1;
+    }
+  
+    .project-description {
+      color: #adb5bd;
+    }
+  
+    .progress-label {
+      color: #ecf0f1;
+    }
+  
+    .task-info {
+      color: #adb5bd;
+    }
+  
+    .table-footer {
+      background: #2c3e50;
+      border-top-color: #34495e;
+    }
+  
+    .list-toolbar .btn-outline-secondary {
+      color: #adb5bd;
+      border-color: #34495e;
+    }
+  
+    .list-toolbar .btn-outline-secondary:hover {
+      background: #34495e;
+      color: #ecf0f1;
+    }
+  
+    .list-toolbar .form-control {
+      background: #34495e;
+      border-color: #3d566e;
+      color: #ecf0f1;
+    }
+  
+    .list-toolbar .form-control::placeholder {
+      color: #6c757d;
+    }
+  
+    .list-toolbar .input-group-text {
+      background: #34495e;
+      border-color: #3d566e;
+      color: #adb5bd;
+    }
+  
+    .view-header {
+      border-bottom-color: #34495e;
+    }
+  
+    .view-title h4 {
+      color: #ecf0f1;
+    }
+  
+    .view-description {
+      background: #34495e;
+    }
+  
+    .view-description p {
+      color: #adb5bd;
+    }
+  
+    .view-value {
+      color: #ecf0f1;
+    }
+  
+    .view-team h6,
+    .view-tasks h6 {
+      color: #ecf0f1;
+    }
+  
+    .task-stat {
+      color: #ecf0f1;
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .list-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .toolbar-left {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .toolbar-left .input-group {
+      width: 100% !important;
+    }
+  
+    .toolbar-right {
+      justify-content: flex-start;
+    }
+  
+    .table-footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .footer-right {
+      justify-content: space-between;
+    }
+  
+    .view-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .project-table {
+      font-size: 0.85rem;
+    }
+  
+    .project-table thead th,
+    .project-table tbody td {
+      padding: 8px 10px;
+    }
+  
+    .project-icon-wrapper {
+      width: 28px;
+      height: 28px;
+    }
+  
+    .project-name {
+      font-size: 0.8rem;
+    }
+  
+    .action-buttons .btn {
+      padding: 2px 6px;
+      font-size: 0.7rem;
+    }
+  
+    .footer-right {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  
+    .view-header {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .task-stats {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .project-table {
+      font-size: 0.75rem;
+    }
+  
+    .project-table thead th {
+      font-size: 0.65rem;
+      padding: 6px 8px;
+    }
+  
+    .project-table tbody td {
+      padding: 6px 8px;
+    }
+  
+    .project-description {
+      display: none;
+    }
+  
+    .action-buttons {
+      flex-direction: column;
+      gap: 2px;
+    }
+  
+    .action-buttons .btn {
+      padding: 2px 5px;
+      font-size: 0.6rem;
+    }
+  
+    .status-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  
+    .code-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  
+    .department-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+    }
+  
+    .priority-badge {
+      font-size: 0.55rem;
+      padding: 2px 6px;
+    }
+  
+    .progress-label {
+      font-size: 0.7rem;
+      min-width: 30px;
+    }
+  }
