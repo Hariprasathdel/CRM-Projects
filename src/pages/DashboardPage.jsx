@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import Sidebar from '../components/common/Sidebar';
 import TotalEmployeeCard from '../components/dashboard/TotalEmployeeCard';
 import DailyAttendanceStat from '../components/dashboard/DailyAttendanceStat';
@@ -44,17 +44,11 @@ const DashboardPage = () => {
           </Row>
 
           <Row className="mb-4">
-            <Col lg={4} className="mb-3">
+            <Col lg={6} className="mb-3">
               <TodayAbsents />
             </Col>
-            <Col lg={4} className="mb-3">
+            <Col lg={6} className="mb-3">
               <TodayLeave />
-            </Col>
-            <Col lg={4} className="mb-3">
-              <Card className="p-3">
-                <h5>Quick Actions</h5>
-                <p>Add quick action buttons here</p>
-              </Card>
             </Col>
           </Row>
 
