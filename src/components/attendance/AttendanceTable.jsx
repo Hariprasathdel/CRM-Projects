@@ -128,6 +128,23 @@ const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </InputGroup>
+
+          <div className="table-export-actions">
+            <Dropdown>
+              <Dropdown.Toggle variant="outline-secondary" size="sm">
+                <FaFileExport className="me-1" /> Export
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item>Export as CSV</Dropdown.Item>
+                <Dropdown.Item>Export as Excel</Dropdown.Item>
+                <Dropdown.Item>Export as PDF</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
+            <Button variant="outline-secondary" size="sm" onClick={() => window.print()}>
+              <FaPrint className="me-1" /> Print
+            </Button>
+          </div>
           
           <div className="selection-info">
             {selectedRows.length > 0 && (
@@ -138,22 +155,6 @@ const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
           </div>
         </div>
 
-        <div className="controls-right">
-          <Dropdown className="me-2">
-            <Dropdown.Toggle variant="outline-secondary" size="sm">
-              <FaFileExport className="me-1" /> Export
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item>Export as CSV</Dropdown.Item>
-              <Dropdown.Item>Export as Excel</Dropdown.Item>
-              <Dropdown.Item>Export as PDF</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-
-          <Button variant="outline-secondary" size="sm" onClick={() => window.print()}>
-            <FaPrint className="me-1" /> Print
-          </Button>
-        </div>
       </div>
 
       {/* Table */}
@@ -189,7 +190,7 @@ const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
               <th onClick={() => handleSort('workingHours')} style={{ cursor: 'pointer' }}>
                 Hours {getSortIcon('workingHours')}
               </th>
-              <th style={{ width: '120px' }}>Actions</th>
+              <th style={{ width: '144px' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
