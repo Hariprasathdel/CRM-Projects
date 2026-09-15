@@ -22,7 +22,10 @@ import {
   FaClock,
   FaCheckCircle,
   FaTimesCircle,
-  FaClock as FaPending
+  FaClock as FaPending,
+  FaEye,
+  FaEdit,
+  FaTrash
 } from 'react-icons/fa';
 import AttendanceForm from './AttendanceForm';
 import AttendanceTable from './AttendanceTable';
@@ -31,6 +34,9 @@ import './Attendance.css';
 const Attendance = () => {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [recordToDelete, setRecordToDelete] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
   const [attendanceData, setAttendanceData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [filter, setFilter] = useState('all');
@@ -179,6 +185,46 @@ const Attendance = () => {
     setAttendanceData([...attendanceData, newAttendance]);
     calculateSummary([...attendanceData, newAttendance]);
     setShowForm(false);
+  };
+
+  const handleViewAttendance = (attendance) => {
+    setSelectedAttendance(attendance);
+    setShowDetails(true);
+  };
+
+  const handleEditAttendance = (attendance) => {
+    setSelectedAttendance(attendance);
+    setShowForm(true);
+  };
+
+  const handleSaveAttendance = (attendance) => {
+    if (selectedAttendance) {
+      const updatedData = attendanceData.map(item =>
+        item.id === selectedAttendance.id ? { ...item, ...attendance, id: item.id } : item
+      );
+      setAttendanceData(updatedData);
+      calculateSummary(updatedData);
+    } else {
+      handleAddAttendance(attendance);
+      return;
+    }
+
+    setSelectedAttendance(null);
+    setShowForm(false);
+  };
+
+  const handleDeleteAttendance = () => {
+    if (!recordToDelete) return;
+
+    const updatedData = attendanceData.filter(item => item.id !== recordToDelete.id);
+    setAttendanceData(updatedData);
+    calculateSummary(updatedData);
+    setRecordToDelete(null);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setSelectedAttendance(null);
   };
 
   const handleExport = () => {
@@ -366,6 +412,9 @@ const Attendance = () => {
                 data={filteredData} 
                 getStatusBadge={getStatusBadge}
                 onRefresh={handleRefresh}
+                onView={handleViewAttendance}
+                onEdit={handleEditAttendance}
+                onDelete={setRecordToDelete}
               />
             )}
           </Card.Body>
@@ -374,21 +423,65 @@ const Attendance = () => {
         {/* Add Attendance Modal */}
         <Modal 
           show={showForm} 
-          onHide={() => setShowForm(false)}
+          onHide={closeForm}
           size="lg"
           centered
         >
           <Modal.Header closeButton>
             <Modal.Title>
-              <FaPlus className="me-2" /> Mark Attendance
+              {selectedAttendance ? <FaEdit className="me-2" /> : <FaPlus className="me-2" />}
+              {selectedAttendance ? 'Edit Attendance' : 'Mark Attendance'}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <AttendanceForm 
-              onSubmit={handleAddAttendance}
-              onCancel={() => setShowForm(false)}
+              onSubmit={handleSaveAttendance}
+              onCancel={closeForm}
+              initialData={selectedAttendance}
             />
           </Modal.Body>
+        </Modal>
+
+        <Modal show={showDetails} onHide={() => setShowDetails(false)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title><FaEye className="me-2" />Attendance Details</Modal.Title>
+          </Modal.Header>
+          {selectedAttendance && (
+            <Modal.Body>
+              <div className="employee-info mb-3">
+                <div className="employee-avatar">{selectedAttendance.avatar}</div>
+                <div className="employee-details">
+                  <div className="employee-name">{selectedAttendance.employeeName}</div>
+                  <div className="employee-id">#{selectedAttendance.employeeId || 'N/A'}</div>
+                </div>
+              </div>
+              <p><strong>Department:</strong> {selectedAttendance.department}</p>
+              <p><strong>Date:</strong> {new Date(selectedAttendance.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+              <p><strong>Status:</strong> {getStatusBadge(selectedAttendance.status)}</p>
+              <p><strong>Check In:</strong> {selectedAttendance.checkIn || '--'}</p>
+              <p><strong>Check Out:</strong> {selectedAttendance.checkOut || '--'}</p>
+              <p><strong>Working Hours:</strong> {selectedAttendance.workingHours}</p>
+              {selectedAttendance.overtime && selectedAttendance.overtime !== '0h' && <p><strong>Overtime:</strong> {selectedAttendance.overtime}</p>}
+              {selectedAttendance.leaveReason && <p><strong>Leave Reason:</strong> {selectedAttendance.leaveReason}</p>}
+              {selectedAttendance.remarks && <p className="mb-0"><strong>Remarks:</strong> {selectedAttendance.remarks}</p>}
+            </Modal.Body>
+          )}
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDetails(false)}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={Boolean(recordToDelete)} onHide={() => setRecordToDelete(null)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title><FaTrash className="me-2" />Delete Attendance</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete the attendance record for <strong>{recordToDelete?.employeeName}</strong>? This action cannot be undone.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setRecordToDelete(null)}>Cancel</Button>
+            <Button variant="danger" onClick={handleDeleteAttendance}><FaTrash className="me-1" />Delete</Button>
+          </Modal.Footer>
         </Modal>
       </Container>
     </div>

@@ -1,0 +1,9 @@
+.loan-details-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.loan-details-avatar { align-items: center; background: #2d8fd0; border-radius: 50%; color: #fff; display: flex; flex: 0 0 58px; font-size: 1.25rem; font-weight: 700; height: 58px; justify-content: center; }
+.loan-details-badge { align-items: center; display: inline-flex; gap: 5px; padding: 7px 10px; }
+.loan-details-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.loan-details-card { border-color: #e8edf2; }
+.loan-details-card .card-header { background: #f8fafc; color: #34495e; font-weight: 600; }
+.loan-details-card .list-group-item { align-items: center; display: flex; justify-content: space-between; gap: 16px; padding: 13px 16px; }
+.loan-details-card .list-group-item > span { color: #6c757d; }
+@media (max-width: 575.98px) { .loan-details-card .list-group-item { align-items: flex-start; flex-direction: column; gap: 4px; } }

@@ -24,6 +24,7 @@ import {
 } from 'react-icons/fa';
 import LoanList from './LoanList';
 import LoanApplication from './LoanApplication';
+import LoanDetails from './LoanDetails';
 import './Loan.css';
 
 const Loan = () => {
@@ -208,6 +209,8 @@ const Loan = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         setLoans(loans.filter(loan => loan.id !== id));
+        setShowApplication(false);
+        setSelectedLoan(null);
         setSuccess('Loan application deleted successfully!');
         setTimeout(() => setSuccess(''), 3000);
       } catch (error) {
@@ -222,6 +225,7 @@ const Loan = () => {
   };
 
   const handleEditLoan = (loan) => {
+    setShowApplication(false);
     setEditingLoan(loan);
     setShowForm(true);
   };
@@ -239,6 +243,7 @@ const Loan = () => {
       );
       
       setLoans(updatedLoans);
+      setSelectedLoan(updatedLoans.find(loan => loan.id === id) || null);
       setSuccess('Loan application approved successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
@@ -259,6 +264,7 @@ const Loan = () => {
       );
       
       setLoans(updatedLoans);
+      setSelectedLoan(updatedLoans.find(loan => loan.id === id) || null);
       setSuccess('Loan application rejected successfully!');
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
@@ -517,6 +523,34 @@ const Loan = () => {
               onCancel={() => {
                 setShowForm(false);
                 setEditingLoan(null);
+              }}
+            />
+          </Modal.Body>
+        </Modal>
+
+        {/* Loan Application Detail Modal */}
+        <Modal
+          show={showApplication}
+          onHide={() => {
+            setShowApplication(false);
+            setSelectedLoan(null);
+          }}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title><FaMoneyBillWave className="me-2" />Loan Application Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <LoanDetails
+              loan={selectedLoan}
+              onApprove={handleApproveLoan}
+              onReject={handleRejectLoan}
+              onEdit={handleEditLoan}
+              onDelete={handleDeleteLoan}
+              onClose={() => {
+                setShowApplication(false);
+                setSelectedLoan(null);
               }}
             />
           </Modal.Body>

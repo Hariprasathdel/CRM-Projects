@@ -140,8 +140,53 @@
     background: #ffffff;
   }
   
-  .reports-main-card .card-body {
+.reports-main-card .card-body {
     padding: 20px;
+  }
+
+  /* Report preview */
+  .report-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .report-preview-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .report-preview-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding-top: 20px;
+  }
+
+  .report-preview-details div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .report-preview-details span {
+    color: #6c757d;
+    font-size: 0.8rem;
+  }
+
+  .report-preview-details strong {
+    color: #2c3e50;
+    font-size: 0.95rem;
   }
   
   /* Tabs */
@@ -176,6 +221,12 @@
     right: 0;
     height: 2px;
     background: #3498db;
+  }
+
+  @media (max-width: 575.98px) {
+    .report-preview-details {
+      grid-template-columns: 1fr;
+    }
   }
   
   /* Status Badge */

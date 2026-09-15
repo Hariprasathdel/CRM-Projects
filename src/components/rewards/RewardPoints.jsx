@@ -201,6 +201,11 @@ const RewardPoints = () => {
     }
   };
 
+  const handleEditAward = (award) => {
+    setEditingAward(award);
+    setShowForm(true);
+  };
+
   const handleDeleteAward = async (id) => {
     if (window.confirm('Are you sure you want to delete this award?')) {
       try {
@@ -469,7 +474,7 @@ const RewardPoints = () => {
             ) : (
               <AwardList 
                 awards={filteredAwards}
-                onEdit={setEditingAward}
+                onEdit={handleEditAward}
                 onDelete={handleDeleteAward}
                 onApprove={handleApproveAward}
                 onReject={handleRejectAward}

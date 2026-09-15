@@ -23,7 +23,7 @@ import {
 } from 'react-icons/fa';
 import './Attendance.css';
 
-const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
+const AttendanceTable = ({ data, getStatusBadge, onRefresh, onView, onEdit, onDelete }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
@@ -238,7 +238,13 @@ const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
                         placement="top"
                         overlay={<Tooltip>View Details</Tooltip>}
                       >
-                        <Button variant="outline-primary" size="sm" className="me-1">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="me-1"
+                          onClick={() => onView(item)}
+                          aria-label={`View details for ${item.employeeName}`}
+                        >
                           <FaEye />
                         </Button>
                       </OverlayTrigger>
@@ -246,7 +252,13 @@ const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
                         placement="top"
                         overlay={<Tooltip>Edit</Tooltip>}
                       >
-                        <Button variant="outline-warning" size="sm" className="me-1">
+                        <Button
+                          variant="outline-warning"
+                          size="sm"
+                          className="me-1"
+                          onClick={() => onEdit(item)}
+                          aria-label={`Edit attendance for ${item.employeeName}`}
+                        >
                           <FaEdit />
                         </Button>
                       </OverlayTrigger>
@@ -254,7 +266,12 @@ const AttendanceTable = ({ data, getStatusBadge, onRefresh }) => {
                         placement="top"
                         overlay={<Tooltip>Delete</Tooltip>}
                       >
-                        <Button variant="outline-danger" size="sm">
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => onDelete(item)}
+                          aria-label={`Delete attendance for ${item.employeeName}`}
+                        >
                           <FaTrash />
                         </Button>
                       </OverlayTrigger>

@@ -9,7 +9,8 @@ import {
   Spinner,
   Badge,
   Tabs,
-  Tab
+  Tab,
+  Modal
 } from 'react-bootstrap';
 import { 
   FaChartBar, 
@@ -161,6 +162,19 @@ const Reports = () => {
 
   const handleViewReport = (report) => {
     setSelectedReport(report);
+  };
+
+  const formatReportDate = (date) => {
+    const parsedDate = new Date(date);
+    if (Number.isNaN(parsedDate.getTime())) return date || 'Not available';
+
+    return parsedDate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   const getStatusBadge = (status) => {
@@ -320,6 +334,66 @@ const Reports = () => {
             </Tabs>
           </Card.Body>
         </Card>
+
+        <Modal
+          show={Boolean(selectedReport)}
+          onHide={() => setSelectedReport(null)}
+          centered
+          size="lg"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Report Preview</Modal.Title>
+          </Modal.Header>
+          {selectedReport && (
+            <>
+              <Modal.Body>
+                <div className="report-preview-header">
+                  <div className="report-preview-icon">
+                    {selectedReport.icon || <FaFileAlt />}
+                  </div>
+                  <div>
+                    <h5 className="mb-1">{selectedReport.name}</h5>
+                    <p className="text-muted mb-0">{selectedReport.description}</p>
+                  </div>
+                </div>
+
+                <div className="report-preview-details">
+                  <div>
+                    <span>Type</span>
+                    <strong>{selectedReport.type || 'Not specified'}</strong>
+                  </div>
+                  <div>
+                    <span>Format</span>
+                    <strong>{selectedReport.format}</strong>
+                  </div>
+                  <div>
+                    <span>Generated</span>
+                    <strong>{formatReportDate(selectedReport.generatedDate)}</strong>
+                  </div>
+                  <div>
+                    <span>Size</span>
+                    <strong>{selectedReport.size}</strong>
+                  </div>
+                  <div>
+                    <span>Created by</span>
+                    <strong>{selectedReport.createdBy || 'Not specified'}</strong>
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setSelectedReport(null)}>
+                  Close
+                </Button>
+                <Button
+                  variant="success"
+                  onClick={() => handleDownloadReport(selectedReport)}
+                >
+                  <FaDownload className="me-1" /> Download Report
+                </Button>
+              </Modal.Footer>
+            </>
+          )}
+        </Modal>
       </Container>
     </div>
   );

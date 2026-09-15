@@ -10,6 +10,29 @@ import {
 import { FaSave, FaTimes, FaUser, FaClock, FaCalendarDay } from 'react-icons/fa';
 import './Attendance.css';
 
+const toTimeInputValue = (value) => {
+  if (!value || value === '--') return '';
+  if (/^\d{2}:\d{2}$/.test(value)) return value;
+
+  const match = value.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
+  if (!match) return '';
+
+  let hours = Number(match[1]);
+  const minutes = match[2];
+  const period = match[3].toUpperCase();
+  if (period === 'PM' && hours !== 12) hours += 12;
+  if (period === 'AM' && hours === 12) hours = 0;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
+};
+
+const formatTime = (value) => {
+  if (!value) return '--';
+  const [hours, minutes] = value.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const displayHours = hours % 12 || 12;
+  return `${String(displayHours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+};
+
 const AttendanceForm = ({ onSubmit, onCancel, initialData }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -18,8 +41,8 @@ const AttendanceForm = ({ onSubmit, onCancel, initialData }) => {
     employeeId: initialData?.employeeId || '',
     department: initialData?.department || '',
     date: initialData?.date || new Date().toISOString().split('T')[0],
-    checkIn: initialData?.checkIn || '',
-    checkOut: initialData?.checkOut || '',
+    checkIn: toTimeInputValue(initialData?.checkIn),
+    checkOut: toTimeInputValue(initialData?.checkOut),
     status: initialData?.status || 'present',
     remarks: initialData?.remarks || '',
     leaveReason: initialData?.leaveReason || '',
@@ -89,8 +112,9 @@ const AttendanceForm = ({ onSubmit, onCancel, initialData }) => {
         employeeName: formData.employeeName,
         department: formData.department,
         date: formData.date,
-        checkIn: formData.status === 'present' ? formData.checkIn : '--',
-        checkOut: formData.status === 'present' ? (formData.checkOut || '--') : '--',
+        employeeId: formData.employeeId,
+        checkIn: formData.status === 'present' ? formatTime(formData.checkIn) : '--',
+        checkOut: formData.status === 'present' ? (formData.checkOut ? formatTime(formData.checkOut) : '--') : '--',
         status: formData.status,
         workingHours: formData.status === 'present' ? '8h' : '0h',
         overtime: formData.status === 'present' ? '0h' : '0h',

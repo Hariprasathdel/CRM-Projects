@@ -127,7 +127,7 @@ const LeaveApplication = ({ leave, onApprove, onReject, onEdit, onDelete, onClos
 
       {/* Main Content */}
       <Row className="application-content">
-        <Col lg={8} md={12}>
+        <Col lg={7} md={12}>
           <Card className="details-card">
             <Card.Header className="details-card-header">
               <h6 className="mb-0">
@@ -171,7 +171,7 @@ const LeaveApplication = ({ leave, onApprove, onReject, onEdit, onDelete, onClos
           </Card>
         </Col>
 
-        <Col lg={4} md={12}>
+        <Col lg={5} md={12}>
           <Card className="details-card">
             <Card.Header className="details-card-header">
               <h6 className="mb-0">
