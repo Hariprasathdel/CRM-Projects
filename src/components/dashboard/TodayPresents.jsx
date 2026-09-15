@@ -3,7 +3,7 @@ import { Card, ProgressBar } from 'react-bootstrap';
 import { FaUserCheck, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import './Dashboard.css';
 
-const TodayPresents = ({ count = 5, percentage = 20, total = 40 }) => {
+const TodayPresents = ({ count = 50, percentage = 50, total = 100 }) => {
   const presentEmployees = [
     { name: 'John Doe', department: 'Software', time: '09:00 AM' },
     { name: 'Jane Smith', department: 'Marketing', time: '09:30 AM' },

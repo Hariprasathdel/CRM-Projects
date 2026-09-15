@@ -10,7 +10,7 @@ const DailyAttendanceStat = ({ type, count, percentage, total, loading = false }
       color: 'success',
       title: 'Present',
       bgClass: 'present-card',
-      count: 80,
+      count: 100,
       percentage: 50,
       total: 100
     },
@@ -19,8 +19,8 @@ const DailyAttendanceStat = ({ type, count, percentage, total, loading = false }
       color: 'danger',
       title: 'Absent',
       bgClass: 'absent-card',
-      count: 60,
-      percentage: 50,
+      count: 80,
+      percentage: 30,
       total: 100
     },
     leave: {
@@ -29,7 +29,7 @@ const DailyAttendanceStat = ({ type, count, percentage, total, loading = false }
       title: 'Leave',
       bgClass: 'leave-card',
       count: 70,
-      percentage: 50,
+      percentage: 20,
       total: 100
     }
   };

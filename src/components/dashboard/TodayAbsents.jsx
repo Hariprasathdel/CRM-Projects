@@ -3,7 +3,7 @@ import { Card } from 'react-bootstrap';
 import { FaUserTimes, FaClock } from 'react-icons/fa';
 import './Dashboard.css';
 
-const TodayAbsents = ({ count = 50, percentage = 10, total = 30 }) => {
+const TodayAbsents = ({ count = 30, percentage = 30, total = 30 }) => {
   const absentEmployees = [
     { name: 'Mike Johnson', department: 'Electrical', reason: 'Sick' },
     { name: 'Sarah Williams', department: 'Production', reason: 'Personal' },

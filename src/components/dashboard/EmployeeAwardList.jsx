@@ -10,7 +10,7 @@ const EmployeeAwardList = () => {
       name: 'Honorato Imogene curry',
       department: 'Electrical',
       award: 'Best Performer',
-      date: '22-08-24',
+      // date: '22-08-24',
       image: null,
       icon: <FaTrophy className="award-icon gold" />
     },
@@ -19,7 +19,7 @@ const EmployeeAwardList = () => {
       name: 'Jonathan Ibrahim Sheikh',
       department: 'Production',
       award: 'Team Player',
-      date: '30-11-01',
+      // date: '30-11-01',
       image: null,
       icon: <FaMedal className="award-icon silver" />
     },
@@ -28,7 +28,7 @@ const EmployeeAwardList = () => {
       name: 'Maisha Lucy Zamora Gon',
       department: 'Software',
       award: 'Best Employee',
-      date: '22-08-24',
+      // date: '22-08-24',
       image: null,
       icon: <FaStar className="award-icon gold" />
     },
@@ -37,7 +37,7 @@ const EmployeeAwardList = () => {
       name: 'Rahul Kiran Sethi',
       department: 'Testing',
       award: 'Best Employee',
-      date: '22-08-24',
+      // date: '22-08-24',
       image: null,
       icon: <FaTrophy className="award-icon gold" />
     }
