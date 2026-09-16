@@ -29,6 +29,7 @@ import {
 } from 'react-icons/fa';
 import AttendanceForm from './AttendanceForm';
 import AttendanceTable from './AttendanceTable';
+import attendanceService from '../../services/attendanceService';
 import './Attendance.css';
 
 const Attendance = () => {
@@ -55,87 +56,29 @@ const Attendance = () => {
   const fetchAttendanceData = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockData = [
-        {
-          id: 1,
-          employeeName: 'John Doe',
-          department: 'Software',
-          date: '2026-01-15',
-          checkIn: '09:00 AM',
-          checkOut: '06:00 PM',
-          status: 'present',
-          workingHours: '8h',
-          overtime: '1h',
-          avatar: 'JD'
-        },
-        {
-          id: 2,
-          employeeName: 'Jane Smith',
-          department: 'Marketing',
-          date: '2026-01-15',
-          checkIn: '09:30 AM',
-          checkOut: '05:30 PM',
-          status: 'present',
-          workingHours: '7.5h',
-          overtime: '0.5h',
-          avatar: 'JS'
-        },
-        {
-          id: 3,
-          employeeName: 'Mike Johnson',
-          department: 'Electrical',
-          date: '2026-01-15',
-          checkIn: '--',
-          checkOut: '--',
-          status: 'absent',
-          workingHours: '0h',
-          overtime: '0h',
-          avatar: 'MJ'
-        },
-        {
-          id: 4,
-          employeeName: 'Sarah Williams',
-          department: 'Production',
-          date: '2026-01-15',
-          checkIn: '--',
-          checkOut: '--',
-          status: 'leave',
-          workingHours: '0h',
-          overtime: '0h',
-          avatar: 'SW',
-          leaveReason: 'Personal Leave'
-        },
-        {
-          id: 5,
-          employeeName: 'Robert Brown',
-          department: 'Software',
-          date: '2026-01-15',
-          checkIn: '08:45 AM',
-          checkOut: '06:15 PM',
-          status: 'present',
-          workingHours: '9h',
-          overtime: '1.5h',
-          avatar: 'RB'
-        },
-        {
-          id: 6,
-          employeeName: 'Emily Davis',
-          department: 'HR',
-          date: '2026-01-15',
-          checkIn: '09:15 AM',
-          checkOut: '05:45 PM',
-          status: 'present',
-          workingHours: '7.5h',
-          overtime: '0h',
-          avatar: 'ED'
+      const res = await attendanceService.getAllAttendance({ limit: 100 });
+      if (res.success && res.data) {
+        const list = res.data.data || res.data.attendance || (Array.isArray(res.data) ? res.data : []);
+        if (list.length > 0) {
+          const mapped = list.map(item => ({
+            id: item._id || item.id,
+            employeeName: item.employeeId?.name || item.employeeName || 'Employee',
+            department: item.employeeId?.department || item.department || 'General',
+            date: item.date ? new Date(item.date).toISOString().split('T')[0] : 'Today',
+            checkIn: item.checkIn || '09:00 AM',
+            checkOut: item.checkOut || '05:30 PM',
+            status: item.status || 'present',
+            workingHours: item.workingHours ? `${item.workingHours}h` : '8h',
+            overtime: item.overtime ? `${item.overtime}h` : '0h',
+            avatar: (item.employeeId?.name || item.employeeName || 'EM').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()
+          }));
+          setAttendanceData(mapped);
+          calculateSummary(mapped);
+          return;
         }
-      ];
-
-      setAttendanceData(mockData);
-      calculateSummary(mockData);
+      }
+      setAttendanceData([]);
+      calculateSummary([]);
     } catch (error) {
       console.error('Error fetching attendance:', error);
     } finally {

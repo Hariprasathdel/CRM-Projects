@@ -274,7 +274,7 @@ const LeaveList = ({
                   <td>
                     <div className="employee-info">
                       <div className="employee-avatar">
-                        {leave.avatar || leave.employeeName.split(' ').map(n => n[0]).join('')}
+                        {leave.avatar || (leave.employeeName || 'EM').split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </div>
                       <div className="employee-details">
                         <div className="employee-name">{leave.employeeName}</div>

@@ -25,6 +25,7 @@ import {
 import LeaveList from './LeaveList';
 import LeaveApplication from './LeaveApplication';
 import LeaveRequestForm from './LeaveRequestForm';
+import leaveService from '../../services/leaveService';
 import './Leave.css';
 
 const Leave = () => {
@@ -45,134 +46,36 @@ const Leave = () => {
     fetchLeaves();
   }, []);
 
+  const normalizeLeave = (item) => ({
+    id: item._id || item.id,
+    _id: item._id || item.id,
+    employeeId: typeof item.employeeId === 'object' ? (item.employeeId?.employeeId || item.employeeId?._id || 'EMP') : (item.employeeId || 'EMP'),
+    employeeMongoId: typeof item.employeeId === 'object' ? item.employeeId?._id : item.employeeId,
+    employeeName: item.employeeName || item.employeeId?.name || 'Employee',
+    department: item.department || item.employeeId?.department || 'General',
+    type: item.type ? (item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase()) : 'Annual',
+    startDate: item.startDate ? item.startDate.split('T')[0] : '',
+    endDate: item.endDate ? item.endDate.split('T')[0] : '',
+    totalDays: item.daysCount || item.totalDays || item.durationInDays || 1,
+    reason: item.reason || '',
+    status: item.status ? (item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()) : 'Pending',
+    appliedDate: item.createdAt ? item.createdAt.split('T')[0] : (item.appliedDate || new Date().toISOString().split('T')[0]),
+    approvedBy: item.approvedBy?.name || item.approvedBy || null,
+    approvedDate: item.approvedAt ? item.approvedAt.split('T')[0] : (item.approvedDate || null),
+    remarks: item.rejectionReason || item.notes || item.remarks || '',
+    avatar: (item.employeeName || 'EM').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  });
+
   const fetchLeaves = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockLeaves = [
-        {
-          id: 1,
-          employeeName: 'John Doe',
-          employeeId: 'EMP001',
-          department: 'Software',
-          type: 'Annual',
-          startDate: '2026-01-20',
-          endDate: '2026-01-22',
-          totalDays: 3,
-          reason: 'Family vacation',
-          status: 'Approved',
-          appliedDate: '2026-01-15',
-          approvedBy: 'Jane Smith',
-          approvedDate: '2026-01-16',
-          remarks: 'Approved for 3 days',
-          avatar: 'JD'
-        },
-        {
-          id: 2,
-          employeeName: 'Jane Smith',
-          employeeId: 'EMP002',
-          department: 'Marketing',
-          type: 'Sick',
-          startDate: '2026-01-18',
-          endDate: '2026-01-19',
-          totalDays: 2,
-          reason: 'Flu symptoms',
-          status: 'Pending',
-          appliedDate: '2026-01-17',
-          approvedBy: null,
-          approvedDate: null,
-          remarks: null,
-          avatar: 'JS'
-        },
-        {
-          id: 3,
-          employeeName: 'Mike Johnson',
-          employeeId: 'EMP003',
-          department: 'Electrical',
-          type: 'Emergency',
-          startDate: '2026-01-16',
-          endDate: '2026-01-16',
-          totalDays: 1,
-          reason: 'Family emergency',
-          status: 'Approved',
-          appliedDate: '2026-01-15',
-          approvedBy: 'Sarah Williams',
-          approvedDate: '2026-01-15',
-          remarks: 'Approved',
-          avatar: 'MJ'
-        },
-        {
-          id: 4,
-          employeeName: 'Sarah Williams',
-          employeeId: 'EMP004',
-          department: 'Production',
-          type: 'Annual',
-          startDate: '2026-01-25',
-          endDate: '2026-01-29',
-          totalDays: 5,
-          reason: 'Annual vacation',
-          status: 'Pending',
-          appliedDate: '2026-01-20',
-          approvedBy: null,
-          approvedDate: null,
-          remarks: null,
-          avatar: 'SW'
-        },
-        {
-          id: 5,
-          employeeName: 'Robert Brown',
-          employeeId: 'EMP005',
-          department: 'Software',
-          type: 'Sick',
-          startDate: '2026-01-21',
-          endDate: '2026-01-21',
-          totalDays: 1,
-          reason: 'Doctor appointment',
-          status: 'Rejected',
-          appliedDate: '2026-01-19',
-          approvedBy: 'John Doe',
-          approvedDate: '2026-01-20',
-          remarks: 'Insufficient notice',
-          avatar: 'RB'
-        },
-        {
-          id: 6,
-          employeeName: 'Emily Davis',
-          employeeId: 'EMP006',
-          department: 'HR',
-          type: 'Personal',
-          startDate: '2026-01-23',
-          endDate: '2026-01-24',
-          totalDays: 2,
-          reason: 'Personal matters',
-          status: 'Approved',
-          appliedDate: '2026-01-18',
-          approvedBy: 'Mike Johnson',
-          approvedDate: '2026-01-19',
-          remarks: 'Approved',
-          avatar: 'ED'
-        },
-        {
-          id: 7,
-          employeeName: 'David Wilson',
-          employeeId: 'EMP007',
-          department: 'Finance',
-          type: 'Annual',
-          startDate: '2026-02-01',
-          endDate: '2026-02-05',
-          totalDays: 5,
-          reason: 'International travel',
-          status: 'Pending',
-          appliedDate: '2026-01-22',
-          approvedBy: null,
-          approvedDate: null,
-          remarks: null,
-          avatar: 'DW'
-        }
-      ];
-
-      setLeaves(mockLeaves);
+      const res = await leaveService.getAllLeaves();
+      if (res.success && res.data) {
+        const rawList = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        setLeaves(rawList.map(normalizeLeave));
+      } else {
+        setLeaves([]);
+      }
     } catch (error) {
       console.error('Error fetching leaves:', error);
       setError('Failed to load leave applications. Please try again.');
@@ -184,21 +87,22 @@ const Leave = () => {
   const handleAddLeave = async (leaveData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newLeave = {
-        ...leaveData,
-        id: leaves.length + 1,
-        status: 'Pending',
-        appliedDate: new Date().toISOString().split('T')[0],
-        approvedBy: null,
-        approvedDate: null,
-        avatar: leaveData.employeeName.split(' ').map(n => n[0]).join('')
+      const payload = {
+        employeeId: leaveData.employeeMongoId || leaveData.employeeId,
+        employeeName: leaveData.employeeName,
+        reason: leaveData.reason,
+        type: (leaveData.type || 'annual').toLowerCase(),
+        startDate: leaveData.startDate,
+        endDate: leaveData.endDate
       };
-      
-      setLeaves([newLeave, ...leaves]);
-      setShowForm(false);
-      setSuccess('Leave application submitted successfully!');
+      const res = await leaveService.createLeaveApplication(payload);
+      if (res.success) {
+        setShowForm(false);
+        setSuccess('Leave application submitted successfully!');
+        fetchLeaves();
+      } else {
+        setError(res.error || 'Failed to submit leave application.');
+      }
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError('Failed to submit leave application. Please try again.');
@@ -210,16 +114,16 @@ const Leave = () => {
   const handleUpdateLeave = async (leaveData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedLeaves = leaves.map(leave => 
-        leave.id === leaveData.id ? { ...leave, ...leaveData } : leave
-      );
-      
-      setLeaves(updatedLeaves);
-      setShowForm(false);
-      setEditingLeave(null);
-      setSuccess('Leave application updated successfully!');
+      const id = leaveData.id || leaveData._id;
+      const res = await leaveService.updateLeaveApplication(id, leaveData);
+      if (res.success) {
+        setShowForm(false);
+        setEditingLeave(null);
+        setSuccess('Leave application updated successfully!');
+        fetchLeaves();
+      } else {
+        setError(res.error || 'Failed to update leave application.');
+      }
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError('Failed to update leave application. Please try again.');
@@ -231,13 +135,19 @@ const Leave = () => {
   const handleDeleteLeave = async (id) => {
     if (window.confirm('Are you sure you want to delete this leave application?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setLeaves(leaves.filter(leave => leave.id !== id));
-        setSuccess('Leave application deleted successfully!');
+        setLoading(true);
+        const res = await leaveService.deleteLeaveApplication(id);
+        if (res.success) {
+          setSuccess('Leave application deleted successfully!');
+          fetchLeaves();
+        } else {
+          setError(res.error || 'Failed to delete leave application.');
+        }
         setTimeout(() => setSuccess(''), 3000);
       } catch (error) {
         setError('Failed to delete leave application. Please try again.');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -254,43 +164,37 @@ const Leave = () => {
 
   const handleApproveLeave = async (id) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedLeaves = leaves.map(leave => 
-        leave.id === id ? { 
-          ...leave, 
-          status: 'Approved',
-          approvedBy: 'Current User',
-          approvedDate: new Date().toISOString().split('T')[0]
-        } : leave
-      );
-      
-      setLeaves(updatedLeaves);
-      setSuccess('Leave application approved successfully!');
+      setLoading(true);
+      const res = await leaveService.approveLeave(id);
+      if (res.success) {
+        setSuccess('Leave application approved successfully!');
+        fetchLeaves();
+      } else {
+        setError(res.error || 'Failed to approve leave application.');
+      }
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError('Failed to approve leave application. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleRejectLeave = async (id) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedLeaves = leaves.map(leave => 
-        leave.id === id ? { 
-          ...leave, 
-          status: 'Rejected',
-          approvedBy: 'Current User',
-          approvedDate: new Date().toISOString().split('T')[0]
-        } : leave
-      );
-      
-      setLeaves(updatedLeaves);
-      setSuccess('Leave application rejected successfully!');
+      setLoading(true);
+      const res = await leaveService.rejectLeave(id, 'Rejected by Admin');
+      if (res.success) {
+        setSuccess('Leave application rejected successfully!');
+        fetchLeaves();
+      } else {
+        setError(res.error || 'Failed to reject leave application.');
+      }
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError('Failed to reject leave application. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -301,15 +205,15 @@ const Leave = () => {
   };
 
   const filteredLeaves = leaves.filter(leave => {
-    const searchLower = searchTerm.toLowerCase();
+    const searchLower = (searchTerm || '').toLowerCase();
     const matchesSearch = 
-      leave.employeeName.toLowerCase().includes(searchLower) ||
-      leave.employeeId.toLowerCase().includes(searchLower) ||
-      leave.department.toLowerCase().includes(searchLower) ||
-      leave.type.toLowerCase().includes(searchLower) ||
-      leave.reason.toLowerCase().includes(searchLower);
+      (leave.employeeName || '').toLowerCase().includes(searchLower) ||
+      String(leave.employeeId || '').toLowerCase().includes(searchLower) ||
+      (leave.department || '').toLowerCase().includes(searchLower) ||
+      (leave.type || '').toLowerCase().includes(searchLower) ||
+      (leave.reason || '').toLowerCase().includes(searchLower);
     
-    const matchesFilter = filter === 'all' || leave.status.toLowerCase() === filter;
+    const matchesFilter = filter === 'all' || (leave.status || '').toLowerCase() === filter.toLowerCase();
     
     return matchesSearch && matchesFilter;
   });

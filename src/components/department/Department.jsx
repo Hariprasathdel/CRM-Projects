@@ -22,6 +22,7 @@ import {
 } from 'react-icons/fa';
 import DepartmentList from './DepartmentList';
 import DepartmentForm from './DepartmentForm';
+import departmentService from '../../services/departmentService';
 import './Department.css';
 
 const Department = () => {
@@ -43,100 +44,24 @@ const Department = () => {
   const fetchDepartments = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockDepartments = [
-        {
-          id: 1,
-          name: 'Software Development',
-          code: 'SWD',
-          manager: 'John Doe',
-          employeeCount: 45,
-          budget: 250000,
-          status: 'Active',
-          description: 'Responsible for software development and maintenance',
-          location: 'Building A, Floor 3',
-          establishedDate: '2018-05-15',
-          projects: ['E-commerce Platform', 'Mobile App Development', 'Cloud Migration'],
-          employees: ['John Doe', 'Robert Brown', 'Emily White', 'Michael Green']
-        },
-        {
-          id: 2,
-          name: 'Marketing',
-          code: 'MKT',
-          manager: 'Jane Smith',
-          employeeCount: 28,
-          budget: 150000,
-          status: 'Active',
-          description: 'Handles all marketing and promotional activities',
-          location: 'Building B, Floor 2',
-          establishedDate: '2019-08-20',
-          projects: ['Brand Campaign', 'Digital Marketing Strategy', 'Social Media Management'],
-          employees: ['Jane Smith', 'Sarah Johnson', 'Mike Wilson', 'Lisa Brown']
-        },
-        {
-          id: 3,
-          name: 'Electrical Engineering',
-          code: 'ELE',
-          manager: 'Mike Johnson',
-          employeeCount: 32,
-          budget: 200000,
-          status: 'Active',
-          description: 'Designs and maintains electrical systems',
-          location: 'Building C, Floor 1',
-          establishedDate: '2017-03-10',
-          projects: ['Factory Automation', 'Power Distribution System', 'Renewable Energy'],
-          employees: ['Mike Johnson', 'David Lee', 'Anna Martinez', 'Tom Clark']
-        },
-        {
-          id: 4,
-          name: 'Production',
-          code: 'PRD',
-          manager: 'Sarah Williams',
-          employeeCount: 56,
-          budget: 300000,
-          status: 'Active',
-          description: 'Oversees production and manufacturing processes',
-          location: 'Building D, Floor 1-2',
-          establishedDate: '2016-11-01',
-          projects: ['Production Optimization', 'Quality Control System', 'Supply Chain Management'],
-          employees: ['Sarah Williams', 'James Brown', 'Laura White', 'Chris Green']
-        },
-        {
-          id: 5,
-          name: 'Human Resources',
-          code: 'HR',
-          manager: 'Emily Davis',
-          employeeCount: 18,
-          budget: 120000,
-          status: 'Active',
-          description: 'Manages employee relations and HR policies',
-          location: 'Building A, Floor 1',
-          establishedDate: '2020-01-10',
-          projects: ['Employee Onboarding', 'Performance Management', 'Training Programs'],
-          employees: ['Emily Davis', 'Karen Miller', 'Jason Taylor', 'Amanda Wilson']
-        },
-        {
-          id: 6,
-          name: 'Finance',
-          code: 'FIN',
-          manager: 'Robert Brown',
-          employeeCount: 22,
-          budget: 180000,
-          status: 'Inactive',
-          description: 'Manages financial operations and planning',
-          location: 'Building B, Floor 3',
-          establishedDate: '2018-09-15',
-          projects: ['Financial Planning', 'Budget Management', 'Audit Preparation'],
-          employees: ['Robert Brown', 'Linda Taylor', 'Steven King', 'Mary Nelson']
+      const res = await departmentService.getAllDepartments({ limit: 100 });
+      if (res.success && res.data) {
+        const list = res.data.data || res.data.departments || (Array.isArray(res.data) ? res.data : []);
+        if (list.length > 0) {
+          setDepartments(list.map(dept => ({
+            ...dept,
+            id: dept._id || dept.id,
+            employeeCount: dept.employeeCount || 0,
+            status: (dept.status || 'Active').charAt(0).toUpperCase() + (dept.status || 'Active').slice(1).toLowerCase(),
+            manager: dept.head || dept.manager || 'Unassigned'
+          })));
+          return;
         }
-      ];
-
-      setDepartments(mockDepartments);
-    } catch (error) {
-      console.error('Error fetching departments:', error);
-      setError('Failed to load departments. Please try again.');
+      }
+      setDepartments([]);
+    } catch (err) {
+      console.error('Error fetching departments:', err);
+      setError('Failed to load departments from database.');
     } finally {
       setLoading(false);
     }
@@ -145,22 +70,22 @@ const Department = () => {
   const handleAddDepartment = async (departmentData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newDepartment = {
+      const payload = {
         ...departmentData,
-        id: departments.length + 1,
-        employeeCount: 0,
-        status: 'Active',
-        employees: []
+        head: departmentData.manager || departmentData.head,
+        status: (departmentData.status || 'active').toLowerCase()
       };
-      
-      setDepartments([...departments, newDepartment]);
-      setShowForm(false);
-      setSuccess('Department added successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      setError('Failed to add department. Please try again.');
+      const res = await departmentService.createDepartment(payload);
+      if (res.success) {
+        await fetchDepartments();
+        setShowForm(false);
+        setSuccess('Department added successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to add department');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to add department. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -169,19 +94,24 @@ const Department = () => {
   const handleUpdateDepartment = async (departmentData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedDepartments = departments.map(dept => 
-        dept.id === departmentData.id ? { ...dept, ...departmentData } : dept
-      );
-      
-      setDepartments(updatedDepartments);
-      setShowForm(false);
-      setEditingDepartment(null);
-      setSuccess('Department updated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      setError('Failed to update department. Please try again.');
+      const id = departmentData.id || departmentData._id;
+      const payload = {
+        ...departmentData,
+        head: departmentData.manager || departmentData.head,
+        status: (departmentData.status || 'active').toLowerCase()
+      };
+      const res = await departmentService.updateDepartment(id, payload);
+      if (res.success) {
+        await fetchDepartments();
+        setShowForm(false);
+        setEditingDepartment(null);
+        setSuccess('Department updated successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to update department');
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to update department. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -190,13 +120,16 @@ const Department = () => {
   const handleDeleteDepartment = async (id) => {
     if (window.confirm('Are you sure you want to delete this department?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setDepartments(departments.filter(dept => dept.id !== id));
-        setSuccess('Department deleted successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-      } catch (error) {
-        setError('Failed to delete department. Please try again.');
+        const res = await departmentService.deleteDepartment(id);
+        if (res.success) {
+          setDepartments(prev => prev.filter(dept => dept.id !== id && dept._id !== id));
+          setSuccess('Department deleted successfully!');
+          setTimeout(() => setSuccess(''), 3000);
+        } else {
+          setError(res.error?.message || 'Failed to delete department');
+        }
+      } catch (err) {
+        setError(err.message || 'Failed to delete department. Please try again.');
       }
     }
   };

@@ -65,8 +65,9 @@ class AuthService {
   async getCurrentUser() {
     try {
       const response = await api.get(AUTH_ENDPOINTS.ME);
-      const data = handleResponse(response);
-      return { success: true, data };
+      const payload = handleResponse(response);
+      const user = payload.data ?? payload;
+      return { success: true, data: user };
     } catch (error) {
       return { success: false, error: handleError(error) };
     }

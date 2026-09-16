@@ -25,6 +25,7 @@ import {
 } from 'react-icons/fa';
 import ProjectList from './ProjectList';
 import ProjectForm from './ProjectForm';
+import projectService from '../../services/projectService';
 import './ProjectManagement.css';
 
 const ProjectManagement = () => {
@@ -38,7 +39,43 @@ const ProjectManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
 
-  // Mock data - In real app, this would come from API
+  const statusMap = {
+    'ongoing': 'In Progress',
+    'completed': 'Completed',
+    'on_hold': 'On Hold',
+    'not_started': 'Planned',
+    'in progress': 'In Progress',
+    'on hold': 'On Hold',
+    'planned': 'Planned'
+  };
+
+  const priorityMap = {
+    'low': 'Low',
+    'medium': 'Medium',
+    'high': 'High',
+    'critical': 'High'
+  };
+
+  const normalizeProject = (item) => ({
+    id: item._id || item.id,
+    _id: item._id || item.id,
+    name: item.name || '',
+    code: item.code || (item.name ? item.name.split(' ').map(w => w[0]).join('').toUpperCase() : 'PRJ'),
+    description: item.description || '',
+    department: item.department || 'General',
+    manager: item.manager?.name || item.manager || 'Admin',
+    startDate: item.startDate ? item.startDate.split('T')[0] : '',
+    endDate: item.endDate ? item.endDate.split('T')[0] : '',
+    status: statusMap[(item.status || '').toLowerCase()] || 'In Progress',
+    priority: priorityMap[(item.priority || '').toLowerCase()] || 'Medium',
+    budget: item.budget || 0,
+    progress: item.progress || 0,
+    teamMembers: Array.isArray(item.assignedEmployees) ? item.assignedEmployees.map(e => e?.name || e) : [],
+    tasks: Array.isArray(item.tasks) ? item.tasks.length : 5,
+    completedTasks: Math.round(((item.progress || 0) / 100) * (Array.isArray(item.tasks) && item.tasks.length > 0 ? item.tasks.length : 5)),
+    avatar: (item.name || 'PR').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+  });
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -46,120 +83,13 @@ const ProjectManagement = () => {
   const fetchProjects = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockProjects = [
-        {
-          id: 1,
-          name: 'E-commerce Platform',
-          code: 'ECP-2026',
-          description: 'Building a scalable e-commerce platform with modern tech stack',
-          department: 'Software',
-          manager: 'John Doe',
-          startDate: '2026-01-15',
-          endDate: '2026-06-30',
-          status: 'In Progress',
-          priority: 'High',
-          budget: 150000,
-          progress: 65,
-          teamMembers: ['John Doe', 'Robert Brown', 'Emily White'],
-          tasks: 45,
-          completedTasks: 29,
-          avatar: 'EC'
-        },
-        {
-          id: 2,
-          name: 'Brand Campaign',
-          code: 'BC-2026',
-          description: 'Digital marketing campaign for brand awareness',
-          department: 'Marketing',
-          manager: 'Jane Smith',
-          startDate: '2026-02-01',
-          endDate: '2026-04-30',
-          status: 'In Progress',
-          priority: 'Medium',
-          budget: 75000,
-          progress: 40,
-          teamMembers: ['Jane Smith', 'Sarah Johnson', 'Mike Wilson'],
-          tasks: 30,
-          completedTasks: 12,
-          avatar: 'BC'
-        },
-        {
-          id: 3,
-          name: 'Factory Automation',
-          code: 'FA-2026',
-          description: 'Automating manufacturing processes with IoT',
-          department: 'Electrical',
-          manager: 'Mike Johnson',
-          startDate: '2026-01-10',
-          endDate: '2026-08-15',
-          status: 'In Progress',
-          priority: 'High',
-          budget: 200000,
-          progress: 30,
-          teamMembers: ['Mike Johnson', 'David Lee', 'Anna Martinez'],
-          tasks: 50,
-          completedTasks: 15,
-          avatar: 'FA'
-        },
-        {
-          id: 4,
-          name: 'Production Optimization',
-          code: 'PO-2026',
-          description: 'Optimizing production processes for efficiency',
-          department: 'Production',
-          manager: 'Sarah Williams',
-          startDate: '2026-01-20',
-          endDate: '2026-05-15',
-          status: 'Completed',
-          priority: 'Medium',
-          budget: 100000,
-          progress: 100,
-          teamMembers: ['Sarah Williams', 'James Brown', 'Laura White'],
-          tasks: 35,
-          completedTasks: 35,
-          avatar: 'PO'
-        },
-        {
-          id: 5,
-          name: 'Employee Onboarding System',
-          code: 'EOS-2026',
-          description: 'Digital onboarding system for new employees',
-          department: 'HR',
-          manager: 'Emily Davis',
-          startDate: '2026-02-15',
-          endDate: '2026-07-31',
-          status: 'Planned',
-          priority: 'Low',
-          budget: 60000,
-          progress: 0,
-          teamMembers: ['Emily Davis', 'Karen Miller', 'Jason Taylor'],
-          tasks: 25,
-          completedTasks: 0,
-          avatar: 'EO'
-        },
-        {
-          id: 6,
-          name: 'Financial Planning System',
-          code: 'FPS-2026',
-          description: 'Comprehensive financial planning and analysis system',
-          department: 'Finance',
-          manager: 'Robert Brown',
-          startDate: '2026-01-05',
-          endDate: '2026-06-30',
-          status: 'On Hold',
-          priority: 'High',
-          budget: 120000,
-          progress: 25,
-          teamMembers: ['Robert Brown', 'Linda Taylor', 'Steven King'],
-          tasks: 40,
-          completedTasks: 10,
-          avatar: 'FP'
-        }
-      ];
-
-      setProjects(mockProjects);
+      const res = await projectService.getAllProjects();
+      if (res.success && res.data) {
+        const rawList = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        setProjects(rawList.map(normalizeProject));
+      } else {
+        setProjects([]);
+      }
     } catch (error) {
       console.error('Error fetching projects:', error);
       setError('Failed to load projects. Please try again.');
@@ -171,20 +101,25 @@ const ProjectManagement = () => {
   const handleAddProject = async (projectData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newProject = {
-        ...projectData,
-        id: projects.length + 1,
-        progress: 0,
-        tasks: 0,
-        completedTasks: 0,
-        avatar: projectData.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+      const payload = {
+        name: projectData.name,
+        code: projectData.code,
+        description: projectData.description,
+        department: projectData.department,
+        startDate: projectData.startDate,
+        endDate: projectData.endDate,
+        budget: Number(projectData.budget) || 0,
+        status: (projectData.status || 'ongoing').toLowerCase().replace(' ', '_'),
+        priority: (projectData.priority || 'medium').toLowerCase()
       };
-      
-      setProjects([newProject, ...projects]);
-      setShowForm(false);
-      setSuccess('Project created successfully!');
+      const res = await projectService.createProject(payload);
+      if (res.success) {
+        setShowForm(false);
+        setSuccess('Project created successfully!');
+        fetchProjects();
+      } else {
+        setError(res.error || 'Failed to create project.');
+      }
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError('Failed to create project. Please try again.');
@@ -196,16 +131,16 @@ const ProjectManagement = () => {
   const handleUpdateProject = async (projectData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedProjects = projects.map(project => 
-        project.id === projectData.id ? { ...project, ...projectData } : project
-      );
-      
-      setProjects(updatedProjects);
-      setShowForm(false);
-      setEditingProject(null);
-      setSuccess('Project updated successfully!');
+      const id = projectData.id || projectData._id;
+      const res = await projectService.updateProject(id, projectData);
+      if (res.success) {
+        setShowForm(false);
+        setEditingProject(null);
+        setSuccess('Project updated successfully!');
+        fetchProjects();
+      } else {
+        setError(res.error || 'Failed to update project.');
+      }
       setTimeout(() => setSuccess(''), 3000);
     } catch (error) {
       setError('Failed to update project. Please try again.');
@@ -217,13 +152,19 @@ const ProjectManagement = () => {
   const handleDeleteProject = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setProjects(projects.filter(project => project.id !== id));
-        setSuccess('Project deleted successfully!');
+        setLoading(true);
+        const res = await projectService.deleteProject(id);
+        if (res.success) {
+          setSuccess('Project deleted successfully!');
+          fetchProjects();
+        } else {
+          setError(res.error || 'Failed to delete project.');
+        }
         setTimeout(() => setSuccess(''), 3000);
       } catch (error) {
         setError('Failed to delete project. Please try again.');
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -244,15 +185,15 @@ const ProjectManagement = () => {
   };
 
   const filteredProjects = projects.filter(project => {
-    const searchLower = searchTerm.toLowerCase();
+    const searchLower = (searchTerm || '').toLowerCase();
     const matchesSearch = 
-      project.name.toLowerCase().includes(searchLower) ||
-      project.code.toLowerCase().includes(searchLower) ||
-      project.department.toLowerCase().includes(searchLower) ||
-      project.manager.toLowerCase().includes(searchLower) ||
-      project.description.toLowerCase().includes(searchLower);
+      (project.name || '').toLowerCase().includes(searchLower) ||
+      (project.code || '').toLowerCase().includes(searchLower) ||
+      (project.department || '').toLowerCase().includes(searchLower) ||
+      (project.manager || '').toLowerCase().includes(searchLower) ||
+      (project.description || '').toLowerCase().includes(searchLower);
     
-    const matchesFilter = filter === 'all' || project.status.toLowerCase().replace(' ', '') === filter;
+    const matchesFilter = filter === 'all' || (project.status || '').toLowerCase().replace(' ', '') === filter;
     
     return matchesSearch && matchesFilter;
   });
