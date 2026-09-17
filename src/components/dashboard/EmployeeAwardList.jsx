@@ -1,84 +1,94 @@
 import React from 'react';
-import { Card, Table, Badge, Button, Image } from 'react-bootstrap';
-import { FaTrophy, FaStar, FaMedal } from 'react-icons/fa';
+import { Card, Badge, Button } from 'react-bootstrap';
+import { FaTrophy, FaMedal, FaStar, FaAward } from 'react-icons/fa';
 import './Dashboard.css';
 
 const EmployeeAwardList = () => {
   const awards = [
     {
       id: 1,
-      name: 'Honorato Imogene curry',
+      sl: '01',
+      name: 'Honorato Imogene Curry',
       department: 'Electrical',
-      award: 'Best Performer',
-      // date: '22-08-24',
-      image: null,
+      award: 'Gascapitol',
+      date: '22-08-24',
       icon: <FaTrophy className="award-icon gold" />
     },
     {
       id: 2,
+      sl: '02',
       name: 'Jonathan Ibrahim Sheikh',
       department: 'Production',
-      award: 'Team Player',
-      // date: '30-11-01',
-      image: null,
+      award: 'Coby Beach',
+      date: '30-11-01',
       icon: <FaMedal className="award-icon silver" />
     },
     {
       id: 3,
+      sl: '03',
       name: 'Maisha Lucy Zamora Gon',
       department: 'Software',
       award: 'Best Employee',
-      // date: '22-08-24',
-      image: null,
+      date: '22-08-24',
       icon: <FaStar className="award-icon gold" />
-    },
-    {
-      id: 4,
-      name: 'Rahul Kiran Sethi',
-      department: 'Testing',
-      award: 'Best Employee',
-      // date: '22-08-24',
-      image: null,
-      icon: <FaTrophy className="award-icon gold" />
     }
   ];
 
+  const getInitials = (name) =>
+    name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+
   return (
-    <Card className="dashboard-card employee-award-card">
-      <Card.Header className="card-header-with-actions">
-        <div className="header-content">
-          <h5 className="card-title">Employee Award List</h5>
+    <Card className="dashboard-card award-list-card h-100">
+      <Card.Header className="card-header-custom">
+        <div>
+          <h5 className="card-title">
+            <FaAward className="me-2 text-warning" />
+            Employee Award List
+          </h5>
           <span className="card-badge">{awards.length} awards</span>
         </div>
         <Button variant="outline-primary" size="sm">
           View All
         </Button>
       </Card.Header>
+
       <Card.Body className="p-0">
-        <div className="awards-list">
-          {awards.map((award, index) => (
-            <div key={award.id} className="award-item">
-              <div className="award-number">{String(index + 1).padStart(2, '0')}</div>
-              <div className="award-avatar">
-                {award.image ? (
-                  <Image src={award.image} roundedCircle width={40} height={40} />
-                ) : (
-                  <div className="award-avatar-placeholder">
-                    {award.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                  </div>
-                )}
+        <div className="award-list">
+          {/* Header Row */}
+          <div className="award-header-row">
+            <div className="award-col-sl">SL.</div>
+            <div className="award-col-avatar">Image</div>
+            <div className="award-col-name">Name</div>
+            <div className="award-col-dept">Department</div>
+            <div className="award-col-award">Award</div>
+            <div className="award-col-date">Date</div>
+          </div>
+
+          {awards.map((item) => (
+            <div key={item.id} className="award-row">
+              <div className="award-col-sl">
+                <Badge bg="light" text="dark" className="sl-badge">
+                  {item.sl}
+                </Badge>
               </div>
-              <div className="award-info">
-                <div className="award-name">{award.name}</div>
-                <div className="award-department">{award.department}</div>
+              <div className="award-col-avatar">
+                <div className="award-avatar">{getInitials(item.name)}</div>
               </div>
-              <div className="award-details">
-                <div className="award-icon-wrapper">
-                  {award.icon}
+              <div className="award-col-name">
+                <div className="award-name">{item.name}</div>
+              </div>
+              <div className="award-col-dept">
+                <Badge bg="secondary" className="dept-badge">
+                  {item.department}
+                </Badge>
+              </div>
+              <div className="award-col-award">
+                <div className="award-type">
+                  {item.icon}
+                  <span className="award-type-name">{item.award}</span>
                 </div>
-                <div className="award-name-badge">{award.award}</div>
               </div>
-              <div className="award-date">{award.date}</div>
+              <div className="award-col-date">{item.date}</div>
             </div>
           ))}
         </div>

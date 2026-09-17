@@ -1,74 +1,53 @@
 import React from 'react';
-import { Card, Spinner, ProgressBar } from 'react-bootstrap';
+import { Card, ProgressBar } from 'react-bootstrap';
 import { FaUserCheck, FaUserTimes, FaUserClock } from 'react-icons/fa';
 import './Dashboard.css';
 
-const DailyAttendanceStat = ({ type, count, percentage, total, loading = false }) => {
+const DailyAttendanceStat = ({ type, count = 120, percentage = 50, total = 0 }) => {
   const config = {
     present: {
       icon: <FaUserCheck />,
-      color: 'success',
       title: 'Present',
-      bgClass: 'present-card',
-      count: 100,
-      percentage: 50,
-      total: 100
+      colorClass: 'present',
+      variant: 'success'
     },
     absent: {
       icon: <FaUserTimes />,
-      color: 'danger',
       title: 'Absent',
-      bgClass: 'absent-card',
-      count: 80,
-      percentage: 30,
-      total: 100
+      colorClass: 'absent',
+      variant: 'danger'
     },
     leave: {
       icon: <FaUserClock />,
-      color: 'warning',
       title: 'Leave',
-      bgClass: 'leave-card',
-      count: 70,
-      percentage: 20,
-      total: 100
+      colorClass: 'leave',
+      variant: 'warning'
     }
   };
 
-  const selectedStat = config[type] || config.present;
-  const displayCount = count ?? selectedStat.count;
-  const displayPercentage = percentage ?? selectedStat.percentage;
-  const displayTotal = total ?? selectedStat.total;
+  const { icon, title, colorClass, variant } = config[type] || config.present;
 
   return (
-    <Card className={`dashboard-card attendance-stat-card ${selectedStat.bgClass}`}>
+    <Card className={`stat-card attendance-stat-card ${colorClass}`}>
       <Card.Body>
-        <div className="card-content">
-          <div className="card-icon-wrapper">
-            <span className={`card-icon ${selectedStat.color}`}>{selectedStat.icon}</span>
+        <div className="stat-card-inner">
+          <div className={`stat-icon-wrapper icon-${colorClass}`}>
+            {icon}
           </div>
-          <div className="card-info">
-            <h6 className="card-title">{selectedStat.title}</h6>
-            {loading ? (
-              <Spinner animation="border" size="sm" variant={selectedStat.color} />
-            ) : (
-              <>
-                <h3 className="card-value">{displayCount}</h3>
-                <div className="stat-percentage">
-                  <span className={`percentage-badge ${selectedStat.color}`}>
-                    {displayPercentage}%
-                  </span>
-                  <span className="stat-detail">
-                    {displayCount} out of {displayTotal}
-                  </span>
-                </div>
-                <ProgressBar 
-                  now={displayPercentage} 
-                  variant={selectedStat.color} 
-                  className="stat-progress"
-                  style={{ height: '4px' }}
-                />
-              </>
-            )}
+          <div className="stat-info">
+            <h6 className="stat-title">{title}</h6>
+            <h3 className="stat-value">
+              {String(count).padStart(2, '0')}
+              <span className="stat-percent-badge">({percentage}%)</span>
+            </h3>
+            <ProgressBar 
+              now={percentage} 
+              variant={variant} 
+              className="stat-progress"
+            />
+            <div className="stat-detail">
+              {count} out of {total} employees
+            </div>
           </div>
         </div>
       </Card.Body>

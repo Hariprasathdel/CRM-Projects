@@ -20,7 +20,7 @@ const DashboardPage = () => {
     const fetchDashboardStats = async () => {
       try {
         const response = await api.get('/dashboard/stats');
-        setStats(response.data);
+        setStats(response.data?.data ?? response.data);
       } catch (err) {
         console.error('Failed to load live dashboard stats:', err);
       } finally {
@@ -35,6 +35,22 @@ const DashboardPage = () => {
   const growth = stats?.employeeGrowth?.percentage ?? 100;
   const attendance = stats?.attendance || {};
 
+  const getAttendanceStat = (type) => {
+    const count = Number(attendance[`${type}Count`] ?? attendance[type] ?? 0) || 0;
+    const apiPercentage = attendance[`${type}Percentage`] ?? attendance[`${type}Percent`];
+    const percentage = Number.isFinite(Number(apiPercentage))
+      ? Number(apiPercentage)
+      : totalEmployees > 0
+        ? Math.round((count / totalEmployees) * 100)
+        : 0;
+
+    return { count, percentage: Math.max(0, Math.min(100, percentage)) };
+  };
+
+  const present = getAttendanceStat('present');
+  const absent = getAttendanceStat('absent');
+  const leave = getAttendanceStat('leave');
+
   return (
     <div className="dashboard-wrapper">
       <Sidebar />
@@ -43,36 +59,36 @@ const DashboardPage = () => {
           <h2 className="mb-4">Dashboard</h2>
           
           <Row className="mb-4">
-            <Col lg={3} md={6} className="mb-3">
+            <Col xxl={3} xl={6} md={6} className="mb-3">
               <TotalEmployeeCard 
                 total={totalEmployees} 
                 growth={growth} 
                 loading={loading} 
               />
             </Col>
-            <Col lg={3} md={6} className="mb-3">
+            <Col xxl={3} xl={6} md={6} className="mb-3">
               <DailyAttendanceStat 
                 type="present" 
-                count={attendance.presentCount ?? 6} 
-                percentage={attendance.present ?? 75} 
+                count={present.count}
+                percentage={present.percentage}
                 total={totalEmployees} 
                 loading={loading} 
               />
             </Col>
-            <Col lg={3} md={6} className="mb-3">
+            <Col xxl={3} xl={6} md={6} className="mb-3">
               <DailyAttendanceStat 
                 type="absent" 
-                count={attendance.absentCount ?? 1} 
-                percentage={attendance.absent ?? 13} 
+                count={absent.count}
+                percentage={absent.percentage}
                 total={totalEmployees} 
                 loading={loading} 
               />
             </Col>
-            <Col lg={3} md={6} className="mb-3">
+            <Col xxl={3} xl={6} md={6} className="mb-3">
               <DailyAttendanceStat 
                 type="leave" 
-                count={attendance.leaveCount ?? 1} 
-                percentage={attendance.leave ?? 13} 
+                count={leave.count}
+                percentage={leave.percentage}
                 total={totalEmployees} 
                 loading={loading} 
               />
@@ -85,8 +101,8 @@ const DashboardPage = () => {
             </Col>
             <Col lg={4} className="mb-3">
               <TodayPresents 
-                count={attendance.presentCount ?? 6} 
-                percentage={attendance.present ?? 75} 
+                count={present.count}
+                percentage={present.percentage}
                 total={totalEmployees} 
               />
             </Col>
@@ -95,15 +111,15 @@ const DashboardPage = () => {
           <Row className="mb-4">
             <Col lg={6} className="mb-3">
               <TodayAbsents 
-                count={attendance.absentCount ?? 1} 
-                percentage={attendance.absent ?? 13} 
+                count={absent.count}
+                percentage={absent.percentage}
                 total={totalEmployees} 
               />
             </Col>
             <Col lg={6} className="mb-3">
               <TodayLeave 
-                count={attendance.leaveCount ?? 1} 
-                percentage={attendance.leave ?? 13} 
+                count={leave.count}
+                percentage={leave.percentage}
                 total={totalEmployees} 
               />
             </Col>
@@ -124,4 +140,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
