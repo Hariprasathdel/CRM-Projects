@@ -15,7 +15,8 @@ class ReportService {
   async getAllReports(params = {}) {
     try {
       const response = await api.get(REPORT_ENDPOINTS.BASE, { params });
-      return { success: true, data: handleResponse(response) };
+      const resData = handleResponse(response);
+      return { success: true, data: resData.data || resData, pagination: resData.pagination };
     } catch (error) {
       return { success: false, error: handleError(error) };
     }
@@ -25,7 +26,8 @@ class ReportService {
   async getReportById(id) {
     try {
       const response = await api.get(REPORT_ENDPOINTS.BY_ID(id));
-      return { success: true, data: handleResponse(response) };
+      const resData = handleResponse(response);
+      return { success: true, data: resData.data || resData };
     } catch (error) {
       return { success: false, error: handleError(error) };
     }
@@ -35,7 +37,8 @@ class ReportService {
   async generateReport(reportData) {
     try {
       const response = await api.post(REPORT_ENDPOINTS.GENERATE, reportData);
-      return { success: true, data: handleResponse(response) };
+      const resData = handleResponse(response);
+      return { success: true, data: resData.data || resData };
     } catch (error) {
       return { success: false, error: handleError(error) };
     }

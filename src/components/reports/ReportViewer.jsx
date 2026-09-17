@@ -56,21 +56,28 @@ const ReportViewer = ({ reports, onDownload, onDelete, onView, getStatusBadge })
     setCurrentPage(1);
   };
 
-  // Filter reports
+  // Filter reports safely
   const filteredReports = reports.filter(report => {
     const searchLower = searchTerm.toLowerCase();
+    const name = (report.title || report.name || '').toLowerCase();
+    const type = (report.type || '').toLowerCase();
+    const createdBy = (typeof report.createdBy === 'string' 
+      ? report.createdBy 
+      : (report.generatedBy?.name || 'Admin')).toLowerCase();
+    const description = (report.description || report.notes || '').toLowerCase();
+
     return (
-      report.name.toLowerCase().includes(searchLower) ||
-      report.type.toLowerCase().includes(searchLower) ||
-      report.createdBy.toLowerCase().includes(searchLower) ||
-      report.description.toLowerCase().includes(searchLower)
+      name.includes(searchLower) ||
+      type.includes(searchLower) ||
+      createdBy.includes(searchLower) ||
+      description.includes(searchLower)
     );
   });
 
   // Sort reports
   const sortedReports = [...filteredReports].sort((a, b) => {
-    let aVal = a[sortField] || '';
-    let bVal = b[sortField] || '';
+    let aVal = a[sortField] || (sortField === 'name' ? a.title : sortField === 'generatedDate' ? a.createdAt : '');
+    let bVal = b[sortField] || (sortField === 'name' ? b.title : sortField === 'generatedDate' ? b.createdAt : '');
     
     if (typeof aVal === 'string') aVal = aVal.toLowerCase();
     if (typeof bVal === 'string') bVal = bVal.toLowerCase();
@@ -82,7 +89,7 @@ const ReportViewer = ({ reports, onDownload, onDelete, onView, getStatusBadge })
 
   // Pagination
   const totalItems = sortedReports.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
   const currentData = sortedReports.slice(startIndex, endIndex);
@@ -104,31 +111,36 @@ const ReportViewer = ({ reports, onDownload, onDelete, onView, getStatusBadge })
   };
 
   const getFormatIcon = (format) => {
+    const f = (format || 'PDF').toUpperCase();
     const config = {
       PDF: <FaFilePdf className="format-icon pdf" />,
-      Excel: <FaFileExcel className="format-icon excel" />,
-      Word: <FaFileWord className="format-icon word" />,
+      EXCEL: <FaFileExcel className="format-icon excel" />,
+      WORD: <FaFileWord className="format-icon word" />,
       CSV: <FaFileAlt className="format-icon csv" />
     };
-    return config[format] || <FaFileAlt />;
+    return config[f] || <FaFileAlt />;
   };
 
   const getFormatBadge = (format) => {
+    const f = (format || 'PDF').toUpperCase();
     const config = {
       PDF: 'danger',
-      Excel: 'success',
-      Word: 'primary',
+      EXCEL: 'success',
+      WORD: 'primary',
       CSV: 'info'
     };
     return (
-      <Badge bg={config[format] || 'secondary'} className="format-badge">
-        {format}
+      <Badge bg={config[f] || 'secondary'} className="format-badge">
+        {f}
       </Badge>
     );
   };
 
   const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleString('en-US', {
+    if (!dateStr) return 'Recent';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return String(dateStr);
+    return d.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -212,86 +224,95 @@ const ReportViewer = ({ reports, onDownload, onDelete, onView, getStatusBadge })
           </thead>
           <tbody>
             {currentData.length > 0 ? (
-              currentData.map((report) => (
-                <tr key={report.id}>
-                  <td>
-                    <div className="report-info">
-                      <div className="report-icon-wrapper">
-                        {report.icon || <FaFileAlt />}
+              currentData.map((report) => {
+                const reportId = report._id || report.id;
+                const title = report.title || report.name || 'Untitled Report';
+                const desc = report.description || report.notes || `${report.type || 'Custom'} report`;
+                const date = report.createdAt || report.generatedDate;
+                const sizeStr = report.size || report.sizeHuman || '1.0 MB';
+                const isCompleted = report.status === 'Completed' || report.status === 'generated';
+
+                return (
+                  <tr key={reportId}>
+                    <td>
+                      <div className="report-info">
+                        <div className="report-icon-wrapper">
+                          {report.icon || <FaFileAlt />}
+                        </div>
+                        <div className="report-details">
+                          <div className="report-name">{title}</div>
+                          <div className="report-description">{desc}</div>
+                        </div>
                       </div>
-                      <div className="report-details">
-                        <div className="report-name">{report.name}</div>
-                        <div className="report-description">{report.description}</div>
+                    </td>
+                    <td>
+                      <Badge bg="secondary" className="type-badge text-capitalize">
+                        {report.type}
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="format-info">
+                        {getFormatIcon(report.format)}
+                        {getFormatBadge(report.format)}
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <Badge bg="secondary" className="type-badge">
-                      {report.type}
-                    </Badge>
-                  </td>
-                  <td>
-                    <div className="format-info">
-                      {getFormatIcon(report.format)}
-                      {getFormatBadge(report.format)}
-                    </div>
-                  </td>
-                  <td>
-                    <div className="date-info">
-                      <FaCalendarAlt className="date-icon" />
-                      {formatDate(report.generatedDate)}
-                    </div>
-                  </td>
-                  <td>{report.size}</td>
-                  <td>{getStatusBadge(report.status)}</td>
-                  <td>
-                    <div className="action-buttons">
-                      {report.status === 'Completed' && (
-                        <>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>View Report</Tooltip>}
-                          >
-                            <Button 
-                              variant="outline-primary" 
-                              size="sm" 
-                              className="me-1"
-                              onClick={() => onView(report)}
+                    </td>
+                    <td>
+                      <div className="date-info">
+                        <FaCalendarAlt className="date-icon" />
+                        {formatDate(date)}
+                      </div>
+                    </td>
+                    <td>{sizeStr}</td>
+                    <td>{getStatusBadge(isCompleted ? 'Completed' : (report.status || 'Processing'))}</td>
+                    <td>
+                      <div className="action-buttons">
+                        {isCompleted && (
+                          <>
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={<Tooltip>View Report</Tooltip>}
                             >
-                              <FaEye />
-                            </Button>
-                          </OverlayTrigger>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>Download</Tooltip>}
-                          >
-                            <Button 
-                              variant="outline-success" 
-                              size="sm" 
-                              className="me-1"
-                              onClick={() => onDownload(report)}
+                              <Button 
+                                variant="outline-primary" 
+                                size="sm" 
+                                className="me-1"
+                                onClick={() => onView(report)}
+                              >
+                                <FaEye />
+                              </Button>
+                            </OverlayTrigger>
+                            <OverlayTrigger
+                              placement="top"
+                              overlay={<Tooltip>Download</Tooltip>}
                             >
-                              <FaDownload />
-                            </Button>
-                          </OverlayTrigger>
-                        </>
-                      )}
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip>Delete</Tooltip>}
-                      >
-                        <Button 
-                          variant="outline-danger" 
-                          size="sm"
-                          onClick={() => handleDeleteClick(report.id)}
+                              <Button 
+                                variant="outline-success" 
+                                size="sm" 
+                                className="me-1"
+                                onClick={() => onDownload(report)}
+                              >
+                                <FaDownload />
+                              </Button>
+                            </OverlayTrigger>
+                          </>
+                        )}
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip>Delete</Tooltip>}
                         >
-                          <FaTrash />
-                        </Button>
-                      </OverlayTrigger>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm"
+                            onClick={() => handleDeleteClick(reportId)}
+                          >
+                            <FaTrash />
+                          </Button>
+                        </OverlayTrigger>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan="7" className="text-center py-4">

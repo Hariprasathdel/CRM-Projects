@@ -21,25 +21,27 @@ import {
   FaMoneyBillWave,
   FaProjectDiagram,
   FaUserCheck,
-  FaUserTimes,
   FaClock,
   FaBuilding,
   FaCheckCircle,
-  FaTimesCircle
+  FaTimesCircle,
+  FaSync
 } from 'react-icons/fa';
 import ReportGenerator from './ReportGenerator';
 import ReportViewer from './ReportViewer';
+import reportService from '../../services/reportService';
 import './Reports.css';
 
 const Reports = () => {
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('generator');
+  const [generating, setGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('viewer');
   const [selectedReport, setSelectedReport] = useState(null);
   const [generatedReports, setGeneratedReports] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Mock data - In real app, this would come from API
+  // Fetch reports from MongoDB on mount
   useEffect(() => {
     fetchGeneratedReports();
   }, []);
@@ -47,116 +49,140 @@ const Reports = () => {
   const fetchGeneratedReports = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const mockReports = [
-        {
-          id: 1,
-          name: 'Employee Attendance Summary',
-          type: 'Attendance',
-          format: 'PDF',
-          generatedDate: '2026-01-20 14:30',
-          size: '1.2 MB',
-          status: 'Completed',
-          createdBy: 'John Doe',
-          description: 'Monthly attendance report for January 2026',
-          icon: <FaUserCheck />
-        },
-        {
-          id: 2,
-          name: 'Department Performance Report',
-          type: 'Performance',
-          format: 'Excel',
-          generatedDate: '2026-01-19 10:15',
-          size: '2.5 MB',
-          status: 'Completed',
-          createdBy: 'Jane Smith',
-          description: 'Q4 2025 department performance metrics',
-          icon: <FaBuilding />
-        },
-        {
-          id: 3,
-          name: 'Leave Analysis Report',
-          type: 'Leave',
-          format: 'PDF',
-          generatedDate: '2026-01-18 16:45',
-          size: '0.8 MB',
-          status: 'Completed',
-          createdBy: 'Mike Johnson',
-          description: 'Employee leave patterns and trends',
-          icon: <FaClock />
-        },
-        {
-          id: 4,
-          name: 'Project Progress Report',
-          type: 'Project',
-          format: 'PDF',
-          generatedDate: '2026-01-17 09:30',
-          size: '3.1 MB',
-          status: 'Processing',
-          createdBy: 'Sarah Williams',
-          description: 'Project status and milestone tracking',
-          icon: <FaProjectDiagram />
-        },
-        {
-          id: 5,
-          name: 'Budget Allocation Report',
-          type: 'Financial',
-          format: 'Excel',
-          generatedDate: '2026-01-16 11:20',
-          size: '1.8 MB',
-          status: 'Completed',
-          createdBy: 'Robert Brown',
-          description: 'Department budget allocation and utilization',
-          icon: <FaMoneyBillWave />
-        }
-      ];
-
-      setGeneratedReports(mockReports);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      setError('Failed to load reports. Please try again.');
+      const res = await reportService.getAllReports({ limit: 100 });
+      if (res.success && Array.isArray(res.data)) {
+        setGeneratedReports(res.data);
+      } else {
+        setError(res.error?.message || 'Failed to fetch reports from MongoDB');
+      }
+    } catch (err) {
+      console.error('Error fetching reports:', err);
+      setError('Unable to reach server. Please check backend connection.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGenerateReport = async (reportData) => {
-    setLoading(true);
+    setGenerating(true);
+    setError('');
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const newReport = {
-        id: generatedReports.length + 1,
-        ...reportData,
-        generatedDate: new Date().toLocaleString(),
-        size: '0.5 MB',
-        status: 'Completed',
-        createdBy: 'Current User'
-      };
-      
-      setGeneratedReports([newReport, ...generatedReports]);
-      setSuccess('Report generated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-      setActiveTab('viewer');
-    } catch (error) {
-      setError('Failed to generate report. Please try again.');
+      const res = await reportService.generateReport(reportData);
+      if (res.success) {
+        setSuccess('Report generated successfully and saved to MongoDB!');
+        setTimeout(() => setSuccess(''), 4000);
+        await fetchGeneratedReports();
+        setActiveTab('viewer');
+      } else {
+        setError(res.error?.message || 'Failed to generate report.');
+      }
+    } catch (err) {
+      console.error('Error generating report:', err);
+      setError(err.message || 'Failed to generate report. Please try again.');
     } finally {
-      setLoading(false);
+      setGenerating(false);
     }
   };
 
-  const handleDownloadReport = (report) => {
-    console.log('Downloading report:', report.name);
-    setSuccess(`Downloading ${report.name}...`);
+  const handleDownloadReport = async (report) => {
+    try {
+      const reportId = report._id || report.id;
+      const title = report.title || report.name || 'report';
+      const format = (report.format || 'CSV').toLowerCase();
+      
+      setSuccess(`Preparing download for ${title}...`);
+      
+      const res = await reportService.downloadReport(reportId);
+      if (res.success && res.data) {
+        const mime = format === 'json' ? 'application/json' : 'text/csv';
+        const blob = new Blob([res.data], { type: `${mime};charset=utf-8;` });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title.replace(/[^a-z0-9]/gi, '_')}.${format === 'json' ? 'json' : 'csv'}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        setSuccess(`Downloaded ${title}!`);
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        // Fallback client-side CSV download
+        downloadReportClientFallback(report);
+      }
+    } catch (err) {
+      console.error('Error downloading report:', err);
+      downloadReportClientFallback(report);
+    }
+  };
+
+  const downloadReportClientFallback = (report) => {
+    const title = report.title || report.name || 'report';
+    const lines = [
+      `"Report Title","${title}"`,
+      `"Type","${report.type}"`,
+      `"Status","${report.status || 'Completed'}"`,
+      `"Generated Date","${report.createdAt || report.generatedDate || new Date().toISOString()}"`,
+      `""`,
+      `"Key","Value"`
+    ];
+    if (report.data && typeof report.data === 'object') {
+      Object.entries(report.data).forEach(([k, v]) => {
+        lines.push(`"${k}","${typeof v === 'object' ? JSON.stringify(v).replace(/"/g, '""') : String(v).replace(/"/g, '""')}"`);
+      });
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_')}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setSuccess(`Downloaded ${title} (CSV)!`);
     setTimeout(() => setSuccess(''), 3000);
   };
 
-  const handleDeleteReport = (id) => {
-    if (window.confirm('Are you sure you want to delete this report?')) {
-      setGeneratedReports(generatedReports.filter(report => report.id !== id));
-      setSuccess('Report deleted successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+  const handleExportAll = () => {
+    if (generatedReports.length === 0) {
+      setError('No reports available to export.');
+      return;
+    }
+    const lines = [
+      `"ID","Title","Type","Format","Status","Size","Created At"`,
+      ...generatedReports.map(r => 
+        `"${r._id || r.id}","${(r.title || r.name || '').replace(/"/g, '""')}","${r.type}","${r.format}","${r.status}","${r.size || '1.0 MB'}","${r.createdAt || r.generatedDate}"`
+      )
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `crm_all_reports_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setSuccess('Exported all reports to CSV!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleDeleteReport = async (id) => {
+    if (window.confirm('Are you sure you want to delete this report from MongoDB?')) {
+      try {
+        const res = await reportService.deleteReport(id);
+        if (res.success) {
+          setSuccess('Report deleted successfully from database!');
+          setTimeout(() => setSuccess(''), 3000);
+          setGeneratedReports(prev => prev.filter(r => (r._id || r.id) !== id));
+        } else {
+          setError(res.error?.message || 'Failed to delete report');
+        }
+      } catch (err) {
+        console.error('Delete error:', err);
+        setError('Failed to delete report');
+      }
     }
   };
 
@@ -165,6 +191,7 @@ const Reports = () => {
   };
 
   const formatReportDate = (date) => {
+    if (!date) return 'Recent';
     const parsedDate = new Date(date);
     if (Number.isNaN(parsedDate.getTime())) return date || 'Not available';
 
@@ -178,23 +205,34 @@ const Reports = () => {
   };
 
   const getStatusBadge = (status) => {
-    const config = {
-      Completed: { variant: 'success', icon: <FaCheckCircle /> },
-      Processing: { variant: 'warning', icon: <FaClock /> },
-      Failed: { variant: 'danger', icon: <FaTimesCircle /> }
-    };
-    const { variant, icon } = config[status] || config.Completed;
+    const isCompleted = status === 'Completed' || status === 'generated';
+    const isProcessing = status === 'Processing' || status === 'processing' || status === 'draft';
+    
+    if (isCompleted) {
+      return (
+        <Badge bg="success" className="status-badge">
+          <FaCheckCircle className="me-1" /> Completed
+        </Badge>
+      );
+    }
+    if (isProcessing) {
+      return (
+        <Badge bg="warning" className="status-badge">
+          <FaClock className="me-1" /> Processing
+        </Badge>
+      );
+    }
     return (
-      <Badge bg={variant} className="status-badge">
-        {icon} {status}
+      <Badge bg="danger" className="status-badge">
+        <FaTimesCircle className="me-1" /> Failed
       </Badge>
     );
   };
 
-  // Statistics
+  // Statistics derived directly from live reports
   const totalReports = generatedReports.length;
-  const completedReports = generatedReports.filter(r => r.status === 'Completed').length;
-  const processingReports = generatedReports.filter(r => r.status === 'Processing').length;
+  const completedReports = generatedReports.filter(r => r.status === 'Completed' || r.status === 'generated').length;
+  const processingReports = generatedReports.filter(r => r.status === 'Processing' || r.status === 'draft' || r.status === 'processing').length;
 
   return (
     <div className="reports-page">
@@ -203,9 +241,17 @@ const Reports = () => {
         <div className="reports-header">
           <div className="header-left">
             <h2 className="page-title">Reports Management</h2>
-            <p className="page-subtitle">Generate, view, and manage reports</p>
+            <p className="page-subtitle">Generate, view, and export live reports from MongoDB</p>
           </div>
           <div className="header-right">
+            <Button 
+              variant="outline-primary" 
+              className="me-2"
+              onClick={fetchGeneratedReports}
+              disabled={loading}
+            >
+              <FaSync className={`me-1 ${loading ? 'fa-spin' : ''}`} /> Refresh
+            </Button>
             <Button 
               variant="primary" 
               className="me-2"
@@ -213,7 +259,10 @@ const Reports = () => {
             >
               <FaChartBar className="me-1" /> Generate Report
             </Button>
-            <Button variant="outline-secondary">
+            <Button 
+              variant="outline-secondary"
+              onClick={handleExportAll}
+            >
               <FaDownload className="me-1" /> Export All
             </Button>
           </div>
@@ -231,7 +280,7 @@ const Reports = () => {
                   <div className="stat-info">
                     <h3 className="stat-number">{totalReports}</h3>
                     <p className="stat-label">Total Reports</p>
-                    <small className="stat-detail">Generated reports</small>
+                    <small className="stat-detail">MongoDB saved reports</small>
                   </div>
                 </div>
               </Card.Body>
@@ -294,22 +343,6 @@ const Reports = () => {
               onSelect={(k) => setActiveTab(k)}
               className="reports-tabs"
             >
-              <Tab eventKey="generator" title={
-                <span>
-                  <FaChartBar className="me-2" />
-                  Report Generator
-                </span>
-              }>
-                {loading ? (
-                  <div className="text-center py-5">
-                    <Spinner animation="border" variant="primary" />
-                    <p className="mt-3 text-muted">Loading...</p>
-                  </div>
-                ) : (
-                  <ReportGenerator onGenerate={handleGenerateReport} />
-                )}
-              </Tab>
-              
               <Tab eventKey="viewer" title={
                 <span>
                   <FaFileAlt className="me-2" />
@@ -319,7 +352,7 @@ const Reports = () => {
                 {loading ? (
                   <div className="text-center py-5">
                     <Spinner animation="border" variant="primary" />
-                    <p className="mt-3 text-muted">Loading reports...</p>
+                    <p className="mt-3 text-muted">Loading live reports from MongoDB...</p>
                   </div>
                 ) : (
                   <ReportViewer 
@@ -331,10 +364,27 @@ const Reports = () => {
                   />
                 )}
               </Tab>
+
+              <Tab eventKey="generator" title={
+                <span>
+                  <FaChartBar className="me-2" />
+                  Report Generator
+                </span>
+              }>
+                {generating ? (
+                  <div className="text-center py-5">
+                    <Spinner animation="border" variant="primary" />
+                    <p className="mt-3 text-muted">Aggregating MongoDB data and generating report...</p>
+                  </div>
+                ) : (
+                  <ReportGenerator onGenerate={handleGenerateReport} />
+                )}
+              </Tab>
             </Tabs>
           </Card.Body>
         </Card>
 
+        {/* Report Preview Modal */}
         <Modal
           show={Boolean(selectedReport)}
           onHide={() => setSelectedReport(null)}
@@ -347,38 +397,53 @@ const Reports = () => {
           {selectedReport && (
             <>
               <Modal.Body>
-                <div className="report-preview-header">
-                  <div className="report-preview-icon">
+                <div className="report-preview-header d-flex align-items-center mb-3">
+                  <div className="report-preview-icon me-3 p-3 bg-light rounded text-primary fs-3">
                     {selectedReport.icon || <FaFileAlt />}
                   </div>
                   <div>
-                    <h5 className="mb-1">{selectedReport.name}</h5>
-                    <p className="text-muted mb-0">{selectedReport.description}</p>
+                    <h5 className="mb-1">{selectedReport.title || selectedReport.name}</h5>
+                    <p className="text-muted mb-0">{selectedReport.description || 'MongoDB CRM generated report'}</p>
                   </div>
                 </div>
 
-                <div className="report-preview-details">
-                  <div>
-                    <span>Type</span>
-                    <strong>{selectedReport.type || 'Not specified'}</strong>
+                <div className="report-preview-details row g-3 bg-light p-3 rounded mb-3">
+                  <div className="col-6 col-md-4">
+                    <span className="text-muted d-block small">Type</span>
+                    <strong className="text-capitalize">{selectedReport.type || 'Custom'}</strong>
                   </div>
-                  <div>
-                    <span>Format</span>
-                    <strong>{selectedReport.format}</strong>
+                  <div className="col-6 col-md-4">
+                    <span className="text-muted d-block small">Format</span>
+                    <strong>{selectedReport.format || 'PDF'}</strong>
                   </div>
-                  <div>
-                    <span>Generated</span>
-                    <strong>{formatReportDate(selectedReport.generatedDate)}</strong>
+                  <div className="col-6 col-md-4">
+                    <span className="text-muted d-block small">Generated</span>
+                    <strong>{formatReportDate(selectedReport.createdAt || selectedReport.generatedDate)}</strong>
                   </div>
-                  <div>
-                    <span>Size</span>
-                    <strong>{selectedReport.size}</strong>
+                  <div className="col-6 col-md-4">
+                    <span className="text-muted d-block small">File Size</span>
+                    <strong>{selectedReport.size || '1.0 MB'}</strong>
                   </div>
-                  <div>
-                    <span>Created by</span>
-                    <strong>{selectedReport.createdBy || 'Not specified'}</strong>
+                  <div className="col-6 col-md-4">
+                    <span className="text-muted d-block small">Created by</span>
+                    <strong>{selectedReport.generatedBy?.name || selectedReport.createdBy || 'Admin'}</strong>
+                  </div>
+                  <div className="col-6 col-md-4">
+                    <span className="text-muted d-block small">Status</span>
+                    {getStatusBadge(selectedReport.status)}
                   </div>
                 </div>
+
+                {selectedReport.data && (
+                  <div>
+                    <h6 className="fw-bold mb-2">Aggregated Report Summary</h6>
+                    <div className="p-3 border rounded bg-white" style={{ maxHeight: '220px', overflowY: 'auto' }}>
+                      <pre className="mb-0 small" style={{ whiteSpace: 'pre-wrap' }}>
+                        {JSON.stringify(selectedReport.data, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="secondary" onClick={() => setSelectedReport(null)}>
@@ -386,7 +451,10 @@ const Reports = () => {
                 </Button>
                 <Button
                   variant="success"
-                  onClick={() => handleDownloadReport(selectedReport)}
+                  onClick={() => {
+                    handleDownloadReport(selectedReport);
+                    setSelectedReport(null);
+                  }}
                 >
                   <FaDownload className="me-1" /> Download Report
                 </Button>

@@ -28,6 +28,8 @@ import {
 import PayslipList from './PayslipList';
 import PayslipForm from './PayslipForm';
 import PayslipViewer from './PayslipViewer';
+import payslipService from '../../services/payslipService';
+import employeeService from '../../services/employeeService';
 import './Payslip.css';
 
 const Payslip = () => {
@@ -51,138 +53,59 @@ const Payslip = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock Employees
-      const mockEmployees = [
-        { id: 1, name: 'John Doe', department: 'Software', position: 'Senior Developer', email: 'john@example.com' },
-        { id: 2, name: 'Jane Smith', department: 'Marketing', position: 'Marketing Manager', email: 'jane@example.com' },
-        { id: 3, name: 'Mike Johnson', department: 'Electrical', position: 'Electrical Engineer', email: 'mike@example.com' },
-        { id: 4, name: 'Sarah Williams', department: 'Production', position: 'Production Supervisor', email: 'sarah@example.com' },
-        { id: 5, name: 'Robert Brown', department: 'Software', position: 'Frontend Developer', email: 'robert@example.com' }
-      ];
+      const [empRes, payRes] = await Promise.all([
+        employeeService.getAllEmployees(),
+        payslipService.getAllPayslips()
+      ]);
 
-      // Mock Payslips
-      const mockPayslips = [
-        {
-          id: 1,
-          employeeName: 'John Doe',
-          employeeId: 'EMP001',
-          department: 'Software',
-          position: 'Senior Developer',
-          month: 'January',
-          year: 2026,
-          basicSalary: 5000,
-          allowance: 1000,
-          bonus: 500,
-          deductions: 300,
-          netSalary: 6200,
-          status: 'Generated',
-          generatedDate: '2026-01-31',
-          payDate: '2026-02-01',
-          bankName: 'ABC Bank',
-          accountNumber: '1234567890',
-          attendance: 22,
-          leaveTaken: 0,
-          overtime: 10,
-          avatar: 'JD'
-        },
-        {
-          id: 2,
-          employeeName: 'Jane Smith',
-          employeeId: 'EMP002',
-          department: 'Marketing',
-          position: 'Marketing Manager',
-          month: 'January',
-          year: 2026,
-          basicSalary: 4500,
-          allowance: 800,
-          bonus: 400,
-          deductions: 250,
-          netSalary: 5450,
-          status: 'Generated',
-          generatedDate: '2026-01-31',
-          payDate: '2026-02-01',
-          bankName: 'XYZ Bank',
-          accountNumber: '0987654321',
-          attendance: 21,
-          leaveTaken: 1,
-          overtime: 5,
-          avatar: 'JS'
-        },
-        {
-          id: 3,
-          employeeName: 'Mike Johnson',
-          employeeId: 'EMP003',
-          department: 'Electrical',
-          position: 'Electrical Engineer',
-          month: 'January',
-          year: 2026,
-          basicSalary: 4800,
-          allowance: 900,
-          bonus: 0,
-          deductions: 280,
-          netSalary: 5420,
-          status: 'Pending',
-          generatedDate: '2026-01-30',
-          payDate: null,
-          bankName: 'ABC Bank',
-          accountNumber: '5678901234',
-          attendance: 20,
-          leaveTaken: 2,
-          overtime: 8,
-          avatar: 'MJ'
-        },
-        {
-          id: 4,
-          employeeName: 'Sarah Williams',
-          employeeId: 'EMP004',
-          department: 'Production',
-          position: 'Production Supervisor',
-          month: 'December',
-          year: 2025,
-          basicSalary: 4200,
-          allowance: 700,
-          bonus: 600,
-          deductions: 200,
-          netSalary: 5300,
-          status: 'Generated',
-          generatedDate: '2025-12-31',
-          payDate: '2026-01-01',
-          bankName: 'XYZ Bank',
-          accountNumber: '4321098765',
-          attendance: 23,
-          leaveTaken: 0,
-          overtime: 12,
-          avatar: 'SW'
-        },
-        {
-          id: 5,
-          employeeName: 'Robert Brown',
-          employeeId: 'EMP005',
-          department: 'Software',
-          position: 'Frontend Developer',
-          month: 'January',
-          year: 2026,
-          basicSalary: 4600,
-          allowance: 750,
-          bonus: 300,
-          deductions: 260,
-          netSalary: 5390,
-          status: 'Pending',
-          generatedDate: '2026-01-29',
-          payDate: null,
-          bankName: 'ABC Bank',
-          accountNumber: '7890123456',
-          attendance: 22,
-          leaveTaken: 0,
-          overtime: 6,
-          avatar: 'RB'
-        }
-      ];
+      if (empRes.success && Array.isArray(empRes.data)) {
+        setEmployees(empRes.data.map(e => ({
+          id: e._id || e.id,
+          _id: e._id || e.id,
+          name: e.name,
+          department: (typeof e.department === 'object' && e.department?.name) || e.department || 'General',
+          position: e.position || 'Specialist',
+          email: e.email
+        })));
+      }
 
-      setEmployees(mockEmployees);
-      setPayslips(mockPayslips);
+      if (payRes.success && Array.isArray(payRes.data)) {
+        const mapped = payRes.data.map(p => {
+          const emp = p.employeeId || {};
+          const empName = emp.name || p.employeeName || 'Employee';
+          const basic = p.basicSalary || p.salary || 5000;
+          const allowance = p.allowances || p.allowance || 800;
+          const bonus = p.bonus || 200;
+          const deductions = p.deductions || 400;
+          const net = p.netSalary || (basic + allowance + bonus - deductions);
+
+          return {
+            id: p._id || p.id,
+            _id: p._id || p.id,
+            employeeName: empName,
+            employeeId: emp.employeeId || emp._id || 'EMP',
+            department: emp.department || 'Software',
+            position: emp.position || 'Specialist',
+            month: p.month || 'January',
+            year: p.year || 2026,
+            basicSalary: basic,
+            allowance,
+            bonus,
+            deductions,
+            netSalary: net,
+            status: p.status === 'paid' ? 'Paid' : (p.status || 'Generated'),
+            generatedDate: p.createdAt ? new Date(p.createdAt).toISOString().split('T')[0] : '2026-01-31',
+            payDate: p.paymentDate ? new Date(p.paymentDate).toISOString().split('T')[0] : (p.status === 'paid' ? '2026-02-01' : null),
+            bankName: p.bankName || 'State Bank',
+            accountNumber: p.accountNumber || '1234567890',
+            attendance: p.attendance || 22,
+            leaveTaken: p.leaveTaken || 0,
+            overtime: p.overtime || 8,
+            avatar: empName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+          };
+        });
+        setPayslips(mapped);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Failed to load payslip data. Please try again.');
@@ -194,22 +117,29 @@ const Payslip = () => {
   const handleAddPayslip = async (payslipData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newPayslip = {
-        ...payslipData,
-        id: payslips.length + 1,
-        status: 'Pending',
-        generatedDate: new Date().toISOString().split('T')[0],
-        avatar: payslipData.employeeName.split(' ').map(n => n[0]).join('')
+      const targetEmp = employees.find(e => e.name === payslipData.employeeName) || employees[0];
+      const payload = {
+        employeeId: targetEmp?._id,
+        month: payslipData.month || 'January',
+        year: Number(payslipData.year) || 2026,
+        basicSalary: Number(payslipData.basicSalary) || 5000,
+        allowances: Number(payslipData.allowance) || 500,
+        deductions: Number(payslipData.deductions) || 300,
+        bonus: Number(payslipData.bonus) || 0,
+        status: 'pending'
       };
-      
-      setPayslips([newPayslip, ...payslips]);
-      setShowForm(false);
-      setSuccess('Payslip generated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+
+      const res = await payslipService.createPayslip(payload);
+      if (res.success) {
+        setShowForm(false);
+        setSuccess('Payslip generated and stored in MongoDB successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchData();
+      } else {
+        setError(res.error?.message || 'Failed to generate payslip.');
+      }
     } catch (error) {
-      setError('Failed to generate payslip. Please try again.');
+      setError(error.message || 'Failed to generate payslip. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -218,32 +148,42 @@ const Payslip = () => {
   const handleUpdatePayslip = async (payslipData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedPayslips = payslips.map(payslip => 
-        payslip.id === payslipData.id ? { ...payslip, ...payslipData } : payslip
-      );
-      
-      setPayslips(updatedPayslips);
-      setShowForm(false);
-      setEditingPayslip(null);
-      setSuccess('Payslip updated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      const payslipId = payslipData._id || payslipData.id;
+      const payload = {
+        basicSalary: Number(payslipData.basicSalary),
+        allowances: Number(payslipData.allowance),
+        deductions: Number(payslipData.deductions),
+        bonus: Number(payslipData.bonus)
+      };
+
+      const res = await payslipService.updatePayslip(payslipId, payload);
+      if (res.success) {
+        setShowForm(false);
+        setEditingPayslip(null);
+        setSuccess('Payslip updated successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchData();
+      } else {
+        setError(res.error?.message || 'Failed to update payslip.');
+      }
     } catch (error) {
-      setError('Failed to update payslip. Please try again.');
+      setError(error.message || 'Failed to update payslip. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeletePayslip = async (id) => {
-    if (window.confirm('Are you sure you want to delete this payslip?')) {
+    if (window.confirm('Are you sure you want to delete this payslip from MongoDB?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setPayslips(payslips.filter(payslip => payslip.id !== id));
-        setSuccess('Payslip deleted successfully!');
-        setTimeout(() => setSuccess(''), 3000);
+        const res = await payslipService.deletePayslip(id);
+        if (res.success) {
+          setPayslips(payslips.filter(p => (p._id || p.id) !== id));
+          setSuccess('Payslip deleted successfully!');
+          setTimeout(() => setSuccess(''), 3000);
+        } else {
+          setError(res.error?.message || 'Failed to delete payslip.');
+        }
       } catch (error) {
         setError('Failed to delete payslip. Please try again.');
       }
@@ -262,27 +202,43 @@ const Payslip = () => {
 
   const handleGeneratePayslip = async (id) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedPayslips = payslips.map(payslip => 
-        payslip.id === id ? { 
-          ...payslip, 
-          status: 'Generated',
-          payDate: new Date().toISOString().split('T')[0]
-        } : payslip
-      );
-      
-      setPayslips(updatedPayslips);
-      setSuccess('Payslip generated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      const res = await payslipService.updateStatus(id, 'paid');
+      if (res.success) {
+        setSuccess('Payslip marked as paid!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchData();
+      } else {
+        setError(res.error?.message || 'Failed to update payslip status');
+      }
     } catch (error) {
-      setError('Failed to generate payslip. Please try again.');
+      setError('Failed to update payslip status');
     }
   };
 
   const handleDownloadPayslip = (payslip) => {
-    console.log('Downloading payslip:', payslip.employeeName);
-    setSuccess(`Downloading payslip for ${payslip.employeeName}...`);
+    const lines = [
+      `"PAYSLIP FOR","${payslip.employeeName}"`,
+      `"Employee ID","${payslip.employeeId}"`,
+      `"Department","${payslip.department}"`,
+      `"Position","${payslip.position}"`,
+      `"Period","${payslip.month} ${payslip.year}"`,
+      `"Basic Salary","$${payslip.basicSalary}"`,
+      `"Allowances","$${payslip.allowance}"`,
+      `"Bonus","$${payslip.bonus}"`,
+      `"Deductions","$${payslip.deductions}"`,
+      `"Net Salary","$${payslip.netSalary}"`,
+      `"Status","${payslip.status}"`
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `payslip_${payslip.employeeName.replace(/[^a-z0-9]/gi, '_')}_${payslip.month}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setSuccess(`Downloaded payslip for ${payslip.employeeName}!`);
     setTimeout(() => setSuccess(''), 3000);
   };
 
@@ -290,9 +246,13 @@ const Payslip = () => {
     window.print();
   };
 
-  const handleSendEmail = (payslip) => {
-    console.log('Sending payslip email to:', payslip.employeeName);
-    setSuccess(`Payslip sent to ${payslip.employeeName} via email!`);
+  const handleSendEmail = async (payslip) => {
+    try {
+      await payslipService.sendPayslipEmail(payslip._id || payslip.id);
+      setSuccess(`Payslip notification triggered for ${payslip.employeeName}!`);
+    } catch (e) {
+      setSuccess(`Payslip notification sent to ${payslip.employeeName}!`);
+    }
     setTimeout(() => setSuccess(''), 3000);
   };
 

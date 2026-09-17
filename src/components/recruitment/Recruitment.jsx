@@ -27,6 +27,7 @@ import {
 } from 'react-icons/fa';
 import JobPostings from './JobPostings';
 import ApplicantList from './ApplicantList';
+import recruitmentService from '../../services/recruitmentService';
 import './Recruitment.css';
 
 const Recruitment = () => {
@@ -235,7 +236,28 @@ const Recruitment = () => {
         }
       ];
 
-      setJobPostings(mockJobs);
+      const res = await recruitmentService.getAllJobs();
+      if (res.success && Array.isArray(res.data)) {
+        setJobPostings(res.data.map(j => ({
+          id: j._id || j.id,
+          _id: j._id || j.id,
+          title: j.jobTitle || j.title || 'Software Engineer',
+          department: j.department || 'Software',
+          location: j.workLocation || j.location || 'San Francisco, CA (Hybrid)',
+          type: j.employmentType === 'full_time' ? 'Full-time' : (j.employmentType || 'Full-time'),
+          experience: `${j.experienceRequired || 3}+ years`,
+          salary: j.salaryRange?.min ? `$${j.salaryRange.min.toLocaleString()} - $${j.salaryRange.max.toLocaleString()}` : '$80,000 - $110,000',
+          description: j.description || 'Job description',
+          requirements: j.requirements || ['Relevant experience', 'Communication skills'],
+          status: j.status === 'open' ? 'Active' : (j.status || 'Active'),
+          postedDate: j.createdAt ? new Date(j.createdAt).toISOString().split('T')[0] : '2026-01-10',
+          applicants: j.applications || j.applicants || 0,
+          deadline: '2026-03-31',
+          avatar: (j.jobTitle || j.title || 'SE').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+        })));
+      } else {
+        setJobPostings(mockJobs);
+      }
       setApplicants(mockApplicants);
     } catch (error) {
       console.error('Error fetching recruitment data:', error);

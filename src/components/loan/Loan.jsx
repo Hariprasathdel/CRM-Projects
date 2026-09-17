@@ -25,11 +25,14 @@ import {
 import LoanList from './LoanList';
 import LoanApplication from './LoanApplication';
 import LoanDetails from './LoanDetails';
+import loanService from '../../services/loanService';
+import employeeService from '../../services/employeeService';
 import './Loan.css';
 
 const Loan = () => {
   const [loading, setLoading] = useState(false);
   const [loans, setLoans] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [showApplication, setShowApplication] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
@@ -39,116 +42,59 @@ const Loan = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
 
-  // Mock data - In real app, this would come from API
   useEffect(() => {
     fetchLoans();
+    fetchEmployees();
   }, []);
+
+  const fetchEmployees = async () => {
+    try {
+      const res = await employeeService.getAllEmployees();
+      if (res.success && Array.isArray(res.data)) {
+        setEmployees(res.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchLoans = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      const mockLoans = [
-        {
-          id: 1,
-          employeeName: 'John Doe',
-          employeeId: 'EMP001',
-          department: 'Software',
-          loanType: 'Personal',
-          amount: 5000,
-          interestRate: 8.5,
-          tenure: 12,
-          monthlyPayment: 436.25,
-          status: 'Approved',
-          appliedDate: '2026-01-10',
-          approvedDate: '2026-01-12',
-          reason: 'Home renovation',
-          avatar: 'JD'
-        },
-        {
-          id: 2,
-          employeeName: 'Jane Smith',
-          employeeId: 'EMP002',
-          department: 'Marketing',
-          loanType: 'Car',
-          amount: 15000,
-          interestRate: 7.5,
-          tenure: 24,
-          monthlyPayment: 674.55,
-          status: 'Pending',
-          appliedDate: '2026-01-15',
-          approvedDate: null,
-          reason: 'New car purchase',
-          avatar: 'JS'
-        },
-        {
-          id: 3,
-          employeeName: 'Mike Johnson',
-          employeeId: 'EMP003',
-          department: 'Electrical',
-          loanType: 'Education',
-          amount: 8000,
-          interestRate: 6.0,
-          tenure: 18,
-          monthlyPayment: 465.23,
-          status: 'Approved',
-          appliedDate: '2026-01-08',
-          approvedDate: '2026-01-10',
-          reason: 'MBA program',
-          avatar: 'MJ'
-        },
-        {
-          id: 4,
-          employeeName: 'Sarah Williams',
-          employeeId: 'EMP004',
-          department: 'Production',
-          loanType: 'Emergency',
-          amount: 3000,
-          interestRate: 10.0,
-          tenure: 6,
-          monthlyPayment: 515.27,
-          status: 'Rejected',
-          appliedDate: '2026-01-14',
-          approvedDate: '2026-01-15',
-          reason: 'Medical emergency',
-          avatar: 'SW'
-        },
-        {
-          id: 5,
-          employeeName: 'Robert Brown',
-          employeeId: 'EMP005',
-          department: 'Software',
-          loanType: 'Home',
-          amount: 25000,
-          interestRate: 6.5,
-          tenure: 36,
-          monthlyPayment: 766.48,
-          status: 'Pending',
-          appliedDate: '2026-01-18',
-          approvedDate: null,
-          reason: 'House down payment',
-          avatar: 'RB'
-        },
-        {
-          id: 6,
-          employeeName: 'Emily Davis',
-          employeeId: 'EMP006',
-          department: 'HR',
-          loanType: 'Personal',
-          amount: 4500,
-          interestRate: 9.0,
-          tenure: 12,
-          monthlyPayment: 393.58,
-          status: 'Approved',
-          appliedDate: '2026-01-05',
-          approvedDate: '2026-01-07',
-          reason: 'Debt consolidation',
-          avatar: 'ED'
-        }
-      ];
+      const res = await loanService.getAllLoans();
+      if (res.success && Array.isArray(res.data)) {
+        const mappedLoans = res.data.map(l => {
+          const empName = l.employeeId?.name || l.employeeName || 'Employee';
+          const tenureMonths = l.tenure || 12;
+          const totalAmt = l.amount || 5000;
+          const monthly = l.monthlyInstallment || Math.round(totalAmt / tenureMonths);
+          const rawStatus = l.status || 'pending';
+          const statusDisplay = (rawStatus === 'active' || rawStatus === 'paid' || rawStatus === 'Approved')
+            ? 'Approved' 
+            : (rawStatus === 'defaulted' || rawStatus === 'Rejected' ? 'Rejected' : 'Pending');
 
-      setLoans(mockLoans);
+          return {
+            id: l._id || l.id,
+            _id: l._id || l.id,
+            employeeName: empName,
+            employeeId: l.employeeId?.employeeId || l.employeeId?._id || 'EMP',
+            department: l.employeeId?.department || l.department || 'Software',
+            loanType: l.loanType || 'Personal',
+            amount: totalAmt,
+            interestRate: l.interestRate || 8.5,
+            tenure: tenureMonths,
+            monthlyPayment: monthly,
+            status: statusDisplay,
+            appliedDate: l.startDate ? new Date(l.startDate).toISOString().split('T')[0] : (l.createdAt ? new Date(l.createdAt).toISOString().split('T')[0] : '2026-01-10'),
+            approvedDate: statusDisplay === 'Approved' ? '2026-01-12' : null,
+            reason: l.reason || 'Personal loan request',
+            avatar: empName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+          };
+        });
+        setLoans(mappedLoans);
+      } else {
+        setError(res.error?.message || 'Failed to load loan applications');
+      }
     } catch (error) {
       console.error('Error fetching loans:', error);
       setError('Failed to load loan applications. Please try again.');
@@ -160,23 +106,28 @@ const Loan = () => {
   const handleAddLoan = async (loanData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newLoan = {
-        ...loanData,
-        id: loans.length + 1,
-        status: 'Pending',
-        appliedDate: new Date().toISOString().split('T')[0],
-        approvedDate: null,
-        avatar: loanData.employeeName.split(' ').map(n => n[0]).join('')
+      const targetEmp = employees.find(e => e.name === loanData.employeeName) || employees[0];
+      const payload = {
+        employeeId: targetEmp?._id,
+        amount: Number(loanData.amount) || 5000,
+        interestRate: Number(loanData.interestRate) || 8.5,
+        tenure: Number(loanData.tenure) || 12,
+        status: 'pending',
+        monthlyInstallment: Number(loanData.monthlyPayment) || Math.round((Number(loanData.amount) || 5000) / (Number(loanData.tenure) || 12)),
+        reason: loanData.reason || 'Personal loan request'
       };
-      
-      setLoans([newLoan, ...loans]);
-      setShowForm(false);
-      setSuccess('Loan application submitted successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+
+      const res = await loanService.createLoan(payload);
+      if (res.success) {
+        setShowForm(false);
+        setSuccess('Loan application submitted successfully to MongoDB!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchLoans();
+      } else {
+        setError(res.error?.message || 'Failed to submit loan application.');
+      }
     } catch (error) {
-      setError('Failed to submit loan application. Please try again.');
+      setError(error.message || 'Failed to submit loan application. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -185,34 +136,45 @@ const Loan = () => {
   const handleUpdateLoan = async (loanData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedLoans = loans.map(loan => 
-        loan.id === loanData.id ? { ...loan, ...loanData } : loan
-      );
-      
-      setLoans(updatedLoans);
-      setShowForm(false);
-      setEditingLoan(null);
-      setSuccess('Loan application updated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      const loanId = loanData._id || loanData.id;
+      const payload = {
+        amount: Number(loanData.amount),
+        interestRate: Number(loanData.interestRate),
+        tenure: Number(loanData.tenure),
+        monthlyInstallment: Number(loanData.monthlyPayment),
+        reason: loanData.reason
+      };
+
+      const res = await loanService.updateLoan(loanId, payload);
+      if (res.success) {
+        setShowForm(false);
+        setEditingLoan(null);
+        setSuccess('Loan application updated successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchLoans();
+      } else {
+        setError(res.error?.message || 'Failed to update loan application.');
+      }
     } catch (error) {
-      setError('Failed to update loan application. Please try again.');
+      setError(error.message || 'Failed to update loan application. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteLoan = async (id) => {
-    if (window.confirm('Are you sure you want to delete this loan application?')) {
+    if (window.confirm('Are you sure you want to delete this loan application from MongoDB?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setLoans(loans.filter(loan => loan.id !== id));
-        setShowApplication(false);
-        setSelectedLoan(null);
-        setSuccess('Loan application deleted successfully!');
-        setTimeout(() => setSuccess(''), 3000);
+        const res = await loanService.deleteLoan(id);
+        if (res.success) {
+          setShowApplication(false);
+          setSelectedLoan(null);
+          setSuccess('Loan application deleted successfully!');
+          setTimeout(() => setSuccess(''), 3000);
+          setLoans(loans.filter(l => (l._id || l.id) !== id));
+        } else {
+          setError(res.error?.message || 'Failed to delete loan application.');
+        }
       } catch (error) {
         setError('Failed to delete loan application. Please try again.');
       }
@@ -232,20 +194,17 @@ const Loan = () => {
 
   const handleApproveLoan = async (id) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedLoans = loans.map(loan => 
-        loan.id === id ? { 
-          ...loan, 
-          status: 'Approved',
-          approvedDate: new Date().toISOString().split('T')[0]
-        } : loan
-      );
-      
-      setLoans(updatedLoans);
-      setSelectedLoan(updatedLoans.find(loan => loan.id === id) || null);
-      setSuccess('Loan application approved successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      const res = await loanService.updateLoan(id, { status: 'active' });
+      if (res.success) {
+        setSuccess('Loan application approved successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchLoans();
+        if (selectedLoan && (selectedLoan._id || selectedLoan.id) === id) {
+          setSelectedLoan(prev => ({ ...prev, status: 'Approved' }));
+        }
+      } else {
+        setError(res.error?.message || 'Failed to approve loan');
+      }
     } catch (error) {
       setError('Failed to approve loan application. Please try again.');
     }
@@ -253,27 +212,40 @@ const Loan = () => {
 
   const handleRejectLoan = async (id) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedLoans = loans.map(loan => 
-        loan.id === id ? { 
-          ...loan, 
-          status: 'Rejected',
-          approvedDate: new Date().toISOString().split('T')[0]
-        } : loan
-      );
-      
-      setLoans(updatedLoans);
-      setSelectedLoan(updatedLoans.find(loan => loan.id === id) || null);
-      setSuccess('Loan application rejected successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      const res = await loanService.updateLoan(id, { status: 'defaulted' });
+      if (res.success) {
+        setSuccess('Loan application rejected successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+        await fetchLoans();
+        if (selectedLoan && (selectedLoan._id || selectedLoan.id) === id) {
+          setSelectedLoan(prev => ({ ...prev, status: 'Rejected' }));
+        }
+      } else {
+        setError(res.error?.message || 'Failed to reject loan');
+      }
     } catch (error) {
       setError('Failed to reject loan application. Please try again.');
     }
   };
 
   const handleExport = () => {
-    console.log('Exporting loan data...');
+    if (loans.length === 0) {
+      setError('No loans to export');
+      return;
+    }
+    const lines = [
+      `"Employee","Amount","Tenure","Monthly","Status","Applied Date"`,
+      ...loans.map(l => `"${l.employeeName}","$${l.amount}","${l.tenure} mos","$${l.monthlyPayment}","${l.status}","${l.appliedDate}"`)
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `loans_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
     setSuccess('Loan data exported successfully!');
     setTimeout(() => setSuccess(''), 3000);
   };
