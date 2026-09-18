@@ -1,9 +1,19 @@
 import React from 'react';
-import { Card, Row, Col, Button, Table, Badge } from 'react-bootstrap';
-import { FaDownload, FaPrint, FaEnvelope, FaTimes, FaCheck, FaClock } from 'react-icons/fa';
+import { Row, Col, Button, Table, Badge, Card } from 'react-bootstrap';
+import {
+  FaDownload, FaPrint, FaEnvelope, FaTimes,
+  FaCheck, FaClock
+} from 'react-icons/fa';
 import './PayslipViewer.css';
 
-const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, formatCurrency }) => {
+const PayslipViewer = ({
+  payslip,
+  onDownload,
+  onPrint,
+  onSendEmail,
+  onClose,
+  formatCurrency
+}) => {
   if (!payslip) return null;
 
   const getStatusBadge = (status) => {
@@ -13,7 +23,7 @@ const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, for
     };
     const { variant, icon } = config[status] || config.Pending;
     return (
-      <Badge bg={variant} className="status-badge-large">
+      <Badge bg={variant} className="status-badge-viewer">
         {icon} {status}
       </Badge>
     );
@@ -22,16 +32,41 @@ const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, for
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: 'numeric', month: 'long', day: 'numeric'
     });
   };
+
+  const allowances = payslip.allowances || {
+    housing: payslip.allowance || 0,
+    transport: 0,
+    medical: 0,
+    other: 0
+  };
+
+  const bonuses = payslip.bonuses || {
+    performance: payslip.bonus || 0,
+    holiday: 0,
+    other: 0
+  };
+
+  const deductions = payslip.deductions || {
+    tax: payslip.deductions || 0,
+    insurance: 0,
+    pension: 0,
+    loan: 0,
+    other: 0
+  };
+
+  const allowanceTotal = Object.values(allowances).reduce((s, v) => s + (v || 0), 0);
+  const bonusTotal = Object.values(bonuses).reduce((s, v) => s + (v || 0), 0);
+  const deductionTotal = Object.values(deductions).reduce((s, v) => s + (v || 0), 0);
+  const gross = (payslip.basicSalary || 0) + allowanceTotal + bonusTotal;
+  const net = gross - deductionTotal;
 
   return (
     <div className="payslip-viewer">
       {/* Header */}
-      <div className="payslip-viewer-header">
+      <div className="viewer-header">
         <div className="company-info">
           <h4>Employee Management System</h4>
           <p>123 Business Street, City, State 12345</p>
@@ -44,7 +79,7 @@ const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, for
       </div>
 
       {/* Employee Details */}
-      <div className="payslip-employee-details">
+      <div className="employee-details-box">
         <Row>
           <Col md={6}>
             <div className="detail-row">
@@ -78,60 +113,71 @@ const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, for
       </div>
 
       {/* Salary Details */}
-      <Card className="payslip-salary-card">
+      <Card className="salary-details-card">
         <Card.Header>
           <h6 className="mb-0">Salary Details</h6>
         </Card.Header>
-        <Card.Body>
-          <Table bordered className="payslip-table-details">
+        <Card.Body className="p-0">
+          <Table bordered className="salary-table mb-0">
             <tbody>
               <tr>
                 <td className="label-cell">Basic Salary</td>
                 <td className="value-cell">{formatCurrency(payslip.basicSalary)}</td>
               </tr>
-              <tr>
-                <td className="label-cell">Allowance</td>
-                <td className="value-cell">{formatCurrency(payslip.allowance)}</td>
-              </tr>
-              <tr>
-                <td className="label-cell">Bonus</td>
-                <td className="value-cell">{formatCurrency(payslip.bonus)}</td>
-              </tr>
+
+              {allowanceTotal > 0 && (
+                <tr>
+                  <td className="label-cell">Allowances</td>
+                  <td className="value-cell">{formatCurrency(allowanceTotal)}</td>
+                </tr>
+              )}
+
+              {bonusTotal > 0 && (
+                <tr>
+                  <td className="label-cell">Bonuses</td>
+                  <td className="value-cell">{formatCurrency(bonusTotal)}</td>
+                </tr>
+              )}
+
               <tr className="total-row">
                 <td className="label-cell">Gross Salary</td>
-                <td className="value-cell">
-                  {formatCurrency((payslip.basicSalary || 0) + (payslip.allowance || 0) + (payslip.bonus || 0))}
-                </td>
+                <td className="value-cell">{formatCurrency(gross)}</td>
               </tr>
+
               <tr>
                 <td className="label-cell">Deductions</td>
-                <td className="value-cell text-danger">-{formatCurrency(payslip.deductions)}</td>
+                <td className="value-cell text-danger">-{formatCurrency(deductionTotal)}</td>
               </tr>
+
               <tr className="net-salary-row">
                 <td className="label-cell"><strong>Net Salary</strong></td>
-                <td className="value-cell"><strong>{formatCurrency(payslip.netSalary)}</strong></td>
+                <td className="value-cell"><strong>{formatCurrency(net)}</strong></td>
               </tr>
             </tbody>
           </Table>
         </Card.Body>
       </Card>
 
-      {/* Additional Details */}
-      <Row className="payslip-additional-details">
+      {/* Additional Info */}
+      <Row className="additional-details">
         <Col md={6}>
           <div className="detail-section">
             <h6>Attendance</h6>
             <div className="detail-row">
               <span className="detail-label">Working Days:</span>
-              <span className="detail-value">{payslip.attendance}</span>
+              <span className="detail-value">{payslip.attendance?.workingDays || 22}</span>
             </div>
             <div className="detail-row">
-              <span className="detail-label">Leave Taken:</span>
-              <span className="detail-value">{payslip.leaveTaken}</span>
+              <span className="detail-label">Present Days:</span>
+              <span className="detail-value">{payslip.attendance?.presentDays || 22}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Leave Days:</span>
+              <span className="detail-value">{payslip.attendance?.leaveDays || 0}</span>
             </div>
             <div className="detail-row">
               <span className="detail-label">Overtime:</span>
-              <span className="detail-value">{payslip.overtime} hours</span>
+              <span className="detail-value">{payslip.attendance?.overtime || 0} hours</span>
             </div>
           </div>
         </Col>
@@ -143,7 +189,7 @@ const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, for
               <span className="detail-value">{payslip.bankName}</span>
             </div>
             <div className="detail-row">
-              <span className="detail-label">Account Number:</span>
+              <span className="detail-label">Account No:</span>
               <span className="detail-value">{payslip.accountNumber}</span>
             </div>
             <div className="detail-row">
@@ -155,12 +201,14 @@ const PayslipViewer = ({ payslip, onDownload, onPrint, onSendEmail, onClose, for
       </Row>
 
       {/* Footer */}
-      <div className="payslip-viewer-footer">
-        <p className="text-muted text-center">This is a computer-generated payslip. No signature required.</p>
+      <div className="viewer-footer">
+        <p className="text-muted text-center mb-0">
+          This is a computer-generated payslip. No signature required.
+        </p>
       </div>
 
       {/* Actions */}
-      <div className="payslip-viewer-actions">
+      <div className="viewer-actions">
         {payslip.status === 'Generated' && (
           <>
             <Button variant="success" onClick={onDownload}>
