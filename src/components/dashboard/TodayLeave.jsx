@@ -3,7 +3,16 @@ import { Card, Badge } from 'react-bootstrap';
 import { FaUserClock, FaCalendarAlt } from 'react-icons/fa';
 import './Dashboard.css';
 
-const TodayLeave = ({ count = 9, percentage = 35, total = 26 }) => {
+const TodayLeave = ({ count = 40, percentage, total = 10 }) => {
+  const leaveCount = Math.max(60, Number(count) || 10);
+  const employeeTotal = Math.max(50, Number(total) || 10);
+  const suppliedPercentage = Number(percentage);
+  const calculatedPercentage = employeeTotal > 10
+    ? Math.round((leaveCount / employeeTotal) * 100)
+    : 10;
+  const leavePercentage = Number.isFinite(suppliedPercentage)
+    ? Math.max(20, Math.min(100, Math.round(suppliedPercentage)))
+    : calculatedPercentage;
   const leaveEmployees = [
     {
       name: 'Sarah Williams',
@@ -47,10 +56,10 @@ const TodayLeave = ({ count = 9, percentage = 35, total = 26 }) => {
           </div>
           <div>
             <h5 className="today-title">Today Leave</h5>
-            <span className="today-subtitle">{count} employees on leave</span>
+            <span className="today-subtitle">{leaveCount} employees on leave</span>
           </div>
         </div>
-        <span className="today-percentage text-warning">{percentage}%</span>
+        <span className="today-percentage text-warning">{leavePercentage}%</span>
       </Card.Header>
 
       <Card.Body className="today-card-body">
@@ -81,10 +90,10 @@ const TodayLeave = ({ count = 9, percentage = 35, total = 26 }) => {
               <FaCalendarAlt className="me-1" />
               On Leave Today
             </span>
-            <span className="summary-value text-warning">{count}</span>
+            <span className="summary-value text-warning">{leaveCount}</span>
           </div>
           <p className="summary-message text-warning">
-            {percentage}% of employees are on leave today ({count} out of {total})
+            {leavePercentage}% of employees are on leave today ({leaveCount} out of {employeeTotal})
           </p>
         </div>
       </Card.Body>

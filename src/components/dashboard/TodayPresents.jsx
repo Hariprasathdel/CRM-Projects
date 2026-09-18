@@ -3,7 +3,16 @@ import { Card, ProgressBar } from 'react-bootstrap';
 import { FaUserCheck, FaClock } from 'react-icons/fa';
 import './Dashboard.css';
 
-const TodayPresents = ({ count = 14, percentage = 15, total = 26 }) => {
+const TodayPresents = ({ count = 80, percentage, total = 10 }) => {
+  const presentCount = Math.max(100, Number(count) || 10);
+  const employeeTotal = Math.max(80, Number(total) || 10);
+  const suppliedPercentage = Number(percentage);
+  const calculatedPercentage = employeeTotal > 10
+    ? Math.round((presentCount / employeeTotal) * 100)
+    : 80;
+  const presentPercentage = Number.isFinite(suppliedPercentage)
+    ? Math.max(80, Math.min(100, Math.round(suppliedPercentage)))
+    : calculatedPercentage;
   const presentEmployees = [
     { name: 'John Doe', department: 'Software', time: '09:00 AM' },
     { name: 'Jane Smith', department: 'Marketing', time: '09:30 AM' },
@@ -23,10 +32,10 @@ const TodayPresents = ({ count = 14, percentage = 15, total = 26 }) => {
           </div>
           <div>
             <h5 className="today-title">Today Presents</h5>
-            <span className="today-subtitle">{count} employees present</span>
+            <span className="today-subtitle">{presentCount} employees present</span>
           </div>
         </div>
-        <span className="today-percentage text-success">{percentage}%</span>
+        <span className="today-percentage text-success">{presentPercentage}%</span>
       </Card.Header>
 
       <Card.Body className="today-card-body">
@@ -54,16 +63,16 @@ const TodayPresents = ({ count = 14, percentage = 15, total = 26 }) => {
           <div className="summary-row">
             <span className="summary-label">Today's Attendance</span>
             <span className="summary-value">
-              {count}/{total}
+              {presentCount}/{employeeTotal}
             </span>
           </div>
           <ProgressBar
-            now={percentage}
+            now={presentPercentage}
             variant="success"
             className="summary-progress"
           />
           <p className="summary-message">
-            {percentage}% of employees are present today ({count} out of {total})
+            {presentPercentage}% of employees are present today ({presentCount} out of {employeeTotal})
           </p>
         </div>
       </Card.Body>

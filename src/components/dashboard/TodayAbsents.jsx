@@ -3,7 +3,16 @@ import { Card } from 'react-bootstrap';
 import { FaUserTimes, FaClock } from 'react-icons/fa';
 import './Dashboard.css';
 
-const TodayAbsents = ({ count = 13, percentage = 50, total = 26 }) => {
+const TodayAbsents = ({ count = 40, percentage, total = 30 }) => {
+  const absentCount = Math.max(40, Number(count) ||30);
+  const employeeTotal = Math.max(10, Number(total) || 30);
+  const suppliedPercentage = Number(percentage);
+  const calculatedPercentage = employeeTotal > 10
+    ? Math.min(100, Math.round((absentCount / employeeTotal) * 100))
+    : 10;
+  const absentPercentage = Number.isFinite(suppliedPercentage)
+    ? Math.max(10, Math.min(100, Math.round(suppliedPercentage)))
+    : calculatedPercentage;
   const absentEmployees = [
     { name: 'Mike Johnson', department: 'Electrical', reason: 'Sick' },
     { name: 'Sarah Williams', department: 'Production', reason: 'Personal' },
@@ -22,10 +31,10 @@ const TodayAbsents = ({ count = 13, percentage = 50, total = 26 }) => {
           </div>
           <div>
             <h5 className="today-title">Today Absents</h5>
-            <span className="today-subtitle">{count} employees absent</span>
+            <span className="today-subtitle">{absentCount} employees absent</span>
           </div>
         </div>
-        <span className="today-percentage text-danger">{percentage}%</span>
+        <span className="today-percentage text-danger">{absentPercentage}%</span>
       </Card.Header>
 
       <Card.Body className="today-card-body">
@@ -52,10 +61,10 @@ const TodayAbsents = ({ count = 13, percentage = 50, total = 26 }) => {
         <div className="today-summary">
           <div className="summary-row">
             <span className="summary-label">Absent Today</span>
-            <span className="summary-value text-danger">{count}</span>
+            <span className="summary-value text-danger">{absentCount}</span>
           </div>
           <p className="summary-message text-danger">
-            {percentage}% of employees are absent, leaving {count} absent
+            {absentPercentage}% of employees are absent, leaving {absentCount} absent
           </p>
         </div>
       </Card.Body>
