@@ -1,298 +1,283 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Modal, 
-  Alert, 
-  Spinner,
-  Badge
-} from 'react-bootstrap';
-import { 
-  FaPlus, 
-  FaDownload, 
-  FaMoneyBillWave, 
-  FaHands,
+import { Container, Row, Col, Card, Button, Modal, Alert, Spinner } from 'react-bootstrap';
+import {
+  FaPlus,
+  FaDownload,
+  FaMoneyBillWave,
   FaCheckCircle,
   FaTimesCircle,
   FaHourglassHalf,
-  FaChartBar,
   FaWallet,
-  FaCreditCard
+  FaCreditCard,
+  FaHands
 } from 'react-icons/fa';
 import LoanList from './LoanList';
 import LoanApplication from './LoanApplication';
 import LoanDetails from './LoanDetails';
-import loanService from '../../services/loanService';
-import employeeService from '../../services/employeeService';
 import './Loan.css';
 
 const Loan = () => {
   const [loading, setLoading] = useState(false);
   const [loans, setLoans] = useState([]);
-  const [employees, setEmployees] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [showApplication, setShowApplication] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [editingLoan, setEditingLoan] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     fetchLoans();
-    fetchEmployees();
   }, []);
-
-  const fetchEmployees = async () => {
-    try {
-      const res = await employeeService.getAllEmployees();
-      if (res.success && Array.isArray(res.data)) {
-        setEmployees(res.data);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const fetchLoans = async () => {
     setLoading(true);
     try {
-      const res = await loanService.getAllLoans();
-      if (res.success && Array.isArray(res.data)) {
-        const mappedLoans = res.data.map(l => {
-          const empName = l.employeeId?.name || l.employeeName || 'Employee';
-          const tenureMonths = l.tenure || 12;
-          const totalAmt = l.amount || 5000;
-          const monthly = l.monthlyInstallment || Math.round(totalAmt / tenureMonths);
-          const rawStatus = l.status || 'pending';
-          const statusDisplay = (rawStatus === 'active' || rawStatus === 'paid' || rawStatus === 'Approved')
-            ? 'Approved' 
-            : (rawStatus === 'defaulted' || rawStatus === 'Rejected' ? 'Rejected' : 'Pending');
-
-          return {
-            id: l._id || l.id,
-            _id: l._id || l.id,
-            employeeName: empName,
-            employeeId: l.employeeId?.employeeId || l.employeeId?._id || 'EMP',
-            department: l.employeeId?.department || l.department || 'Software',
-            loanType: l.loanType || 'Personal',
-            amount: totalAmt,
-            interestRate: l.interestRate || 8.5,
-            tenure: tenureMonths,
-            monthlyPayment: monthly,
-            status: statusDisplay,
-            appliedDate: l.startDate ? new Date(l.startDate).toISOString().split('T')[0] : (l.createdAt ? new Date(l.createdAt).toISOString().split('T')[0] : '2026-01-10'),
-            approvedDate: statusDisplay === 'Approved' ? '2026-01-12' : null,
-            reason: l.reason || 'Personal loan request',
-            avatar: empName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-          };
-        });
-        setLoans(mappedLoans);
-      } else {
-        setError(res.error?.message || 'Failed to load loan applications');
-      }
-    } catch (error) {
-      console.error('Error fetching loans:', error);
-      setError('Failed to load loan applications. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddLoan = async (loanData) => {
-    setLoading(true);
-    try {
-      const targetEmp = employees.find(e => e.name === loanData.employeeName) || employees[0];
-      const payload = {
-        employeeId: targetEmp?._id,
-        amount: Number(loanData.amount) || 5000,
-        interestRate: Number(loanData.interestRate) || 8.5,
-        tenure: Number(loanData.tenure) || 12,
-        status: 'pending',
-        monthlyInstallment: Number(loanData.monthlyPayment) || Math.round((Number(loanData.amount) || 5000) / (Number(loanData.tenure) || 12)),
-        reason: loanData.reason || 'Personal loan request'
-      };
-
-      const res = await loanService.createLoan(payload);
-      if (res.success) {
-        setShowForm(false);
-        setSuccess('Loan application submitted successfully to MongoDB!');
-        setTimeout(() => setSuccess(''), 3000);
-        await fetchLoans();
-      } else {
-        setError(res.error?.message || 'Failed to submit loan application.');
-      }
-    } catch (error) {
-      setError(error.message || 'Failed to submit loan application. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateLoan = async (loanData) => {
-    setLoading(true);
-    try {
-      const loanId = loanData._id || loanData.id;
-      const payload = {
-        amount: Number(loanData.amount),
-        interestRate: Number(loanData.interestRate),
-        tenure: Number(loanData.tenure),
-        monthlyInstallment: Number(loanData.monthlyPayment),
-        reason: loanData.reason
-      };
-
-      const res = await loanService.updateLoan(loanId, payload);
-      if (res.success) {
-        setShowForm(false);
-        setEditingLoan(null);
-        setSuccess('Loan application updated successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-        await fetchLoans();
-      } else {
-        setError(res.error?.message || 'Failed to update loan application.');
-      }
-    } catch (error) {
-      setError(error.message || 'Failed to update loan application. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteLoan = async (id) => {
-    if (window.confirm('Are you sure you want to delete this loan application from MongoDB?')) {
-      try {
-        const res = await loanService.deleteLoan(id);
-        if (res.success) {
-          setShowApplication(false);
-          setSelectedLoan(null);
-          setSuccess('Loan application deleted successfully!');
-          setTimeout(() => setSuccess(''), 3000);
-          setLoans(loans.filter(l => (l._id || l.id) !== id));
-        } else {
-          setError(res.error?.message || 'Failed to delete loan application.');
+      await new Promise(resolve => setTimeout(resolve, 600));
+      setLoans([
+        {
+          id: 1,
+          employeeName: 'John Doe',
+          employeeId: 'EMP001',
+          department: 'Software',
+          position: 'Senior Developer',
+          loanType: 'Personal',
+          amount: 5000,
+          interestRate: 8.5,
+          tenure: 12,
+          monthlyPayment: 436.25,
+          totalPayment: 5235,
+          totalInterest: 235,
+          status: 'Approved',
+          appliedDate: '2026-01-10',
+          approvedDate: '2026-01-12',
+          reason: 'Home renovation',
+          bankName: 'ABC Bank',
+          accountNumber: '1234567890',
+          avatar: 'JD',
+          payments: [
+            { paymentDate: '2026-02-01', amount: 436.25, status: 'Paid' },
+            { paymentDate: '2026-03-01', amount: 436.25, status: 'Paid' }
+          ]
+        },
+        {
+          id: 2,
+          employeeName: 'Jane Smith',
+          employeeId: 'EMP002',
+          department: 'Marketing',
+          position: 'Marketing Manager',
+          loanType: 'Car',
+          amount: 15000,
+          interestRate: 7.5,
+          tenure: 24,
+          monthlyPayment: 674.55,
+          totalPayment: 16189.20,
+          totalInterest: 1189.20,
+          status: 'Pending',
+          appliedDate: '2026-01-15',
+          approvedDate: null,
+          reason: 'New car purchase',
+          bankName: 'XYZ Bank',
+          accountNumber: '0987654321',
+          avatar: 'JS',
+          payments: []
+        },
+        {
+          id: 3,
+          employeeName: 'Mike Johnson',
+          employeeId: 'EMP003',
+          department: 'Electrical',
+          position: 'Electrical Engineer',
+          loanType: 'Education',
+          amount: 8000,
+          interestRate: 6.0,
+          tenure: 18,
+          monthlyPayment: 465.23,
+          totalPayment: 8374.14,
+          totalInterest: 374.14,
+          status: 'Approved',
+          appliedDate: '2026-01-08',
+          approvedDate: '2026-01-10',
+          reason: 'MBA program',
+          bankName: 'ABC Bank',
+          accountNumber: '5678901234',
+          avatar: 'MJ',
+          payments: []
+        },
+        {
+          id: 4,
+          employeeName: 'Sarah Williams',
+          employeeId: 'EMP004',
+          department: 'Production',
+          position: 'Production Supervisor',
+          loanType: 'Emergency',
+          amount: 3000,
+          interestRate: 10.0,
+          tenure: 6,
+          monthlyPayment: 515.27,
+          totalPayment: 3091.62,
+          totalInterest: 91.62,
+          status: 'Rejected',
+          appliedDate: '2026-01-14',
+          approvedDate: '2026-01-15',
+          reason: 'Medical emergency',
+          bankName: 'XYZ Bank',
+          accountNumber: '4321098765',
+          avatar: 'SW',
+          payments: []
+        },
+        {
+          id: 5,
+          employeeName: 'Robert Brown',
+          employeeId: 'EMP005',
+          department: 'Software',
+          position: 'Frontend Developer',
+          loanType: 'Home',
+          amount: 25000,
+          interestRate: 6.5,
+          tenure: 36,
+          monthlyPayment: 766.48,
+          totalPayment: 27593.28,
+          totalInterest: 2593.28,
+          status: 'Pending',
+          appliedDate: '2026-01-18',
+          approvedDate: null,
+          reason: 'House down payment',
+          bankName: 'ABC Bank',
+          accountNumber: '7890123456',
+          avatar: 'RB',
+          payments: []
+        },
+        {
+          id: 6,
+          employeeName: 'Emily Davis',
+          employeeId: 'EMP006',
+          department: 'HR',
+          position: 'HR Coordinator',
+          loanType: 'Personal',
+          amount: 4500,
+          interestRate: 9.0,
+          tenure: 12,
+          monthlyPayment: 393.58,
+          totalPayment: 4722.96,
+          totalInterest: 222.96,
+          status: 'Approved',
+          appliedDate: '2026-01-05',
+          approvedDate: '2026-01-07',
+          reason: 'Debt consolidation',
+          bankName: 'ABC Bank',
+          accountNumber: '9876543210',
+          avatar: 'ED',
+          payments: [
+            { paymentDate: '2026-02-01', amount: 393.58, status: 'Paid' }
+          ]
         }
-      } catch (error) {
-        setError('Failed to delete loan application. Please try again.');
-      }
+      ]);
+    } catch (err) {
+      setError('Failed to load loan data.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleViewLoan = (loan) => {
-    setSelectedLoan(loan);
-    setShowApplication(true);
+  const handleAddLoan = (loanData) => {
+    const newLoan = {
+      ...loanData,
+      id: loans.length + 1,
+      status: 'Pending',
+      appliedDate: new Date().toISOString().split('T')[0],
+      approvedDate: null,
+      avatar: loanData.employeeName.split(' ').map(n => n[0]).join(''),
+      payments: []
+    };
+    setLoans([newLoan, ...loans]);
+    setShowForm(false);
+    setSuccess('Loan application submitted successfully!');
+    setTimeout(() => setSuccess(''), 3000);
   };
 
-  const handleEditLoan = (loan) => {
-    setShowApplication(false);
+  const handleUpdateLoan = (loanData) => {
+    setLoans(loans.map(l => l.id === loanData.id ? { ...l, ...loanData } : l));
+    setShowForm(false);
+    setEditingLoan(null);
+    setSuccess('Loan updated successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleDeleteLoan = (id) => {
+    if (window.confirm('Are you sure you want to delete this loan application?')) {
+      setLoans(loans.filter(l => l.id !== id));
+      setSuccess('Loan deleted successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    }
+  };
+
+  const handleApprove = (id) => {
+    setLoans(loans.map(l =>
+      l.id === id
+        ? { ...l, status: 'Approved', approvedDate: new Date().toISOString().split('T')[0] }
+        : l
+    ));
+    setSuccess('Loan approved successfully!');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleReject = (id) => {
+    setLoans(loans.map(l =>
+      l.id === id
+        ? { ...l, status: 'Rejected', approvedDate: new Date().toISOString().split('T')[0] }
+        : l
+    ));
+    setSuccess('Loan rejected.');
+    setTimeout(() => setSuccess(''), 3000);
+  };
+
+  const handleView = (loan) => {
+    setSelectedLoan(loan);
+    setShowDetails(true);
+  };
+
+  const handleEdit = (loan) => {
     setEditingLoan(loan);
     setShowForm(true);
   };
 
-  const handleApproveLoan = async (id) => {
-    try {
-      const res = await loanService.updateLoan(id, { status: 'active' });
-      if (res.success) {
-        setSuccess('Loan application approved successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-        await fetchLoans();
-        if (selectedLoan && (selectedLoan._id || selectedLoan.id) === id) {
-          setSelectedLoan(prev => ({ ...prev, status: 'Approved' }));
-        }
-      } else {
-        setError(res.error?.message || 'Failed to approve loan');
-      }
-    } catch (error) {
-      setError('Failed to approve loan application. Please try again.');
-    }
-  };
-
-  const handleRejectLoan = async (id) => {
-    try {
-      const res = await loanService.updateLoan(id, { status: 'defaulted' });
-      if (res.success) {
-        setSuccess('Loan application rejected successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-        await fetchLoans();
-        if (selectedLoan && (selectedLoan._id || selectedLoan.id) === id) {
-          setSelectedLoan(prev => ({ ...prev, status: 'Rejected' }));
-        }
-      } else {
-        setError(res.error?.message || 'Failed to reject loan');
-      }
-    } catch (error) {
-      setError('Failed to reject loan application. Please try again.');
-    }
-  };
-
   const handleExport = () => {
-    if (loans.length === 0) {
-      setError('No loans to export');
-      return;
-    }
-    const lines = [
-      `"Employee","Amount","Tenure","Monthly","Status","Applied Date"`,
-      ...loans.map(l => `"${l.employeeName}","$${l.amount}","${l.tenure} mos","$${l.monthlyPayment}","${l.status}","${l.appliedDate}"`)
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `loans_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
     setSuccess('Loan data exported successfully!');
     setTimeout(() => setSuccess(''), 3000);
   };
-
-  const filteredLoans = loans.filter(loan => {
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
-      loan.employeeName.toLowerCase().includes(searchLower) ||
-      loan.employeeId.toLowerCase().includes(searchLower) ||
-      loan.department.toLowerCase().includes(searchLower) ||
-      loan.loanType.toLowerCase().includes(searchLower) ||
-      loan.reason.toLowerCase().includes(searchLower);
-    
-    const matchesFilter = filter === 'all' || loan.status.toLowerCase() === filter;
-    
-    return matchesSearch && matchesFilter;
-  });
 
   // Statistics
   const totalLoans = loans.length;
   const pendingLoans = loans.filter(l => l.status === 'Pending').length;
   const approvedLoans = loans.filter(l => l.status === 'Approved').length;
   const rejectedLoans = loans.filter(l => l.status === 'Rejected').length;
-  const totalAmount = loans.reduce((sum, loan) => sum + loan.amount, 0);
+  const totalAmount = loans.reduce((sum, l) => sum + l.amount, 0);
   const avgAmount = totalLoans > 0 ? totalAmount / totalLoans : 0;
+  const approvalRate = totalLoans > 0 ? Math.round((approvedLoans / totalLoans) * 100) : 0;
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(amount);
-  };
+    }).format(amount || 0);
 
   return (
     <div className="loan-page">
       <Container fluid>
-        {/* Header Section */}
+        {/* Header */}
         <div className="loan-header">
           <div className="header-left">
             <h2 className="page-title">Loan Management</h2>
-            <p className="page-subtitle">Manage employee loan applications and approvals</p>
+            <p className="page-subtitle">
+              Manage employee loan applications and approvals
+            </p>
           </div>
           <div className="header-right">
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               className="me-2"
               onClick={() => {
                 setEditingLoan(null);
@@ -319,13 +304,14 @@ const Loan = () => {
                   <div className="stat-info">
                     <h3 className="stat-number">{totalLoans}</h3>
                     <p className="stat-label">Total Applications</p>
-                    <small className="stat-detail">{formatCurrency(totalAmount)} total</small>
+                    <small className="stat-detail">
+                      {formatCurrency(totalAmount)} total
+                    </small>
                   </div>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-          
           <Col lg={3} md={6} className="mb-3">
             <Card className="stat-card pending-card">
               <Card.Body>
@@ -342,7 +328,6 @@ const Loan = () => {
               </Card.Body>
             </Card>
           </Col>
-          
           <Col lg={3} md={6} className="mb-3">
             <Card className="stat-card approved-card">
               <Card.Body>
@@ -359,7 +344,6 @@ const Loan = () => {
               </Card.Body>
             </Card>
           </Col>
-          
           <Col lg={3} md={6} className="mb-3">
             <Card className="stat-card rejected-card">
               <Card.Body>
@@ -378,7 +362,7 @@ const Loan = () => {
           </Col>
         </Row>
 
-        {/* Additional Statistics */}
+        {/* Secondary Stats */}
         <Row className="statistics-cards mb-4">
           <Col lg={4} md={6} className="mb-3">
             <Card className="stat-card">
@@ -389,14 +373,13 @@ const Loan = () => {
                   </div>
                   <div className="stat-info">
                     <h3 className="stat-number">{formatCurrency(avgAmount)}</h3>
-                    <p className="stat-label">Average Loan Amount</p>
+                    <p className="stat-label">Average Loan</p>
                     <small className="stat-detail">Per application</small>
                   </div>
                 </div>
               </Card.Body>
             </Card>
           </Col>
-          
           <Col lg={4} md={6} className="mb-3">
             <Card className="stat-card">
               <Card.Body>
@@ -413,7 +396,6 @@ const Loan = () => {
               </Card.Body>
             </Card>
           </Col>
-          
           <Col lg={4} md={12} className="mb-3">
             <Card className="stat-card">
               <Card.Body>
@@ -422,11 +404,11 @@ const Loan = () => {
                     <FaHands className="stat-icon" />
                   </div>
                   <div className="stat-info">
-                    <h3 className="stat-number">
-                      {totalLoans > 0 ? Math.round((approvedLoans / totalLoans) * 100) : 0}%
-                    </h3>
+                    <h3 className="stat-number">{approvalRate}%</h3>
                     <p className="stat-label">Approval Rate</p>
-                    <small className="stat-detail">{approvedLoans} approved out of {totalLoans}</small>
+                    <small className="stat-detail">
+                      {approvedLoans} approved out of {totalLoans}
+                    </small>
                   </div>
                 </div>
               </Card.Body>
@@ -436,13 +418,12 @@ const Loan = () => {
 
         {/* Alerts */}
         {error && (
-          <Alert variant="danger" onClose={() => setError('')} dismissible>
+          <Alert variant="danger" dismissible onClose={() => setError('')}>
             {error}
           </Alert>
         )}
-        
         {success && (
-          <Alert variant="success" onClose={() => setSuccess('')} dismissible>
+          <Alert variant="success" dismissible onClose={() => setSuccess('')}>
             {success}
           </Alert>
         )}
@@ -453,28 +434,25 @@ const Loan = () => {
             {loading ? (
               <div className="text-center py-5">
                 <Spinner animation="border" variant="primary" />
-                <p className="mt-3 text-muted">Loading loan applications...</p>
+                <p className="mt-3 text-muted">Loading loans...</p>
               </div>
             ) : (
-              <LoanList 
-                loans={filteredLoans}
-                onView={handleViewLoan}
-                onEdit={handleEditLoan}
+              <LoanList
+                loans={loans}
+                onView={handleView}
+                onEdit={handleEdit}
                 onDelete={handleDeleteLoan}
-                onApprove={handleApproveLoan}
-                onReject={handleRejectLoan}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                filter={filter}
-                setFilter={setFilter}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                formatCurrency={formatCurrency}
               />
             )}
           </Card.Body>
         </Card>
 
-        {/* Loan Application Form Modal */}
-        <Modal 
-          show={showForm} 
+        {/* Application Form Modal */}
+        <Modal
+          show={showForm}
           onHide={() => {
             setShowForm(false);
             setEditingLoan(null);
@@ -489,7 +467,7 @@ const Loan = () => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <LoanApplication 
+            <LoanApplication
               loan={editingLoan}
               onSubmit={editingLoan ? handleUpdateLoan : handleAddLoan}
               onCancel={() => {
@@ -500,31 +478,29 @@ const Loan = () => {
           </Modal.Body>
         </Modal>
 
-        {/* Loan Application Detail Modal */}
+        {/* Loan Details Modal */}
         <Modal
-          show={showApplication}
-          onHide={() => {
-            setShowApplication(false);
-            setSelectedLoan(null);
-          }}
+          show={showDetails}
+          onHide={() => setShowDetails(false)}
           size="lg"
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title><FaMoneyBillWave className="me-2" />Loan Application Details</Modal.Title>
+            <Modal.Title>
+              <FaMoneyBillWave className="me-2" /> Loan Details
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <LoanDetails
-              loan={selectedLoan}
-              onApprove={handleApproveLoan}
-              onReject={handleRejectLoan}
-              onEdit={handleEditLoan}
-              onDelete={handleDeleteLoan}
-              onClose={() => {
-                setShowApplication(false);
-                setSelectedLoan(null);
-              }}
-            />
+            {selectedLoan && (
+              <LoanDetails
+                loan={selectedLoan}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onEdit={handleEdit}
+                onClose={() => setShowDetails(false)}
+                formatCurrency={formatCurrency}
+              />
+            )}
           </Modal.Body>
         </Modal>
       </Container>

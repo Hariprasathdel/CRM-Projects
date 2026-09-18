@@ -1,255 +1,227 @@
 /* Loan Page Styles */
 .loan-page {
-    padding: 20px 0;
-    background: #f8f9fa;
-    min-height: calc(100vh - 70px);
+  padding: 20px 0;
+  background: #f5f7fa;
+  min-height: calc(100vh - 70px);
+}
+
+/* Header */
+.loan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.loan-header .page-title {
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.loan-header .page-subtitle {
+  color: #64748b;
+  margin: 4px 0 0 0;
+  font-size: 0.95rem;
+}
+
+.loan-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Statistics */
+.statistics-cards {
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  height: 100%;
+  background: #ffffff;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card .card-body {
+  padding: 20px;
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-wrapper.primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.stat-icon-wrapper.success {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.stat-icon-wrapper.warning {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+}
+
+.stat-icon-wrapper.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.stat-icon-wrapper.info {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.stat-icon {
+  font-size: 1.6rem;
+  color: #ffffff;
+}
+
+.stat-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-number {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.stat-label {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.stat-detail {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  display: block;
+  margin-top: 2px;
+}
+
+.total-card { border-left: 4px solid #3b82f6; }
+.pending-card { border-left: 4px solid #eab308; }
+.approved-card { border-left: 4px solid #22c55e; }
+.rejected-card { border-left: 4px solid #ef4444; }
+
+/* Main Card */
+.loan-main-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+}
+
+.loan-main-card .card-body {
+  padding: 0;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .loan-page {
+    background: #0f172a;
   }
-  
-  /* Header Styles */
-  .loan-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-    gap: 15px;
+
+  .loan-header .page-title {
+    color: #f1f5f9;
   }
-  
-  .header-left {
-    flex: 1;
+
+  .loan-header .page-subtitle {
+    color: #94a3b8;
   }
-  
-  .page-title {
-    font-weight: 700;
-    color: #2c3e50;
-    margin: 0;
-    font-size: 1.8rem;
-  }
-  
-  .page-subtitle {
-    color: #6c757d;
-    margin: 5px 0 0 0;
-    font-size: 0.95rem;
-  }
-  
-  .header-right {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  /* Statistics Cards */
-  .statistics-cards {
-    margin-bottom: 20px;
-  }
-  
-  .stat-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-    height: 100%;
-    background: #ffffff;
-  }
-  
-  .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-  
-  .stat-card .card-body {
-    padding: 20px;
-  }
-  
-  .stat-content {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  
-  .stat-icon-wrapper {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-  }
-  
-  .stat-icon-wrapper.primary {
-    background: linear-gradient(135deg, #3498db, #2980b9);
-  }
-  
-  .stat-icon-wrapper.warning {
-    background: linear-gradient(135deg, #ffc107, #fd7e14);
-  }
-  
-  .stat-icon-wrapper.success {
-    background: linear-gradient(135deg, #28a745, #20c997);
-  }
-  
-  .stat-icon-wrapper.danger {
-    background: linear-gradient(135deg, #dc3545, #e74c3c);
-  }
-  
-  .stat-icon-wrapper.info {
-    background: linear-gradient(135deg, #17a2b8, #0dcaf0);
-  }
-  
-  .stat-icon {
-    font-size: 1.8rem;
-    color: #ffffff;
-  }
-  
-  .stat-info {
-    flex: 1;
-  }
-  
-  .stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0;
-    color: #2c3e50;
-    line-height: 1.2;
-  }
-  
-  .stat-label {
-    color: #6c757d;
-    margin: 0;
-    font-size: 0.9rem;
-  }
-  
-  .stat-detail {
-    color: #adb5bd;
-    font-size: 0.75rem;
-    display: block;
-    margin-top: 2px;
-  }
-  
-  .total-card {
-    border-left: 4px solid #3498db;
-  }
-  
-  .pending-card {
-    border-left: 4px solid #ffc107;
-  }
-  
-  .approved-card {
-    border-left: 4px solid #28a745;
-  }
-  
-  .rejected-card {
-    border-left: 4px solid #dc3545;
-  }
-  
-  /* Main Card */
+
+  .stat-card,
   .loan-main-card {
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    background: #ffffff;
+    background: #1e293b;
   }
-  
-  .loan-main-card .card-body {
-    padding: 0;
+
+  .stat-number {
+    color: #f1f5f9;
   }
-  
-  /* Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    .loan-page {
-      background: #1a252f;
-    }
-  
-    .page-title {
-      color: #ecf0f1;
-    }
-  
-    .page-subtitle {
-      color: #adb5bd;
-    }
-  
-    .stat-card {
-      background: #2c3e50;
-    }
-  
-    .stat-number {
-      color: #ecf0f1;
-    }
-  
-    .stat-label {
-      color: #adb5bd;
-    }
-  
-    .stat-detail {
-      color: #6c757d;
-    }
-  
-    .loan-main-card {
-      background: #2c3e50;
-    }
-  
-    .loan-main-card .card-body {
-      background: #2c3e50;
-    }
+
+  .stat-label {
+    color: #94a3b8;
   }
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .loan-header {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .header-right {
-      width: 100%;
-    }
-  
-    .header-right .btn {
-      flex: 1;
-      font-size: 0.85rem;
-      padding: 6px 12px;
-    }
-  
-    .page-title {
-      font-size: 1.4rem;
-    }
-  
-    .stat-number {
-      font-size: 1.4rem;
-    }
-  
-    .stat-icon-wrapper {
-      width: 44px;
-      height: 44px;
-    }
-  
-    .stat-icon {
-      font-size: 1.4rem;
-    }
+
+  .stat-detail {
+    color: #64748b;
   }
-  
-  @media (max-width: 576px) {
-    .loan-page {
-      padding: 15px 0;
-    }
-  
-    .header-right {
-      flex-direction: column;
-      width: 100%;
-    }
-  
-    .header-right .btn {
-      width: 100%;
-      margin: 2px 0 !important;
-    }
-  
-    .stat-card .card-body {
-      padding: 15px;
-    }
-  
-    .stat-number {
-      font-size: 1.2rem;
-    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .loan-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
+
+  .loan-header .header-right {
+    width: 100%;
+  }
+
+  .loan-header .header-right .btn {
+    flex: 1;
+  }
+
+  .loan-header .page-title {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .loan-page {
+    padding: 15px 0;
+  }
+
+  .loan-header .header-right {
+    flex-direction: column;
+  }
+
+  .loan-header .header-right .btn {
+    width: 100%;
+    margin: 2px 0 !important;
+  }
+
+  .stat-card .card-body {
+    padding: 15px;
+  }
+
+  .stat-number {
+    font-size: 1.3rem;
+  }
+
+  .stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .stat-icon {
+    font-size: 1.3rem;
+  }
+}

@@ -1,9 +1,303 @@
-.loan-details-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-.loan-details-avatar { align-items: center; background: #2d8fd0; border-radius: 50%; color: #fff; display: flex; flex: 0 0 58px; font-size: 1.25rem; font-weight: 700; height: 58px; justify-content: center; }
-.loan-details-badge { align-items: center; display: inline-flex; gap: 5px; padding: 7px 10px; }
-.loan-details-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-.loan-details-card { border-color: #e8edf2; }
-.loan-details-card .card-header { background: #f8fafc; color: #34495e; font-weight: 600; }
-.loan-details-card .list-group-item { align-items: center; display: flex; justify-content: space-between; gap: 16px; padding: 13px 16px; }
-.loan-details-card .list-group-item > span { color: #6c757d; }
-@media (max-width: 575.98px) { .loan-details-card .list-group-item { align-items: flex-start; flex-direction: column; gap: 4px; } }
+.loan-details-wrapper {
+    padding: 0;
+  }
+  
+  /* Header */
+  .details-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .details-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  
+  .details-title {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .details-title h4 {
+    margin: 0;
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 1.25rem;
+  }
+  
+  .details-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 6px 0;
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+  
+  .meta-divider {
+    color: #cbd5e1;
+  }
+  
+  .details-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  
+  .details-status-badge,
+  .details-type-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  /* Actions */
+  .details-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  
+  .details-actions .btn {
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+  }
+  
+  /* Cards */
+  .details-card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .details-card-header {
+    background: #f8fafc;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 12px 18px;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .details-card-header h6 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin: 0;
+  }
+  
+  /* Details Table */
+  .details-table {
+    margin: 0;
+  }
+  
+  .details-table td {
+    padding: 9px 4px;
+    border: none;
+    font-size: 0.87rem;
+    vertical-align: middle;
+  }
+  
+  .label-cell {
+    color: #64748b;
+    font-weight: 500;
+    width: 50%;
+    display: flex;
+    align-items: center;
+  }
+  
+  .value-cell {
+    color: #1e293b;
+    font-weight: 500;
+    text-align: right;
+  }
+  
+  .reason-text {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  
+  /* Progress */
+  .progress-wrapper {
+    padding: 4px 0;
+  }
+  
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .progress-label {
+    font-size: 0.82rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+  
+  .progress-value {
+    font-size: 0.82rem;
+    color: #1e293b;
+    font-weight: 600;
+  }
+  
+  .loan-progress-bar {
+    height: 10px;
+    border-radius: 10px;
+  }
+  
+  .progress-payments {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+  }
+  
+  .payment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    font-size: 0.82rem;
+    border-bottom: 1px solid #f8fafc;
+    gap: 8px;
+  }
+  
+  .payment-item:last-child {
+    border-bottom: none;
+  }
+  
+  .payment-amount {
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .payment-status {
+    font-size: 0.68rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+  }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .details-header {
+      border-bottom-color: #334155;
+    }
+  
+    .details-title h4 {
+      color: #f1f5f9;
+    }
+  
+    .details-meta {
+      color: #94a3b8;
+    }
+  
+    .meta-divider {
+      color: #475569;
+    }
+  
+    .details-card {
+      background: #1e293b;
+    }
+  
+    .details-card-header {
+      background: #334155;
+      border-bottom-color: #475569;
+    }
+  
+    .details-card-header h6 {
+      color: #f1f5f9;
+    }
+  
+    .label-cell {
+      color: #94a3b8;
+    }
+  
+    .value-cell {
+      color: #f1f5f9;
+    }
+  
+    .reason-text {
+      color: #cbd5e1;
+    }
+  
+    .progress-info .progress-value {
+      color: #f1f5f9;
+    }
+  
+    .progress-payments {
+      border-top-color: #334155;
+    }
+  
+    .payment-item {
+      border-bottom-color: #334155;
+    }
+  
+    .payment-amount {
+      color: #f1f5f9;
+    }
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .details-header {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .details-meta,
+    .details-badges {
+      justify-content: center;
+    }
+  
+    .details-actions {
+      justify-content: center;
+    }
+  
+    .details-actions .btn {
+      flex: 1;
+      min-width: 100px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .details-avatar {
+      width: 52px;
+      height: 52px;
+      font-size: 1.1rem;
+    }
+  
+    .details-title h4 {
+      font-size: 1.05rem;
+    }
+  
+    .details-actions {
+      flex-direction: column;
+    }
+  
+    .details-actions .btn {
+      width: 100%;
+    }
+  }

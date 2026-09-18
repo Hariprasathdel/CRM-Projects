@@ -1,46 +1,58 @@
 import React, { useState, useEffect } from 'react';
+import { Form, Row, Col, Button, Alert, Spinner, Card } from 'react-bootstrap';
 import {
-  Form,
-  Row,
-  Col,
-  Button,
-  Alert,
-  Spinner,
-  Card
-} from 'react-bootstrap';
-import { 
-  FaSave, 
-  FaTimes, 
-  FaUser, 
-  FaMoneyBillWave, 
-  FaClock, 
+  FaSave,
+  FaTimes,
+  FaUser,
+  FaMoneyBillWave,
+  FaClock,
   FaComment,
   FaBuilding,
   FaCalculator,
-  FaPercent,
-  FaCalendarAlt
+  FaPercent
 } from 'react-icons/fa';
 import './LoanApplication.css';
 
 const LoanApplication = ({ loan, onSubmit, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
   const [formData, setFormData] = useState({
     employeeName: '',
     employeeId: '',
     department: '',
+    position: '',
     loanType: 'Personal',
     amount: '',
     interestRate: '',
     tenure: '',
     monthlyPayment: 0,
+    totalPayment: 0,
+    totalInterest: 0,
     reason: '',
-    remarks: ''
+    bankName: '',
+    accountNumber: ''
   });
 
-  const loanTypes = ['Personal', 'Car', 'Home', 'Education', 'Emergency', 'Medical', 'Business', 'Bikes'];
-  const departments = ['Software', 'Marketing', 'Electrical', 'Production', 'HR', 'Finance'];
-  const employees = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis'];
+  const loanTypes = ['Personal', 'Car', 'Home', 'Education', 'Emergency'];
+
+  const departments = [
+    'Software',
+    'Marketing',
+    'Electrical',
+    'Production',
+    'HR',
+    'Finance'
+  ];
+
+  const employees = [
+    { id: 1, name: 'John Doe', department: 'Software', position: 'Senior Developer' },
+    { id: 2, name: 'Jane Smith', department: 'Marketing', position: 'Marketing Manager' },
+    { id: 3, name: 'Mike Johnson', department: 'Electrical', position: 'Electrical Engineer' },
+    { id: 4, name: 'Sarah Williams', department: 'Production', position: 'Production Supervisor' },
+    { id: 5, name: 'Robert Brown', department: 'Software', position: 'Frontend Developer' },
+    { id: 6, name: 'Emily Davis', department: 'HR', position: 'HR Coordinator' }
+  ];
 
   useEffect(() => {
     if (loan) {
@@ -49,61 +61,76 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
         employeeName: loan.employeeName || '',
         employeeId: loan.employeeId || '',
         department: loan.department || '',
+        position: loan.position || '',
         loanType: loan.loanType || 'Personal',
         amount: loan.amount || '',
         interestRate: loan.interestRate || '',
         tenure: loan.tenure || '',
         monthlyPayment: loan.monthlyPayment || 0,
+        totalPayment: loan.totalPayment || 0,
+        totalInterest: loan.totalInterest || 0,
         reason: loan.reason || '',
-        remarks: loan.remarks || ''
+        bankName: loan.bankName || '',
+        accountNumber: loan.accountNumber || ''
       });
     }
   }, [loan]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    
-    // Calculate monthly payment when amount, interest rate, or tenure changes
-    if (['amount', 'interestRate', 'tenure'].includes(name)) {
-      calculateMonthlyPayment();
-    }
-    
-    if (error) setError('');
-  };
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
-  const calculateMonthlyPayment = () => {
-    const { amount, interestRate, tenure } = formData;
-    if (amount && interestRate && tenure) {
-      const P = parseFloat(amount);
-      const r = parseFloat(interestRate) / 100 / 12;
-      const n = parseFloat(tenure);
-      
-      if (r === 0) {
-        setFormData(prev => ({
+    // Auto-fill employee details
+    if (name === 'employeeName') {
+      const emp = employees.find((x) => x.name === value);
+      if (emp) {
+        setFormData((prev) => ({
           ...prev,
-          monthlyPayment: P / n
-        }));
-      } else {
-        const monthlyPayment = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-        setFormData(prev => ({
-          ...prev,
-          monthlyPayment: parseFloat(monthlyPayment.toFixed(2))
+          employeeId: `EMP${String(emp.id).padStart(3, '0')}`,
+          department: emp.department,
+          position: emp.position,
+          bankName: 'ABC Bank',
+          accountNumber: '1234567890'
         }));
       }
     }
+
+    // Recalculate when key fields change
+    if (['amount', 'interestRate', 'tenure'].includes(name)) {
+      setTimeout(() => calculateLoan(), 0);
+    }
+
+    if (error) setError('');
   };
 
-  const validateForm = () => {
-    if (!formData.employeeName.trim()) {
-      setError('Employee name is required');
-      return false;
+  const calculateLoan = () => {
+    const { amount, interestRate, tenure } = formData;
+    const P = parseFloat(amount) || 0;
+    const r = (parseFloat(interestRate) || 0) / 100 / 12;
+    const n = parseFloat(tenure) || 0;
+
+    if (P > 0 && n > 0) {
+      let monthly;
+      if (r === 0) {
+        monthly = P / n;
+      } else {
+        monthly = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      }
+      const totalPay = monthly * n;
+      const totalInt = totalPay - P;
+
+      setFormData((prev) => ({
+        ...prev,
+        monthlyPayment: parseFloat(monthly.toFixed(2)),
+        totalPayment: parseFloat(totalPay.toFixed(2)),
+        totalInterest: parseFloat(totalInt.toFixed(2))
+      }));
     }
-    if (!formData.employeeId.trim()) {
-      setError('Employee ID is required');
+  };
+
+  const validate = () => {
+    if (!formData.employeeName.trim()) {
+      setError('Please select an employee');
       return false;
     }
     if (!formData.department) {
@@ -111,23 +138,23 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
       return false;
     }
     if (!formData.loanType) {
-      setError('Loan type is required');
+      setError('Please select a loan type');
       return false;
     }
     if (!formData.amount || formData.amount <= 0) {
-      setError('Valid loan amount is required');
+      setError('Please enter a valid loan amount');
       return false;
     }
-    if (!formData.interestRate || formData.interestRate < 0) {
-      setError('Valid interest rate is required');
+    if (formData.interestRate === '' || formData.interestRate < 0) {
+      setError('Please enter a valid interest rate');
       return false;
     }
     if (!formData.tenure || formData.tenure <= 0) {
-      setError('Valid tenure is required');
+      setError('Please enter a valid tenure');
       return false;
     }
     if (!formData.reason.trim()) {
-      setError('Reason is required');
+      setError('Please provide a reason');
       return false;
     }
     return true;
@@ -135,36 +162,31 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validate()) return;
 
     setLoading(true);
     try {
       await onSubmit(formData);
       setLoading(false);
-    } catch (error) {
-      setError('Failed to submit loan application. Please try again.');
+    } catch (err) {
+      setError('Failed to submit loan application.');
       setLoading(false);
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     }).format(amount || 0);
-  };
 
   return (
     <Form onSubmit={handleSubmit} className="loan-application-form">
       {error && (
-        <Alert variant="danger" className="mb-3" onClose={() => setError('')} dismissible>
-          <Alert.Heading>Error</Alert.Heading>
-          <p>{error}</p>
+        <Alert variant="danger" dismissible onClose={() => setError('')}>
+          {error}
         </Alert>
       )}
 
@@ -172,33 +194,33 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              <FaUser className="me-2" /> Employee Name <span className="text-danger">*</span>
+              <FaUser className="me-2" /> Employee Name{' '}
+              <span className="text-danger">*</span>
             </Form.Label>
             <Form.Control
               type="text"
               name="employeeName"
-              placeholder="Enter employee name"
+              placeholder="Select employee"
               value={formData.employeeName}
               onChange={handleChange}
-              list="employeeList"
+              list="loanEmployeeList"
+              disabled={!!loan}
             />
-            <datalist id="employeeList">
-              {employees.map((emp, index) => (
-                <option key={index} value={emp} />
+            <datalist id="loanEmployeeList">
+              {employees.map((e, i) => (
+                <option key={i} value={e.name} />
               ))}
             </datalist>
           </Form.Group>
         </Col>
-
         <Col md={6}>
           <Form.Group className="mb-3">
-            <Form.Label>Employee ID <span className="text-danger">*</span></Form.Label>
+            <Form.Label>Employee ID</Form.Label>
             <Form.Control
               type="text"
-              name="employeeId"
-              placeholder="Enter employee ID"
               value={formData.employeeId}
-              onChange={handleChange}
+              readOnly
+              className="readonly-field"
             />
           </Form.Group>
         </Col>
@@ -208,45 +230,52 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              <FaBuilding className="me-2" /> Department <span className="text-danger">*</span>
+              <FaBuilding className="me-2" /> Department
             </Form.Label>
-            <Form.Select
-              name="department"
+            <Form.Control
+              type="text"
               value={formData.department}
-              onChange={handleChange}
-            >
-              <option value="">Select Department</option>
-              {departments.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </Form.Select>
+              readOnly
+              className="readonly-field"
+            />
           </Form.Group>
         </Col>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Position</Form.Label>
+            <Form.Control
+              type="text"
+              value={formData.position}
+              readOnly
+              className="readonly-field"
+            />
+          </Form.Group>
+        </Col>
+      </Row>
 
+      <Row>
         <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              <FaMoneyBillWave className="me-2" /> Loan Type <span className="text-danger">*</span>
+              <FaMoneyBillWave className="me-2" /> Loan Type{' '}
+              <span className="text-danger">*</span>
             </Form.Label>
             <Form.Select
               name="loanType"
               value={formData.loanType}
               onChange={handleChange}
             >
-              {loanTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
+              {loanTypes.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
               ))}
             </Form.Select>
           </Form.Group>
         </Col>
-      </Row>
-
-      <Row>
-        <Col md={4}>
+        <Col md={6}>
           <Form.Group className="mb-3">
-            <Form.Label>
-              <FaMoneyBillWave className="me-2" /> Amount <span className="text-danger">*</span>
-            </Form.Label>
+            <Form.Label>Amount <span className="text-danger">*</span></Form.Label>
             <Form.Control
               type="number"
               name="amount"
@@ -258,11 +287,14 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
             />
           </Form.Group>
         </Col>
+      </Row>
 
-        <Col md={4}>
+      <Row>
+        <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              <FaPercent className="me-2" /> Interest Rate (%) <span className="text-danger">*</span>
+              <FaPercent className="me-2" /> Interest Rate (%){' '}
+              <span className="text-danger">*</span>
             </Form.Label>
             <Form.Control
               type="number"
@@ -276,16 +308,16 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
             />
           </Form.Group>
         </Col>
-
-        <Col md={4}>
+        <Col md={6}>
           <Form.Group className="mb-3">
             <Form.Label>
-              <FaClock className="me-2" /> Tenure (months) <span className="text-danger">*</span>
+              <FaClock className="me-2" /> Tenure (months){' '}
+              <span className="text-danger">*</span>
             </Form.Label>
             <Form.Control
               type="number"
               name="tenure"
-              placeholder="Enter tenure"
+              placeholder="Enter tenure in months"
               value={formData.tenure}
               onChange={handleChange}
               min="1"
@@ -296,20 +328,36 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
       </Row>
 
       {formData.monthlyPayment > 0 && (
-        <Card className="calculation-card mb-3">
+        <Card className="loan-calculation-card mb-3">
           <Card.Body>
             <div className="calculation-content">
               <FaCalculator className="calculation-icon" />
               <div className="calculation-info">
                 <div className="calculation-label">Monthly Payment</div>
-                <div className="calculation-value">{formatCurrency(formData.monthlyPayment)}</div>
+                <div className="calculation-value">
+                  {formatCurrency(formData.monthlyPayment)}
+                </div>
               </div>
               <div className="calculation-details">
-                <span>Total: {formatCurrency(formData.amount)}</span>
+                <span>Principal: {formatCurrency(formData.amount)}</span>
                 <span>•</span>
                 <span>Interest: {formData.interestRate}%</span>
                 <span>•</span>
                 <span>{formData.tenure} months</span>
+              </div>
+            </div>
+            <div className="calculation-grid">
+              <div className="calc-item">
+                <span className="calc-label">Total Payment</span>
+                <span className="calc-value">
+                  {formatCurrency(formData.totalPayment)}
+                </span>
+              </div>
+              <div className="calc-item">
+                <span className="calc-label">Total Interest</span>
+                <span className="calc-value text-warning">
+                  {formatCurrency(formData.totalInterest)}
+                </span>
               </div>
             </div>
           </Card.Body>
@@ -330,33 +378,38 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
         />
       </Form.Group>
 
-      <Form.Group className="mb-3">
-        <Form.Label>
-          <FaComment className="me-2" /> Remarks (Optional)
-        </Form.Label>
-        <Form.Control
-          as="textarea"
-          rows={2}
-          name="remarks"
-          placeholder="Additional remarks"
-          value={formData.remarks}
-          onChange={handleChange}
-        />
-      </Form.Group>
+      <Row>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Bank Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="bankName"
+              placeholder="Enter bank name"
+              value={formData.bankName}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Col>
+        <Col md={6}>
+          <Form.Group className="mb-3">
+            <Form.Label>Account Number</Form.Label>
+            <Form.Control
+              type="text"
+              name="accountNumber"
+              placeholder="Enter account number"
+              value={formData.accountNumber}
+              onChange={handleChange}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
 
       <div className="form-actions">
-        <Button 
-          variant="secondary" 
-          onClick={onCancel}
-          disabled={loading}
-        >
+        <Button variant="secondary" onClick={onCancel} disabled={loading}>
           <FaTimes className="me-1" /> Cancel
         </Button>
-        <Button 
-          variant="primary" 
-          type="submit"
-          disabled={loading}
-        >
+        <Button variant="primary" type="submit" disabled={loading}>
           {loading ? (
             <>
               <Spinner animation="border" size="sm" className="me-2" />
@@ -364,7 +417,7 @@ const LoanApplication = ({ loan, onSubmit, onCancel }) => {
             </>
           ) : (
             <>
-              <FaSave className="me-1" /> 
+              <FaSave className="me-1" />
               {loan ? 'Update Application' : 'Submit Application'}
             </>
           )}
