@@ -49,8 +49,8 @@ const Sidebar = () => {
       icon: <FaCalendarCheck className="menu-icon" />,
       subMenus: [
         { name: 'All Attendance', path: '/attendance' },
+        { name: 'Attendance Report', path: '/attendance/report' },
         // { name: 'Mark Attendance', path: '/attendance/mark' },
-        // { name: 'Attendance Report', path: '/attendance/report' },
       ]
     },
     {
