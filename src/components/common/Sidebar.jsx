@@ -59,8 +59,8 @@ const Sidebar = () => {
       icon: <FaUsers className="menu-icon" />,
       subMenus: [
         { name: 'All Employees', path: '/employees' },
+        { name: 'Employee Reports', path: '/employees/reports' }
         // { name: 'Add Employee', path: '/employees/add' },
-        // { name: 'Employee Reports', path: '/employees/reports' }
       ]
     },
     {
