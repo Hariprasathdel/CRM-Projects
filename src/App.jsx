@@ -18,6 +18,7 @@ import PrivateRoute from './routes/PrivateRoute';
 
 // Import Components
 import Employee from './components/employees/Employee';
+import EmployeeReports from './components/employees/EmployeeReports';
 import Department from './components/department/Department';
 import Attendance from './components/attendance/Attendance';
 import AttendanceReport from './components/attendance/AttendanceReport';
@@ -50,6 +51,12 @@ function App() {
                 <Route path="/employees" element={
                   <PrivateRoute>
                     <Employee />
+                  </PrivateRoute>
+                } />
+
+                <Route path="/employees/reports" element={
+                  <PrivateRoute>
+                    <EmployeeReports />
                   </PrivateRoute>
                 } />
                 
