@@ -20,6 +20,7 @@ import PrivateRoute from './routes/PrivateRoute';
 import Employee from './components/employees/Employee';
 import Department from './components/department/Department';
 import Attendance from './components/attendance/Attendance';
+import AttendanceReport from './components/attendance/AttendanceReport';
 import Leave from './components/leave/Leave';
 import Loan from './components/loan/Loan';
 import ProjectManagement from './components/project/ProjectManagement';
@@ -61,6 +62,12 @@ function App() {
                 <Route path="/attendance" element={
                   <PrivateRoute>
                     <Attendance />
+                  </PrivateRoute>
+                } />
+
+                <Route path="/attendance/report" element={
+                  <PrivateRoute>
+                    <AttendanceReport />
                   </PrivateRoute>
                 } />
                 
