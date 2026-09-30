@@ -98,8 +98,8 @@ const Sidebar = () => {
       icon: <FaProjectDiagram className="menu-icon" />,
       subMenus: [
         { name: 'All Projects', path: '/projects' },
-        // { name: 'Add Project', path: '/projects/add' },
-        // { name: 'Task Board', path: '/projects/tasks' }
+        { name: 'Task Board', path: '/projects/tasks' },
+        // { name: 'Add Project', path: '/projects/add' }
       ]
     },
     {
@@ -108,7 +108,7 @@ const Sidebar = () => {
       icon: <FaFileAlt className="menu-icon" />,  
     subMenus: [
         { name: 'Generate Payslip', path: '/payslip' },
-        // { name: 'Payslip History', path: '/payslip/history' }
+        { name: 'Payslip History', path: '/payslip/history' }
       ]
     },
     {
@@ -117,8 +117,8 @@ const Sidebar = () => {
       icon: <FaUserPlus className="menu-icon" />,
       subMenus: [
         { name: 'Job Postings', path: '/recruitment' },
-        // { name: 'Add Job Posting', path: '/recruitment/add' },
-        // { name: 'Applicants', path: '/recruitment/applicants' }
+        { name: 'Add Job Posting', path: '/recruitment/add' },
+        { name: 'Applicants', path: '/recruitment/applicants' }
       ]
     },
     {
@@ -127,7 +127,7 @@ const Sidebar = () => {
       icon: <FaChartBar className="menu-icon" />,
       subMenus: [
         { name: 'Generate Reports', path: '/reports' },
-        // { name: 'Saved Reports', path: '/reports/saved' }
+        { name: 'Saved Reports', path: '/reports/saved' }
       ]
     },
     {
@@ -136,8 +136,7 @@ const Sidebar = () => {
       icon: <FaTrophy className="menu-icon" />,
       subMenus: [
         { name: 'Award List', path: '/rewards' },
-        // { name: 'Give Award', path: '/rewards/give' },
-        // { name: 'Reward Reports', path: '/rewards/reports' }
+        { name: 'Reward Reports', path: '/rewards/reports' }
       ]
     }
   ];
