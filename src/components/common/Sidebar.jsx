@@ -78,7 +78,7 @@ const Sidebar = () => {
       icon: <FaFileAlt className="menu-icon" />,
       subMenus: [
         { name: 'Leave Applications', path: '/leave' },
-        // { name: 'Apply Leave', path: '/leave/apply' },
+        { name: 'Apply Leave', path: '/leave/apply' },
         // { name: 'Leave Balance', path: '/leave/balance' }
       ]
     },
