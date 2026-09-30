@@ -30,6 +30,7 @@ import Reports from './components/reports/Reports';
 import RewardPoints from './components/rewards/RewardPoints';
 import Payslip from './components/payslip/Payslip';
 import LoanReports from './components/loan/LoanReports';
+import TaskBoard from './components/project/TaskBoard';
 function App() {
   return (
     <ThemeProvider>
@@ -100,6 +101,12 @@ function App() {
                   <PrivateRoute>
                     <ProjectManagement />
                   </PrivateRoute>
+                } />
+
+               <Route path="/projects/tasks" element={
+                 <PrivateRoute>
+                  <TaskBoard />
+                 </PrivateRoute>
                 } />
                 
                 <Route path="/recruitment" element={
