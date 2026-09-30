@@ -89,7 +89,7 @@ const Sidebar = () => {
       subMenus: [
         { name: 'All Loans', path: '/loan' },
         // { name: 'Apply Loan', path: '/loan/apply' },
-        // { name: 'Loan Reports', path: '/loan/reports' }
+        { name: 'Loan Reports', path: '/loan/reports' }
       ]
     },
     {

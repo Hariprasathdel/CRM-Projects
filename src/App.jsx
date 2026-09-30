@@ -29,7 +29,7 @@ import Recruitment from './components/recruitment/Recruitment';
 import Reports from './components/reports/Reports';
 import RewardPoints from './components/rewards/RewardPoints';
 import Payslip from './components/payslip/Payslip';
-
+import LoanReports from './components/loan/LoanReports';
 function App() {
   return (
     <ThemeProvider>
@@ -88,6 +88,12 @@ function App() {
                   <PrivateRoute>
                     <Loan />
                   </PrivateRoute>
+                } />
+
+               <Route path="/loan/reports" element={
+                 <PrivateRoute>
+                   <LoanReports />
+                 </PrivateRoute>
                 } />
                 
                 <Route path="/projects" element={

@@ -1,0 +1,152 @@
+.loan-reports-page {
+    padding: 20px 0;
+    background: #f5f7fa;
+    min-height: calc(100vh - 70px);
+  }
+  
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .report-header .page-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    font-size: 1.75rem;
+  }
+  
+  .report-header .page-subtitle {
+    color: #64748b;
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+  }
+  
+  .report-header .header-right {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  /* Filter */
+  .filter-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  
+  .filter-card .form-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 4px;
+  }
+  
+  /* Summary Cards */
+  .summary-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+    border-left: 4px solid !important;
+    height: 100%;
+  }
+  
+  .summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  .summary-card .card-body { padding: 18px 20px; }
+  
+  .summary-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  
+  .icon-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .icon-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .icon-yellow { background: linear-gradient(135deg, #eab308, #ca8a04); }
+  .icon-info { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  
+  /* Charts */
+  .chart-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    height: 100%;
+  }
+  
+  .chart-card .card-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px;
+  }
+  
+  /* Report Table */
+  .report-table-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+  
+  .report-table-card .card-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 20px;
+  }
+  
+  .report-table { margin: 0; }
+  
+  .report-table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+  }
+  
+  .report-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    font-size: 0.87rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .report-table tbody tr:hover { background: #f8fafc; }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .loan-reports-page { background: #0f172a; }
+    .report-header .page-title { color: #f1f5f9; }
+    .report-header .page-subtitle { color: #94a3b8; }
+    .filter-card, .summary-card, .chart-card, .report-table-card { background: #1e293b; }
+    .chart-card .card-header, .report-table-card .card-header {
+      background: #1e293b !important;
+      border-bottom-color: #334155;
+    }
+    .report-table thead th { background: #334155; color: #cbd5e1; }
+    .report-table tbody td { color: #e2e8f0; border-color: #334155; }
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .report-header { flex-direction: column; align-items: flex-start; }
+    .report-header .header-right { width: 100%; }
+    .report-header .header-right .btn { flex: 1; }
+    .report-header .page-title { font-size: 1.4rem; }
+  }
