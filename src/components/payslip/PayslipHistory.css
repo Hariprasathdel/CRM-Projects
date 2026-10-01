@@ -1,0 +1,306 @@
+.payslip-history-page {
+    padding: 20px 0;
+    background: #f5f7fa;
+    min-height: calc(100vh - 70px);
+  }
+  
+  /* Header */
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .history-header .page-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    font-size: 1.75rem;
+  }
+  
+  .history-header .page-subtitle {
+    color: #64748b;
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+  }
+  
+  .history-header .header-right {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  /* Stats */
+  .statistics-cards { margin-bottom: 20px; }
+  
+  .stat-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+    height: 100%;
+    background: #ffffff;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  .stat-card .card-body { padding: 20px; }
+  
+  .stat-content { display: flex; align-items: center; gap: 16px; }
+  
+  .stat-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .stat-icon-wrapper.primary { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .stat-icon-wrapper.success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .stat-icon-wrapper.warning { background: linear-gradient(135deg, #eab308, #ca8a04); }
+  .stat-icon-wrapper.info    { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  
+  .stat-icon { font-size: 1.6rem; color: #fff; }
+  
+  .stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+    line-height: 1.2;
+  }
+  
+  .stat-label { color: #64748b; margin: 0; font-size: 0.9rem; }
+  .stat-detail { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 2px; }
+  
+  .total-card     { border-left: 4px solid #3b82f6; }
+  .generated-card { border-left: 4px solid #22c55e; }
+  .pending-card   { border-left: 4px solid #eab308; }
+  .average-card   { border-left: 4px solid #06b6d4; }
+  
+  /* Main Card */
+  .history-main-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+  }
+  
+  .history-main-card .card-body { padding: 0; }
+  
+  /* Toolbar */
+  .list-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #f8fafc;
+    border-radius: 14px 14px 0 0;
+  }
+  
+  .toolbar-left, .toolbar-right {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  /* Table */
+  .history-table { margin: 0; }
+  
+  .history-table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+  }
+  
+  .history-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    font-size: 0.87rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .history-table tbody tr:hover { background: #f8fafc; }
+  
+  .employee-info { display: flex; align-items: center; gap: 12px; }
+  
+  .employee-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+  
+  .employee-name { font-weight: 500; color: #0f172a; font-size: 0.88rem; }
+  .employee-id { font-size: 0.73rem; color: #64748b; }
+  
+  .month-info { display: flex; align-items: center; gap: 6px; color: #334155; }
+  .month-icon { color: #64748b; }
+  .salary-value { color: #16a34a; font-weight: 600; }
+  
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .action-buttons { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+  .action-buttons .btn { padding: 4px 8px; font-size: 0.78rem; }
+  
+  /* Footer */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-top: 1px solid #f1f5f9;
+    background: #f8fafc;
+    border-radius: 0 0 14px 14px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  /* Detail Modal */
+  .payslip-detail-view { padding: 8px 4px; }
+  
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  
+  .detail-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  
+  .detail-box {
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 10px;
+    border-left: 3px solid #e2e8f0;
+  }
+  
+  .detail-box-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #64748b;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  
+  .detail-box-value { font-size: 1.15rem; font-weight: 700; color: #0f172a; }
+  
+  .net-salary-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  
+  .net-salary-box span:first-child {
+    color: #166534;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  
+  .net-salary-box span:last-child { color: #15803d; font-size: 1.4rem; }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    color: #64748b;
+    border-bottom: 1px dashed #e2e8f0;
+  }
+  
+  .info-row:last-child { border-bottom: none; }
+  .info-row strong { color: #0f172a; }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .payslip-history-page { background: #0f172a; }
+    .history-header .page-title { color: #f1f5f9; }
+    .history-header .page-subtitle { color: #94a3b8; }
+    .stat-card, .history-main-card { background: #1e293b; }
+    .stat-number { color: #f1f5f9; }
+    .stat-label { color: #94a3b8; }
+    .list-toolbar, .table-footer { background: #334155; border-color: #475569; }
+    .history-table thead th { background: #334155; color: #cbd5e1; border-bottom-color: #475569; }
+    .history-table tbody td { color: #e2e8f0; border-bottom-color: #334155; }
+    .history-table tbody tr:hover { background: #334155; }
+    .employee-name { color: #f1f5f9; }
+    .employee-id { color: #94a3b8; }
+    .detail-box { background: #334155; }
+    .detail-box-value { color: #f1f5f9; }
+    .net-salary-box { background: linear-gradient(135deg, #14532d, #166534); }
+    .info-row { color: #94a3b8; border-color: #334155; }
+    .info-row strong { color: #f1f5f9; }
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .list-toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar-left { flex-direction: column; align-items: stretch; }
+    .toolbar-left .input-group { width: 100% !important; }
+    .table-footer { flex-direction: column; align-items: stretch; }
+  }
+  
+  @media (max-width: 768px) {
+    .history-header { flex-direction: column; align-items: flex-start; }
+    .history-header .header-right { width: 100%; }
+    .history-header .header-right .btn { flex: 1; }
+    .history-header .page-title { font-size: 1.4rem; }
+  }
+  
+  @media (max-width: 576px) {
+    .history-table { font-size: 0.78rem; }
+    .history-table thead th, .history-table tbody td { padding: 8px 10px; }
+    .employee-avatar { width: 30px; height: 30px; font-size: 0.68rem; }
+    .action-buttons { flex-direction: column; gap: 2px; }
+    .action-buttons .btn { padding: 2px 6px; font-size: 0.65rem; }
+  }

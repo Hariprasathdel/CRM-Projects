@@ -31,6 +31,7 @@ import RewardPoints from './components/rewards/RewardPoints';
 import Payslip from './components/payslip/Payslip';
 import LoanReports from './components/loan/LoanReports';
 import TaskBoard from './components/project/TaskBoard';
+import PayslipHistory from './components/payslip/PayslipHistory';
 function App() {
   return (
     <ThemeProvider>
@@ -130,6 +131,12 @@ function App() {
                 <Route path="/payslip" element={
                   <PrivateRoute>
                     <Payslip />
+                  </PrivateRoute>
+                } />
+
+               <Route path="/payslip/history" element={
+                  <PrivateRoute>
+                   <PayslipHistory />
                   </PrivateRoute>
                 } />
                 
