@@ -50,7 +50,7 @@ const Sidebar = () => {
       subMenus: [
         { name: 'All Attendance', path: '/attendance' },
         { name: 'Attendance Report', path: '/attendance/report' },
-        // { name: 'Mark Attendance', path: '/attendance/mark' },
+        { name: 'Mark Attendance', path: '/attendance/mark' },
       ]
     },
     {
@@ -69,7 +69,7 @@ const Sidebar = () => {
       icon: <FaBuilding className="menu-icon" />,
       subMenus: [
         { name: 'All Departments', path: '/department' },
-        // { name: 'Add Department', path: '/department/add' }
+        { name: 'Add Department', path: '/department/add' }
       ]
     },
     {
@@ -78,8 +78,8 @@ const Sidebar = () => {
       icon: <FaFileAlt className="menu-icon" />,
       subMenus: [
         { name: 'Leave Applications', path: '/leave' },
-        // { name: 'Apply Leave', path: '/leave/apply' },
-        // { name: 'Leave Balance', path: '/leave/balance' }
+        { name: 'Apply Leave', path: '/leave/apply' },
+        { name: 'Leave Balance', path: '/leave/balance' }
       ]
     },
     {

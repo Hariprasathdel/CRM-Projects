@@ -36,6 +36,8 @@ import AddJobPosting from './components/recruitment/AddJobPosting';
 import ApplicantList from './components/recruitment/ApplicantList';
 import SavedReports from './components/reports/SavedReports';
 import RewardReports from './components/rewards/RewardReports';
+import AddDepartment from './components/department/AddDepartment';
+import MarkAttendance from './components/attendance/MarkAttendance';
 function App() {
   return (
     <ThemeProvider>
@@ -72,6 +74,14 @@ function App() {
                   </PrivateRoute>
                 } />
                 
+
+                <Route path="/department/add" element={
+                  <PrivateRoute>
+                    <AddDepartment />
+                  </PrivateRoute>
+                } />
+
+
                 <Route path="/attendance" element={
                   <PrivateRoute>
                     <Attendance />
@@ -84,6 +94,12 @@ function App() {
                   </PrivateRoute>
                 } />
                 
+
+                <Route path="/attendance/mark" element={
+                   <PrivateRoute> 
+                     <MarkAttendance />
+                   </PrivateRoute>
+                } />
                 <Route path="/leave" element={
                   <PrivateRoute>
                     <Leave />
