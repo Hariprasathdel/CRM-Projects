@@ -34,6 +34,7 @@ import TaskBoard from './components/project/TaskBoard';
 import PayslipHistory from './components/payslip/PayslipHistory';
 import AddJobPosting from './components/recruitment/AddJobPosting';
 import ApplicantList from './components/recruitment/ApplicantList';
+import SavedReports from './components/reports/SavedReports';
 function App() {
   return (
     <ThemeProvider>
@@ -137,6 +138,13 @@ function App() {
                     <Reports />
                   </PrivateRoute>
                 } />
+
+
+               <Route path="/reports/saved" element={
+                 <PrivateRoute>
+                  <SavedReports />
+                </PrivateRoute>
+               } />
                 
                 <Route path="/rewards" element={
                   <PrivateRoute>
