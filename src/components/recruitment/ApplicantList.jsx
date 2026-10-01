@@ -1,582 +1,303 @@
 import React, { useState } from 'react';
 import {
-  Table,
-  Form,
-  InputGroup,
-  Button,
-  Dropdown,
-  Pagination,
-  Badge,
-  OverlayTrigger,
-  Tooltip,
-  Modal
+  Container, Row, Col, Card, Table, Button, Form, Badge,
+  InputGroup, Dropdown, Pagination, Modal, Alert, Spinner
 } from 'react-bootstrap';
 import {
-  FaSearch,
-  FaFilter,
-  FaSort,
-  FaSortUp,
-  FaSortDown,
-  FaEye,
-  FaTrash,
-  FaCheck,
-  FaTimes,
-  FaClock,
-  FaFileAlt,
-  FaFileExport,
-  FaPrint,
-  FaUserCheck,
-  FaUserTimes,
-  FaUserClock
+  FaSearch, FaFilter, FaEye, FaTrash, FaDownload, FaSync,
+  FaCheck, FaTimes, FaClock, FaUserPlus, FaEnvelope,
+  FaPhone, FaFileAlt, FaUserCheck
 } from 'react-icons/fa';
 import './ApplicantList.css';
 
-const ApplicantList = ({ 
-  applicants, 
-  onUpdateStatus, 
-  onDelete,
-  selectedJob,
-  searchTerm,
-  setSearchTerm,
-  filter,
-  setFilter
-}) => {
+const ApplicantList = () => {
+  const [loading, setLoading] = useState(false);
+  const [applicants, setApplicants] = useState([
+    { id: 1, name: 'Alice Johnson', email: 'alice@example.com', phone: '+1 234 567 8901',
+      position: 'Senior Software Engineer', experience: '6 years',
+      skills: ['React', 'Node.js', 'Python'], status: 'Shortlisted',
+      appliedDate: '2026-01-11', avatar: 'AJ' },
+    { id: 2, name: 'Bob Smith', email: 'bob@example.com', phone: '+1 345 678 9012',
+      position: 'Marketing Manager', experience: '4 years',
+      skills: ['Digital Marketing', 'SEO'], status: 'Interview',
+      appliedDate: '2026-01-13', avatar: 'BS' },
+    { id: 3, name: 'Carol White', email: 'carol@example.com', phone: '+1 456 789 0123',
+      position: 'Electrical Engineer', experience: '4 years',
+      skills: ['AutoCAD', 'Circuit Design'], status: 'Pending',
+      appliedDate: '2026-01-10', avatar: 'CW' },
+    { id: 4, name: 'David Green', email: 'david@example.com', phone: '+1 567 890 1234',
+      position: 'Production Supervisor', experience: '6 years',
+      skills: ['Lean Manufacturing'], status: 'Rejected',
+      appliedDate: '2025-12-18', avatar: 'DG' },
+    { id: 5, name: 'Eva Martinez', email: 'eva@example.com', phone: '+1 678 901 2345',
+      position: 'HR Coordinator', experience: '2 years',
+      skills: ['Recruitment', 'Training'], status: 'Hired',
+      appliedDate: '2026-01-16', avatar: 'EM' }
+  ]);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [sortField, setSortField] = useState('appliedDate');
-  const [sortDirection, setSortDirection] = useState('desc');
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [itemsPerPage] = useState(10);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Handle sorting
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  // Handle search
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
-  };
-
-  // Handle filter
-  const handleFilter = (value) => {
-    setFilter(value);
-    setCurrentPage(1);
-  };
-
-  // Filter applicants
-  const filteredApplicants = applicants.filter(applicant => {
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
-      applicant.name.toLowerCase().includes(searchLower) ||
-      applicant.position.toLowerCase().includes(searchLower) ||
-      applicant.email.toLowerCase().includes(searchLower) ||
-      applicant.skills.some(skill => skill.toLowerCase().includes(searchLower));
-    
-    const matchesFilter = filter === 'all' || applicant.status.toLowerCase() === filter;
-    
-    const matchesJob = !selectedJob || applicant.position === selectedJob.title;
-    
-    return matchesSearch && matchesFilter && matchesJob;
+  const filtered = applicants.filter((a) => {
+    const term = searchTerm.toLowerCase();
+    const matches =
+      a.name.toLowerCase().includes(term) ||
+      a.email.toLowerCase().includes(term) ||
+      a.position.toLowerCase().includes(term);
+    const matchesStatus = statusFilter === 'all' || a.status.toLowerCase() === statusFilter;
+    return matches && matchesStatus;
   });
 
-  // Sort applicants
-  const sortedApplicants = [...filteredApplicants].sort((a, b) => {
-    let aVal = a[sortField] || '';
-    let bVal = b[sortField] || '';
-    
-    if (typeof aVal === 'string') aVal = aVal.toLowerCase();
-    if (typeof bVal === 'string') bVal = bVal.toLowerCase();
-    
-    if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentItems = filtered.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  // Pagination
-  const totalItems = sortedApplicants.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-  const currentData = sortedApplicants.slice(startIndex, endIndex);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleItemsPerPageChange = (e) => {
-    setItemsPerPage(parseInt(e.target.value));
-    setCurrentPage(1);
-  };
-
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelectedRows(currentData.map(item => item.id));
-    } else {
-      setSelectedRows([]);
-    }
-  };
-
-  const handleSelectRow = (id) => {
-    setSelectedRows(prev => 
-      prev.includes(id) 
-        ? prev.filter(rowId => rowId !== id)
-        : [...prev, id]
-    );
-  };
-
-  const getSortIcon = (field) => {
-    if (sortField !== field) return <FaSort className="sort-icon" />;
-    return sortDirection === 'asc' 
-      ? <FaSortUp className="sort-icon active" />
-      : <FaSortDown className="sort-icon active" />;
-  };
-
-  const getStatusBadge = (status) => {
-    const config = {
-      'Pending': { variant: 'secondary', icon: <FaClock /> },
-      'Shortlisted': { variant: 'info', icon: <FaUserClock /> },
-      'Interview': { variant: 'warning', icon: <FaUserCheck /> },
-      'Hired': { variant: 'success', icon: <FaCheck /> },
-      'Rejected': { variant: 'danger', icon: <FaTimes /> }
+  const getStatusBadge = (s) => {
+    const map = {
+      Pending: { v: 'secondary', i: <FaClock /> },
+      Shortlisted: { v: 'info', i: <FaUserCheck /> },
+      Interview: { v: 'warning', i: <FaUserPlus /> },
+      Hired: { v: 'success', i: <FaCheck /> },
+      Rejected: { v: 'danger', i: <FaTimes /> }
     };
-    const { variant, icon } = config[status] || config['Pending'];
-    return (
-      <Badge bg={variant} className="status-badge">
-        {icon} {status}
-      </Badge>
-    );
+    const c = map[s] || map.Pending;
+    return <Badge bg={c.v} className="status-badge">{c.i} {s}</Badge>;
   };
 
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+  const handleStatusChange = (id, newStatus) => {
+    setApplicants(applicants.map((a) => (a.id === id ? { ...a, status: newStatus } : a)));
   };
 
-  const handleViewResume = (applicant) => {
-    setSelectedApplicant(applicant);
-    setShowResumeModal(true);
+  const handleDelete = () => {
+    setApplicants(applicants.filter((a) => a.id !== selectedApplicant.id));
+    setShowDeleteModal(false);
+    setSelectedApplicant(null);
   };
+
+  const formatDate = (d) =>
+    new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   return (
-    <div className="applicant-list-wrapper">
-      {/* Toolbar */}
-      <div className="list-toolbar">
-        <div className="toolbar-left">
-          <InputGroup style={{ width: '300px' }}>
-            <InputGroup.Text>
-              <FaSearch />
-            </InputGroup.Text>
-            <Form.Control
-              placeholder="Search applicants..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </InputGroup>
-          
-          <Dropdown className="me-2">
-            <Dropdown.Toggle variant="outline-secondary" size="sm">
-              <FaFilter className="me-1" /> 
-              {filter === 'all' ? 'All Status' : filter}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => handleFilter('all')}>
-                All Status
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleFilter('pending')}>
-                <FaClock className="text-secondary me-1" /> Pending
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleFilter('shortlisted')}>
-                <FaUserClock className="text-info me-1" /> Shortlisted
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleFilter('interview')}>
-                <FaUserCheck className="text-warning me-1" /> Interview
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleFilter('hired')}>
-                <FaCheck className="text-success me-1" /> Hired
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => handleFilter('rejected')}>
-                <FaTimes className="text-danger me-1" /> Rejected
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-          
-          <div className="selection-info">
-            {selectedRows.length > 0 && (
-              <span className="text-muted">
-                {selectedRows.length} item{selectedRows.length > 1 ? 's' : ''} selected
-              </span>
-            )}
+    <div className="applicant-list-page">
+      <Container fluid>
+        {/* Header */}
+        <div className="page-header">
+          <div>
+            <h2 className="page-title">Applicants</h2>
+            <p className="page-subtitle">Manage all job applicants</p>
+          </div>
+          <div className="header-right">
+            <Button variant="outline-secondary" className="me-2">
+              <FaSync className="me-1" /> Refresh
+            </Button>
+            <Button variant="outline-secondary">
+              <FaDownload className="me-1" /> Export
+            </Button>
           </div>
         </div>
 
-        <div className="toolbar-right">
-          <Dropdown className="me-2">
-            <Dropdown.Toggle variant="outline-secondary" size="sm">
-              <FaFileExport className="me-1" /> Export
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item>Export as CSV</Dropdown.Item>
-              <Dropdown.Item>Export as Excel</Dropdown.Item>
-              <Dropdown.Item>Export as PDF</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+        {/* Stats */}
+        <Row className="mb-4">
+          {[
+            { l: 'Total', v: applicants.length, c: 'primary' },
+            { l: 'Shortlisted', v: applicants.filter((a) => a.status === 'Shortlisted').length, c: 'info' },
+            { l: 'Interview', v: applicants.filter((a) => a.status === 'Interview').length, c: 'warning' },
+            { l: 'Hired', v: applicants.filter((a) => a.status === 'Hired').length, c: 'success' }
+          ].map((s, i) => (
+            <Col lg={3} md={6} key={i} className="mb-3">
+              <Card className={`stat-card border-${s.c}`}>
+                <Card.Body>
+                  <h3 className="stat-number">{s.v}</h3>
+                  <p className="stat-label">{s.l}</p>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
 
-          <Button variant="outline-secondary" size="sm" onClick={() => window.print()}>
-            <FaPrint className="me-1" /> Print
-          </Button>
-        </div>
-      </div>
+        {/* Table */}
+        <Card className="list-card">
+          <Card.Body>
+            <div className="list-toolbar">
+              <div className="toolbar-left">
+                <InputGroup style={{ width: 300 }}>
+                  <InputGroup.Text><FaSearch /></InputGroup.Text>
+                  <Form.Control
+                    placeholder="Search applicants..."
+                    value={searchTerm}
+                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                  />
+                </InputGroup>
+                <Dropdown>
+                  <Dropdown.Toggle variant="outline-secondary" size="sm">
+                    <FaFilter className="me-1" />
+                    {statusFilter === 'all' ? 'All Status' : statusFilter}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => setStatusFilter('all')}>All</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setStatusFilter('pending')}>Pending</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setStatusFilter('shortlisted')}>Shortlisted</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setStatusFilter('interview')}>Interview</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setStatusFilter('hired')}>Hired</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setStatusFilter('rejected')}>Rejected</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </div>
 
-      {/* Applicant Count */}
-      <div className="applicant-count">
-        <span>
-          Showing {startIndex + 1} to {endIndex} of {totalItems} applicants
-        </span>
-        {selectedJob && (
-          <span className="ms-3">
-            <Badge bg="primary">
-              {selectedJob.title}
-            </Badge>
-          </span>
-        )}
-      </div>
-
-      {/* Table */}
-      <div className="table-responsive">
-        <Table hover striped className="applicant-table">
-          <thead>
-            <tr>
-              <th style={{ width: '40px' }}>
-                <Form.Check
-                  type="checkbox"
-                  checked={currentData.length > 0 && selectedRows.length === currentData.length}
-                  onChange={handleSelectAll}
-                />
-              </th>
-              <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', minWidth: '160px' }}>
-                Applicant {getSortIcon('name')}
-              </th>
-              <th onClick={() => handleSort('position')} style={{ cursor: 'pointer' }}>
-                Position {getSortIcon('position')}
-              </th>
-              <th onClick={() => handleSort('experience')} style={{ cursor: 'pointer' }}>
-                Experience {getSortIcon('experience')}
-              </th>
-              <th onClick={() => handleSort('skills')} style={{ cursor: 'pointer' }}>
-                Skills {getSortIcon('skills')}
-              </th>
-              <th onClick={() => handleSort('status')} style={{ cursor: 'pointer' }}>
-                Status {getSortIcon('status')}
-              </th>
-              <th style={{ width: '200px' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.length > 0 ? (
-              currentData.map((applicant) => (
-                <tr key={applicant.id} className={selectedRows.includes(applicant.id) ? 'table-active' : ''}>
-                  <td>
-                    <Form.Check
-                      type="checkbox"
-                      checked={selectedRows.includes(applicant.id)}
-                      onChange={() => handleSelectRow(applicant.id)}
-                    />
-                  </td>
-                  <td>
-                    <div className="applicant-info">
-                      <div className="applicant-avatar">
-                        {applicant.avatar || applicant.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <div className="applicant-details">
-                        <div className="applicant-name">{applicant.name}</div>
-                        <div className="applicant-email">{applicant.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <Badge bg="secondary" className="position-badge">
-                      {applicant.position}
-                    </Badge>
-                  </td>
-                  <td>{applicant.experience}</td>
-                  <td>
-                    <div className="skills-list">
-                      {applicant.skills.slice(0, 2).map((skill, index) => (
-                        <Badge key={index} bg="light" text="dark" className="skill-badge">
-                          {skill}
-                        </Badge>
-                      ))}
-                      {applicant.skills.length > 2 && (
-                        <Badge bg="light" text="dark" className="skill-badge">
-                          +{applicant.skills.length - 2}
-                        </Badge>
-                      )}
-                    </div>
-                  </td>
-                  <td>{getStatusBadge(applicant.status)}</td>
-                  <td>
-                    <div className="action-buttons">
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip>View Resume</Tooltip>}
-                      >
-                        <Button 
-                          variant="outline-primary" 
-                          size="sm" 
-                          className="me-1"
-                          onClick={() => handleViewResume(applicant)}
-                        >
-                          <FaFileAlt />
-                        </Button>
-                      </OverlayTrigger>
-                      
-                      {applicant.status === 'Pending' && (
-                        <>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>Shortlist</Tooltip>}
-                          >
-                            <Button 
-                              variant="outline-info" 
-                              size="sm" 
-                              className="me-1"
-                              onClick={() => onUpdateStatus(applicant.id, 'Shortlisted')}
-                            >
-                              <FaUserClock />
-                            </Button>
-                          </OverlayTrigger>
-                        </>
-                      )}
-                      
-                      {applicant.status === 'Shortlisted' && (
-                        <OverlayTrigger
-                          placement="top"
-                          overlay={<Tooltip>Schedule Interview</Tooltip>}
-                        >
-                          <Button 
-                            variant="outline-warning" 
-                            size="sm" 
-                            className="me-1"
-                            onClick={() => onUpdateStatus(applicant.id, 'Interview')}
-                          >
-                            <FaUserCheck />
+            <div className="table-responsive mt-3">
+              <Table hover className="applicant-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Applicant</th>
+                    <th>Position</th>
+                    <th>Experience</th>
+                    <th>Skills</th>
+                    <th>Status</th>
+                    <th>Applied</th>
+                    <th style={{ width: 220 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItems.map((a, i) => (
+                    <tr key={a.id}>
+                      <td>{indexOfFirst + i + 1}</td>
+                      <td>
+                        <div className="applicant-info">
+                          <div className="applicant-avatar">{a.avatar}</div>
+                          <div>
+                            <div className="applicant-name">{a.name}</div>
+                            <div className="applicant-email">{a.email}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><small>{a.position}</small></td>
+                      <td>{a.experience}</td>
+                      <td>
+                        <div className="skills-cell">
+                          {a.skills.slice(0, 2).map((s, idx) => (
+                            <Badge key={idx} bg="light" text="dark" className="skill-badge">{s}</Badge>
+                          ))}
+                          {a.skills.length > 2 && (
+                            <Badge bg="light" text="dark" className="skill-badge">+{a.skills.length - 2}</Badge>
+                          )}
+                        </div>
+                      </td>
+                      <td>{getStatusBadge(a.status)}</td>
+                      <td>{formatDate(a.appliedDate)}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <Button variant="outline-primary" size="sm" className="me-1"
+                            onClick={() => { setSelectedApplicant(a); setShowViewModal(true); }}>
+                            <FaEye />
                           </Button>
-                        </OverlayTrigger>
-                      )}
-                      
-                      {applicant.status === 'Interview' && (
-                        <>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>Hire</Tooltip>}
-                          >
-                            <Button 
-                              variant="outline-success" 
-                              size="sm" 
-                              className="me-1"
-                              onClick={() => onUpdateStatus(applicant.id, 'Hired')}
-                            >
+                          {a.status === 'Pending' && (
+                            <Button variant="outline-info" size="sm" className="me-1"
+                              onClick={() => handleStatusChange(a.id, 'Shortlisted')}>
+                              <FaUserCheck />
+                            </Button>
+                          )}
+                          {a.status === 'Shortlisted' && (
+                            <Button variant="outline-warning" size="sm" className="me-1"
+                              onClick={() => handleStatusChange(a.id, 'Interview')}>
+                              <FaUserPlus />
+                            </Button>
+                          )}
+                          {a.status === 'Interview' && (
+                            <Button variant="outline-success" size="sm" className="me-1"
+                              onClick={() => handleStatusChange(a.id, 'Hired')}>
                               <FaCheck />
                             </Button>
-                          </OverlayTrigger>
-                          <OverlayTrigger
-                            placement="top"
-                            overlay={<Tooltip>Reject</Tooltip>}
-                          >
-                            <Button 
-                              variant="outline-danger" 
-                              size="sm" 
-                              className="me-1"
-                              onClick={() => onUpdateStatus(applicant.id, 'Rejected')}
-                            >
-                              <FaTimes />
-                            </Button>
-                          </OverlayTrigger>
-                        </>
-                      )}
-                      
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip>Delete</Tooltip>}
-                      >
-                        <Button 
-                          variant="outline-danger" 
-                          size="sm"
-                          onClick={() => onDelete(applicant.id)}
-                        >
-                          <FaTrash />
-                        </Button>
-                      </OverlayTrigger>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center py-4">
-                  <div className="empty-state">
-                    <p className="text-muted mb-2">No applicants found</p>
-                  </div>
-                </td>
-              </tr>
+                          )}
+                          <Button variant="outline-danger" size="sm"
+                            onClick={() => { setSelectedApplicant(a); setShowDeleteModal(true); }}>
+                            <FaTrash />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+
+            {totalPages > 1 && (
+              <div className="d-flex justify-content-between align-items-center mt-3">
+                <small className="text-muted">
+                  Showing {indexOfFirst + 1} to {Math.min(indexOfLast, filtered.length)} of {filtered.length}
+                </small>
+                <Pagination size="sm" className="mb-0">
+                  <Pagination.Prev disabled={currentPage === 1} onClick={() => setCurrentPage((p) => p - 1)} />
+                  {[...Array(Math.min(totalPages, 5))].map((_, i) => (
+                    <Pagination.Item key={i + 1} active={i + 1 === currentPage}
+                      onClick={() => setCurrentPage(i + 1)}>{i + 1}</Pagination.Item>
+                  ))}
+                  <Pagination.Next disabled={currentPage === totalPages} onClick={() => setCurrentPage((p) => p + 1)} />
+                </Pagination>
+              </div>
             )}
-          </tbody>
-        </Table>
-      </div>
+          </Card.Body>
+        </Card>
 
-      {/* Pagination */}
-      <div className="table-footer">
-        <div className="footer-left">
-          <span className="text-muted">
-            Showing {startIndex + 1} to {endIndex} of {totalItems} entries
-          </span>
-        </div>
-
-        <div className="footer-right">
-          <div className="items-per-page">
-            <Form.Label className="me-2 mb-0">Show:</Form.Label>
-            <Form.Select
-              size="sm"
-              value={itemsPerPage}
-              onChange={handleItemsPerPageChange}
-              style={{ width: '70px' }}
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-            </Form.Select>
-          </div>
-
-          <Pagination size="sm" className="mb-0">
-            <Pagination.First 
-              onClick={() => handlePageChange(1)} 
-              disabled={currentPage === 1}
-            />
-            <Pagination.Prev 
-              onClick={() => handlePageChange(currentPage - 1)} 
-              disabled={currentPage === 1}
-            />
-            
-            {[...Array(Math.min(5, totalPages))].map((_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-              
-              return (
-                <Pagination.Item
-                  key={pageNum}
-                  active={pageNum === currentPage}
-                  onClick={() => handlePageChange(pageNum)}
-                >
-                  {pageNum}
-                </Pagination.Item>
-              );
-            })}
-            
-            <Pagination.Next 
-              onClick={() => handlePageChange(currentPage + 1)} 
-              disabled={currentPage === totalPages}
-            />
-            <Pagination.Last 
-              onClick={() => handlePageChange(totalPages)} 
-              disabled={currentPage === totalPages}
-            />
-          </Pagination>
-        </div>
-      </div>
-
-      {/* Resume View Modal */}
-      <Modal 
-        show={showResumeModal} 
-        onHide={() => setShowResumeModal(false)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>
-            <FaFileAlt className="me-2" />
-            Resume - {selectedApplicant?.name}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedApplicant && (
-            <div className="resume-view">
-              <div className="resume-header">
-                <div className="resume-avatar-large">
-                  {selectedApplicant.avatar || selectedApplicant.name.split(' ').map(n => n[0]).join('')}
+        {/* View Modal */}
+        <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg" centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Applicant Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedApplicant && (
+              <div>
+                <div className="d-flex align-items-center gap-3 mb-4">
+                  <div className="detail-avatar">{selectedApplicant.avatar}</div>
+                  <div>
+                    <h5 className="mb-1">{selectedApplicant.name}</h5>
+                    <p className="text-muted mb-1">{selectedApplicant.position}</p>
+                    <p className="text-muted mb-0 small">
+                      <FaEnvelope className="me-1" /> {selectedApplicant.email} |
+                      <FaPhone className="ms-2 me-1" /> {selectedApplicant.phone}
+                    </p>
+                  </div>
+                  <div className="ms-auto">{getStatusBadge(selectedApplicant.status)}</div>
                 </div>
-                <div className="resume-info">
-                  <h4>{selectedApplicant.name}</h4>
-                  <p className="text-muted">{selectedApplicant.position}</p>
-                  <p className="text-muted">{selectedApplicant.email} | {selectedApplicant.phone}</p>
-                </div>
-              </div>
-
-              <hr />
-
-              <div className="resume-section">
-                <h6>Experience</h6>
-                <p>{selectedApplicant.experience}</p>
-              </div>
-
-              <div className="resume-section">
-                <h6>Skills</h6>
-                <div className="skills-list">
-                  {selectedApplicant.skills.map((skill, index) => (
-                    <Badge key={index} bg="primary" className="skill-badge-large">
-                      {skill}
-                    </Badge>
+                <hr />
+                <p><strong>Experience:</strong> {selectedApplicant.experience}</p>
+                <p><strong>Applied On:</strong> {formatDate(selectedApplicant.appliedDate)}</p>
+                <p className="mb-2"><strong>Skills:</strong></p>
+                <div className="d-flex flex-wrap gap-2">
+                  {selectedApplicant.skills.map((s, i) => (
+                    <Badge key={i} bg="primary">{s}</Badge>
                   ))}
                 </div>
               </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
+            <Button variant="success"><FaFileAlt className="me-1" /> Download Resume</Button>
+          </Modal.Footer>
+        </Modal>
 
-              <div className="resume-section">
-                <h6>Status</h6>
-                {getStatusBadge(selectedApplicant.status)}
-              </div>
-
-              <div className="resume-section">
-                <h6>Applied Date</h6>
-                <p>{formatDate(selectedApplicant.appliedDate)}</p>
-              </div>
-
-              <div className="resume-section">
-                <h6>Resume File</h6>
-                <Button variant="outline-primary" size="sm">
-                  <FaFileAlt className="me-1" /> Download {selectedApplicant.resume}
-                </Button>
-              </div>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowResumeModal(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={() => setShowResumeModal(false)}>
-            <FaFileAlt className="me-1" /> Download Resume
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        {/* Delete Modal */}
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Delete Applicant</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete <strong>{selectedApplicant?.name}</strong>?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete}><FaTrash className="me-1" /> Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      </Container>
     </div>
   );
 };

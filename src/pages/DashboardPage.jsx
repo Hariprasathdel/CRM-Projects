@@ -9,7 +9,8 @@ import TodayAbsents from '../components/dashboard/TodayAbsents';
 import TodayLeave from '../components/dashboard/TodayLeave';
 import LeaveApplicationList from '../components/dashboard/LeaveApplicationList';
 import EmployeeAwardList from '../components/dashboard/EmployeeAwardList';
-import api from '../services/api';
+import employeeService from '../services/employeeService';
+import attendanceService from '../services/attendanceService';
 import './DashboardPage.css';
 
 const DashboardPage = () => {
@@ -19,10 +20,26 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchDashboardStats = async () => {
       try {
-        const response = await api.get('/dashboard/stats');
-        setStats(response.data?.data ?? response.data);
+        const [employeeResult, attendanceResult] = await Promise.all([
+          employeeService.getStatistics(),
+          attendanceService.getStatistics({ date: new Date().toISOString().slice(0, 10) })
+        ]);
+
+        const employeeStats = employeeResult.success
+          ? (employeeResult.data?.data ?? employeeResult.data)
+          : null;
+        const attendanceStats = attendanceResult.success
+          ? (attendanceResult.data?.data ?? attendanceResult.data)
+          : null;
+
+        setStats({
+          ...employeeStats,
+          totalEmployees: employeeStats?.totalEmployees ?? employeeStats?.total ?? employeeStats?.count,
+          employeeGrowth: employeeStats?.employeeGrowth ?? employeeStats?.growth,
+          attendance: attendanceStats?.attendance ?? attendanceStats
+        });
       } catch (err) {
-        console.error('Failed to load live dashboard stats:', err);
+        console.error('Failed to load dashboard statistics:', err);
       } finally {
         setLoading(false);
       }
@@ -32,7 +49,7 @@ const DashboardPage = () => {
   }, []);
 
   const totalEmployees = stats?.totalEmployees ?? 8;
-  const growth = stats?.employeeGrowth?.percentage ?? 100;
+  const growth = stats?.employeeGrowth?.percentage ?? stats?.employeeGrowth ?? 100;
   const attendance = stats?.attendance || {};
 
   const getAttendanceStat = (type) => {

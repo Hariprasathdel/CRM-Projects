@@ -1,0 +1,159 @@
+.add-job-page {
+    padding: 20px 0;
+    background: #f5f7fa;
+    min-height: calc(100vh - 70px);
+  }
+  
+  .add-job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .add-job-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .back-btn { border-radius: 8px; }
+  
+  .page-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    font-size: 1.75rem;
+  }
+  
+  .page-subtitle {
+    color: #64748b;
+    margin: 4px 0 0 0;
+    font-size: 0.95rem;
+  }
+  
+  /* Form Cards */
+  .form-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+  }
+  
+  .form-card .card-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 20px;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .form-card .card-header h6 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  
+  .form-card .form-label {
+    font-weight: 500;
+    font-size: 0.88rem;
+    color: #334155;
+  }
+  
+  /* Array Input Rows */
+  .array-input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  
+  .array-input-row .form-control { flex: 1; }
+  
+  /* Sticky Sidebar */
+  .sticky-sidebar { position: sticky; top: 90px; }
+  
+  /* Preview Card */
+  .preview-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+  }
+  
+  .preview-card .card-header {
+    background: #2563eb;
+    border-bottom: none;
+    padding: 12px 18px;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .preview-card .card-header h6 { color: #ffffff; font-weight: 600; }
+  
+  .preview-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 12px;
+  }
+  
+  .preview-avatar {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  
+  .preview-title { font-weight: 600; color: #0f172a; font-size: 0.95rem; }
+  .preview-dept { font-size: 0.78rem; color: #64748b; }
+  
+  .preview-info div {
+    display: flex;
+    align-items: center;
+    font-size: 0.83rem;
+    color: #475569;
+    padding: 4px 0;
+  }
+  
+  /* Form Actions */
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  
+  .form-actions .btn { flex: 1; padding: 10px; border-radius: 8px; }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .add-job-page { background: #0f172a; }
+    .page-title { color: #f1f5f9; }
+    .page-subtitle { color: #94a3b8; }
+    .form-card, .preview-card, .form-actions { background: #1e293b; }
+    .form-card .card-header { background: #1e293b; border-bottom-color: #334155; }
+    .form-card .card-header h6 { color: #f1f5f9; }
+    .form-card .form-label { color: #cbd5e1; }
+    .preview-header { border-bottom-color: #334155; }
+    .preview-title { color: #f1f5f9; }
+    .preview-dept { color: #94a3b8; }
+    .preview-info div { color: #cbd5e1; }
+  }
+  
+  @media (max-width: 992px) {
+    .sticky-sidebar { position: static; }
+  }
+  
+  @media (max-width: 768px) {
+    .add-job-header { flex-direction: column; align-items: flex-start; }
+    .page-title { font-size: 1.4rem; }
+  }

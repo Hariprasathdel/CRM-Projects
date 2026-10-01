@@ -32,6 +32,8 @@ import Payslip from './components/payslip/Payslip';
 import LoanReports from './components/loan/LoanReports';
 import TaskBoard from './components/project/TaskBoard';
 import PayslipHistory from './components/payslip/PayslipHistory';
+import AddJobPosting from './components/recruitment/AddJobPosting';
+import ApplicantList from './components/recruitment/ApplicantList';
 function App() {
   return (
     <ThemeProvider>
@@ -115,6 +117,20 @@ function App() {
                     <Recruitment />
                   </PrivateRoute>
                 } />
+
+               <Route path="/recruitment/add" element={
+                 <PrivateRoute>
+                   <AddJobPosting />
+                 </PrivateRoute>
+                 } />
+
+               <Route path="/recruitment/jobs/add" element={<Navigate to="/recruitment/add" replace />} />
+
+              <Route path="/recruitment/applicants" element={
+                <PrivateRoute>
+                  <ApplicantList />
+                  </PrivateRoute>
+               } />
                 
                 <Route path="/reports" element={
                   <PrivateRoute>
