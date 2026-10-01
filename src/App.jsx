@@ -35,6 +35,7 @@ import PayslipHistory from './components/payslip/PayslipHistory';
 import AddJobPosting from './components/recruitment/AddJobPosting';
 import ApplicantList from './components/recruitment/ApplicantList';
 import SavedReports from './components/reports/SavedReports';
+import RewardReports from './components/rewards/RewardReports';
 function App() {
   return (
     <ThemeProvider>
@@ -151,6 +152,12 @@ function App() {
                     <RewardPoints />
                   </PrivateRoute>
                 } />
+
+               <Route path="/rewards/reports" element={
+                 <PrivateRoute>
+                   <RewardReports />
+                   </PrivateRoute>
+               } />
                 
                 <Route path="/payslip" element={
                   <PrivateRoute>

@@ -1,0 +1,223 @@
+.reward-reports-page {
+    padding: 20px 0;
+    background: #f5f7fa;
+    min-height: calc(100vh - 70px);
+  }
+  
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .page-title { font-weight: 700; color: #1e293b; margin: 0; font-size: 1.75rem; }
+  .page-subtitle { color: #64748b; margin: 4px 0 0; font-size: 0.95rem; }
+  .header-right { display: flex; gap: 8px; flex-wrap: wrap; }
+  
+  /* Stats */
+  .stat-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+    height: 100%;
+    background: #ffffff;
+  }
+  
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08); }
+  .stat-card .card-body { padding: 20px; }
+  
+  .stat-content { display: flex; align-items: center; gap: 16px; }
+  
+  .stat-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .stat-icon-wrapper.primary { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .stat-icon-wrapper.success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .stat-icon-wrapper.warning { background: linear-gradient(135deg, #eab308, #ca8a04); }
+  .stat-icon-wrapper.info    { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  
+  .stat-icon { font-size: 1.6rem; color: #fff; }
+  .stat-number { font-size: 1.6rem; font-weight: 700; margin: 0; color: #0f172a; line-height: 1.2; }
+  .stat-label { color: #64748b; margin: 0; font-size: 0.9rem; }
+  .stat-detail { color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 2px; }
+  
+  .total-card    { border-left: 4px solid #3b82f6; }
+  .approved-card { border-left: 4px solid #22c55e; }
+  .pending-card  { border-left: 4px solid #eab308; }
+  .points-card   { border-left: 4px solid #06b6d4; }
+  
+  /* Charts */
+  .chart-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    height: 100%;
+    background: #ffffff;
+  }
+  
+  .chart-card .card-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px;
+  }
+  
+  /* List Card */
+  .list-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+  }
+  
+  .list-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .toolbar-left, .toolbar-right { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  
+  /* Table */
+  .reports-table { margin: 0; }
+  
+  .reports-table thead th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+  }
+  
+  .reports-table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    font-size: 0.87rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  
+  .reports-table tbody tr:hover { background: #f8fafc; }
+  
+  .employee-info { display: flex; align-items: center; gap: 12px; }
+  
+  .employee-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+  
+  .employee-name { font-weight: 500; color: #0f172a; font-size: 0.88rem; }
+  .employee-id { font-size: 0.73rem; color: #64748b; }
+  
+  .type-badge,
+  .status-badge,
+  .points-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .action-buttons { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+  .action-buttons .btn { padding: 4px 8px; font-size: 0.78rem; }
+  
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    margin-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  /* Modal */
+  .modal-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: 0 auto;
+  }
+  
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  
+  .detail-item { display: flex; flex-direction: column; gap: 4px; }
+  
+  .detail-label {
+    font-size: 0.72rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  
+  .detail-value { color: #0f172a; font-weight: 500; font-size: 0.9rem; }
+  
+  /* Dark Mode */
+  @media (prefers-color-scheme: dark) {
+    .reward-reports-page { background: #0f172a; }
+    .page-title { color: #f1f5f9; }
+    .page-subtitle { color: #94a3b8; }
+    .stat-card, .chart-card, .list-card { background: #1e293b; }
+    .stat-number { color: #f1f5f9; }
+    .stat-label { color: #94a3b8; }
+    .chart-card .card-header { border-bottom-color: #334155; }
+    .reports-table thead th { background: #334155; color: #cbd5e1; border-bottom-color: #475569; }
+    .reports-table tbody td { color: #e2e8f0; border-bottom-color: #334155; }
+    .reports-table tbody tr:hover { background: #334155; }
+    .employee-name { color: #f1f5f9; }
+    .table-footer { border-top-color: #334155; }
+    .detail-value { color: #f1f5f9; }
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .list-toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar-left { flex-direction: column; align-items: stretch; }
+    .toolbar-left .input-group { width: 100% !important; }
+  }
+  
+  @media (max-width: 768px) {
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .page-title { font-size: 1.4rem; }
+    .reports-table { font-size: 0.78rem; }
+    .action-buttons { flex-direction: column; gap: 2px; }
+    .detail-grid { grid-template-columns: 1fr; }
+  }
