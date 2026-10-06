@@ -170,6 +170,76 @@ class AttendanceService {
       return { success: false, error: handleError(error) };
     }
   }
+
+  // ==================== ATTENDANCE REPORTS ====================
+
+  // Get attendance report (live employee-wise data from MongoDB)
+  async getAttendanceReport(params = {}) {
+    try {
+      const response = await api.get('/attendance-reports', { params });
+      const payload = handleResponse(response);
+      return { 
+        success: true, 
+        data: payload.data ?? payload, 
+        pagination: payload.pagination 
+      };
+    } catch (error) {
+      return { success: false, error: handleError(error) };
+    }
+  }
+
+  // Get attendance summary metrics
+  async getAttendanceSummary(params = {}) {
+    try {
+      const response = await api.get('/attendance-reports/summary', { params });
+      const payload = handleResponse(response);
+      return { success: true, data: payload.data ?? payload };
+    } catch (error) {
+      return { success: false, error: handleError(error) };
+    }
+  }
+
+  // Get attendance daily trend
+  async getAttendanceTrend(params = {}) {
+    try {
+      const response = await api.get('/attendance-reports/trend', { params });
+      const payload = handleResponse(response);
+      return { success: true, data: payload.data ?? payload };
+    } catch (error) {
+      return { success: false, error: handleError(error) };
+    }
+  }
+
+  // Get attendance grouped by department
+  async getDepartmentReport(params = {}) {
+    try {
+      const response = await api.get('/attendance-reports/departments', { params });
+      const payload = handleResponse(response);
+      return { success: true, data: payload.data ?? payload };
+    } catch (error) {
+      return { success: false, error: handleError(error) };
+    }
+  }
+
+  // Get departments list for filter dropdowns
+  async getDepartments() {
+    try {
+      const response = await api.get('/departments');
+      const payload = handleResponse(response);
+      return { success: true, data: payload.data ?? payload };
+    } catch (error) {
+      return { success: false, error: handleError(error) };
+    }
+  }
+
+  // Export attendance report
+  async exportAttendanceReport(format = 'csv', params = {}) {
+    const response = await api.get('/attendance-reports/export', {
+      params: { format, ...params },
+      responseType: 'blob'
+    });
+    return response.data;
+  }
 }
 
 export default new AttendanceService();

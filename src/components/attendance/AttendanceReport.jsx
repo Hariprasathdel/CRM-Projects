@@ -35,6 +35,8 @@ const AttendanceReport = () => {
     sortBy: 'employeeName', sortOrder: 'asc'
   });
 
+  const [departmentList, setDepartmentList] = useState([]);
+
   // Load departments
   useEffect(() => {
     loadDepartments();
@@ -47,13 +49,17 @@ const AttendanceReport = () => {
 
   const loadDepartments = async () => {
     try {
-      const result = await attendanceService.getDepartments?.();
-      if (result?.success) setDepartments(result.data);
+      const result = await attendanceService.getDepartments();
+      if (result?.success && Array.isArray(result.data)) {
+        setDepartmentList(result.data);
+      }
     } catch {
-      setDepartments([
-        { _id: '1', name: 'Software' },
+      setDepartmentList([
+        { _id: '1', name: 'Software Development' },
         { _id: '2', name: 'Marketing' },
-        { _id: '3', name: 'HR' }
+        { _id: '3', name: 'Human Resources' },
+        { _id: '4', name: 'Finance' },
+        { _id: '5', name: 'Operations' }
       ]);
     }
   };
@@ -77,17 +83,36 @@ const AttendanceReport = () => {
         attendanceService.getDepartmentReport(filters)
       ]);
 
-      // Fallback demo data if API fails
-      setReportData(reportRes?.success ? reportRes.data : getDemoReport());
-      setSummary(summaryRes?.success ? summaryRes.data : getDemoSummary());
-      setTrend(trendRes?.success ? trendRes.data : getDemoTrend());
-      setDepartments(deptRes?.success ? deptRes.data : getDemoDepartments());
+      if (reportRes?.success) {
+        setReportData(reportRes.data || []);
+      } else {
+        setReportData(getDemoReport());
+      }
+
+      if (summaryRes?.success) {
+        setSummary(summaryRes.data);
+      } else {
+        setSummary(getDemoSummary());
+      }
+
+      if (trendRes?.success) {
+        setTrend(trendRes.data || []);
+      } else {
+        setTrend(getDemoTrend());
+      }
+
+      if (deptRes?.success) {
+        setDepartments(deptRes.data || []);
+      } else {
+        setDepartments(getDemoDepartments());
+      }
 
       if (reportRes?.pagination) {
         setPagination((prev) => ({ ...prev, ...reportRes.pagination }));
       }
     } catch (err) {
-      setError('Failed to load report data. Showing demo data.');
+      console.error('Error fetching attendance reports:', err);
+      setError('Unable to load attendance reports from MongoDB. Showing sample data.');
       setReportData(getDemoReport());
       setSummary(getDemoSummary());
       setTrend(getDemoTrend());
@@ -232,11 +257,11 @@ const AttendanceReport = () => {
                   <Form.Label>Department</Form.Label>
                   <Form.Select name="department" value={filters.department} onChange={handleFilterChange}>
                     <option value="">All Departments</option>
-                    <option value="Software">Software</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Production">Production</option>
-                    <option value="HR">HR</option>
+                    {departmentList.map((dept) => (
+                      <option key={dept._id || dept.name} value={dept.name}>
+                        {dept.name}
+                      </option>
+                    ))}
                   </Form.Select>
                 </Form.Group>
               </Col>
