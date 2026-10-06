@@ -157,6 +157,54 @@
     flex-wrap: wrap;
     gap: 12px;
   }
+
+  /* DB Connection Pill */
+  .db-connection-pill {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    font-weight: 600;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Tab Container Card */
+  .tab-container-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+  }
+
+  .report-tab-link {
+    font-weight: 600;
+    color: #475569 !important;
+    padding: 12px 20px !important;
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+  }
+
+  .report-tab-link.active {
+    color: #2563eb !important;
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 #e2e8f0 #ffffff !important;
+  }
+
+  .report-type-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .dept-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
   
   /* Modal */
   .modal-avatar {

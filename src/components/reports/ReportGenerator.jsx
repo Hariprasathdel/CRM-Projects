@@ -19,7 +19,8 @@ import {
   FaProjectDiagram,
   FaClock,
   FaDownload,
-  FaCog
+  FaCog,
+  FaTrophy
 } from 'react-icons/fa';
 import './ReportGenerator.css';
 
@@ -45,7 +46,8 @@ const ReportGenerator = ({ onGenerate }) => {
     { value: 'employee', label: 'Employee Report', icon: <FaUsers /> },
     { value: 'department', label: 'Department Report', icon: <FaBuilding /> },
     { value: 'financial', label: 'Financial Report', icon: <FaMoneyBillWave /> },
-    { value: 'project', label: 'Project Report', icon: <FaProjectDiagram /> }
+    { value: 'project', label: 'Project Report', icon: <FaProjectDiagram /> },
+    { value: 'award', label: 'Award & Recognition Report', icon: <FaTrophy /> }
   ];
 
   const departments = ['All', 'Software', 'Marketing', 'Electrical', 'Production', 'HR', 'Finance'];

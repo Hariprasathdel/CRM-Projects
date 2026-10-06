@@ -168,12 +168,16 @@ function App() {
                     <RewardPoints />
                   </PrivateRoute>
                 } />
+                <Route path="/awards" element={<Navigate to="/rewards" replace />} />
 
-               <Route path="/rewards/reports" element={
-                 <PrivateRoute>
-                   <RewardReports />
-                   </PrivateRoute>
-               } />
+                <Route path="/rewards/reports" element={
+                  <PrivateRoute>
+                    <RewardReports />
+                  </PrivateRoute>
+                } />
+                <Route path="/awards/reports" element={<Navigate to="/rewards/reports" replace />} />
+                <Route path="/awards/report" element={<Navigate to="/rewards/reports" replace />} />
+                <Route path="/award-reports" element={<Navigate to="/rewards/reports" replace />} />
                 
                 <Route path="/payslip" element={
                   <PrivateRoute>

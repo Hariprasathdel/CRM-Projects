@@ -27,6 +27,8 @@ import {
 } from 'react-icons/fa';
 import AwardList from './AwardList';
 import AwardForm from './AwardForm';
+import awardReportService from '../../services/awardReportService';
+import employeeService from '../../services/employeeService';
 import './RewardPoints.css';
 
 const RewardPoints = () => {
@@ -40,7 +42,6 @@ const RewardPoints = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
 
-  // Mock data - In real app, this would come from API
   useEffect(() => {
     fetchData();
   }, []);
@@ -48,97 +49,48 @@ const RewardPoints = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock Employees
-      const mockEmployees = [
-        { id: 1, name: 'John Doe', department: 'Software', points: 150, avatar: 'JD' },
-        { id: 2, name: 'Jane Smith', department: 'Marketing', points: 120, avatar: 'JS' },
-        { id: 3, name: 'Mike Johnson', department: 'Electrical', points: 180, avatar: 'MJ' },
-        { id: 4, name: 'Sarah Williams', department: 'Production', points: 90, avatar: 'SW' },
-        { id: 5, name: 'Robert Brown', department: 'Software', points: 200, avatar: 'RB' },
-        { id: 6, name: 'Emily Davis', department: 'HR', points: 110, avatar: 'ED' }
-      ];
+      // Fetch real employees and awards from MongoDB
+      const [empRes, awardsRes] = await Promise.all([
+        employeeService.getAllEmployees({ limit: 50 }),
+        awardReportService.getRecentAwards({ limit: 50 })
+      ]);
 
-      // Mock Awards
-      const mockAwards = [
-        {
-          id: 1,
-          employeeName: 'Honorato Imogene curry',
-          employeeId: 'EMP001',
-          department: 'Electrical',
-          awardName: 'Gascapitol',
-          awardType: 'Certificate',
-          points: 50,
-          date: '2026-08-22',
-          reason: 'Outstanding performance in electrical engineering',
-          status: 'Approved',
-          approvedBy: 'HR Manager',
-          avatar: 'HI'
-        },
-        {
-          id: 2,
-          employeeName: 'Jonathan Ibrahim Sheikh',
-          employeeId: 'EMP002',
-          department: 'Production',
-          awardName: 'Coby Beach',
-          awardType: 'Monetary',
-          points: 75,
-          date: '2026-11-30',
-          reason: 'Excellent production efficiency improvement',
-          status: 'Approved',
-          approvedBy: 'Production Manager',
-          avatar: 'JI'
-        },
-        {
-          id: 3,
-          employeeName: 'Maisha Lucy Zamora Gon',
-          employeeId: 'EMP003',
-          department: 'Software',
-          awardName: 'Best Employee',
-          awardType: 'Certificate',
+      let formattedEmployees = [];
+      if (empRes?.success && Array.isArray(empRes.data)) {
+        formattedEmployees = empRes.data.map(e => ({
+          id: e._id,
+          name: e.name,
+          department: e.department,
           points: 100,
-          date: '2026-08-22',
-          reason: 'Employee of the month - August 2026',
-          status: 'Approved',
-          approvedBy: 'CEO',
-          avatar: 'ML'
-        },
-        {
-          id: 4,
-          employeeName: 'Robert Brown',
-          employeeId: 'EMP005',
-          department: 'Software',
-          awardName: 'Innovation Award',
-          awardType: 'Monetary',
-          points: 80,
-          date: '2026-12-15',
-          reason: 'Innovative solution for project optimization',
-          status: 'Pending',
-          approvedBy: null,
-          avatar: 'RB'
-        },
-        {
-          id: 5,
-          employeeName: 'Emily Davis',
-          employeeId: 'EMP006',
-          department: 'HR',
-          awardName: 'Team Player',
-          awardType: 'Certificate',
-          points: 60,
-          date: '2026-12-20',
-          reason: 'Excellent team collaboration and leadership',
-          status: 'Pending',
-          approvedBy: null,
-          avatar: 'ED'
-        }
-      ];
+          avatar: e.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+        }));
+      }
 
-      setEmployees(mockEmployees);
-      setAwards(mockAwards);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('Failed to load data. Please try again.');
+      let formattedAwards = [];
+      if (awardsRes?.success && Array.isArray(awardsRes.data)) {
+        formattedAwards = awardsRes.data.map((a, idx) => ({
+          id: a._id || idx + 1,
+          employeeName: a.employeeName || a.employeeId?.name || 'Staff Member',
+          employeeId: `EMP-${String(a.employeeId?._id || a.employeeId || idx + 1).slice(-4).toUpperCase()}`,
+          department: a.department || a.employeeId?.department || 'Software',
+          awardName: a.awardName,
+          awardType: a.type === 'gascapitol' ? 'Certificate' : a.type === 'coby_beach' ? 'Monetary' : a.type === 'innovation' ? 'Monetary' : 'Recognition',
+          rawType: a.type,
+          points: a.amount ? Math.round(a.amount / 10) : 100,
+          amount: a.amount || 1000,
+          date: a.date ? new Date(a.date).toISOString().slice(0, 10) : '2026-06-15',
+          reason: a.description || 'Corporate merit and performance recognition',
+          status: 'Approved',
+          approvedBy: a.presentedBy || 'Executive Committee',
+          avatar: (a.employeeName || a.employeeId?.name || 'EM').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+        }));
+      }
+
+      setEmployees(formattedEmployees);
+      setAwards(formattedAwards);
+    } catch (err) {
+      console.error('Error fetching data from MongoDB:', err);
+      setError('Failed to load awards from database.');
     } finally {
       setLoading(false);
     }

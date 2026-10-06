@@ -1,14 +1,15 @@
 import api, { handleResponse, handleError } from './api';
 
 const REWARD_ENDPOINTS = {
-  BASE: '/rewards',
-  BY_ID: (id) => `/rewards/${id}`,
-  BY_EMPLOYEE: (id) => `/rewards/employee/${id}`,
-  STATISTICS: '/rewards/statistics',
-  APPROVE: (id) => `/rewards/${id}/approve`,
-  REJECT: (id) => `/rewards/${id}/reject`,
-  POINTS: '/rewards/points',
-  LEADERBOARD: '/rewards/leaderboard'
+  BASE: '/awards',
+  ALT_BASE: '/rewards',
+  BY_ID: (id) => `/awards/${id}`,
+  BY_EMPLOYEE: (id) => `/awards/employee/${id}`,
+  STATISTICS: '/awards/stats',
+  APPROVE: (id) => `/awards/${id}/approve`,
+  REJECT: (id) => `/awards/${id}/reject`,
+  POINTS: '/awards/points',
+  LEADERBOARD: '/award-reports/top-performers'
 };
 
 class RewardService {
