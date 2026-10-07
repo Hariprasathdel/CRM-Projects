@@ -12,11 +12,28 @@ const RECRUITMENT_ENDPOINTS = {
 };
 
 class RecruitmentService {
+  // Check health and MongoDB status
+  async checkHealth() {
+    try {
+      const response = await api.get('/health');
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { success: false, error: handleError(error) };
+    }
+  }
+
   // Job Postings
   async getAllJobs(params = {}) {
     try {
-      const response = await api.get(RECRUITMENT_ENDPOINTS.JOBS, { params });
-      return { success: true, data: handleResponse(response) };
+      let response;
+      try {
+        response = await api.get(RECRUITMENT_ENDPOINTS.JOBS, { params });
+      } catch (err) {
+        response = await api.get('/job-postings', { params });
+      }
+      const data = handleResponse(response);
+      const list = data?.data || data?.jobs || (Array.isArray(data) ? data : []);
+      return { success: true, data: list };
     } catch (error) {
       return { success: false, error: handleError(error) };
     }

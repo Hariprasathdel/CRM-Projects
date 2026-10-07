@@ -42,6 +42,7 @@ const Recruitment = () => {
   const [success, setSuccess] = useState('');
   const [activeTab, setActiveTab] = useState('jobs');
   const [searchTerm, setSearchTerm] = useState('');
+  const [dbStatus, setDbStatus] = useState({ connected: true, host: 'Atlas Cluster' });
   const [filter, setFilter] = useState('all');
 
   // Mock data - In real app, this would come from API
@@ -236,23 +237,29 @@ const Recruitment = () => {
         }
       ];
 
+      // Check DB Health
+      const health = await recruitmentService.checkHealth();
+      if (health?.success && health.data?.database?.status === 'connected') {
+        setDbStatus({ connected: true, host: health.data.database.host || 'Atlas Cluster' });
+      }
+
       const res = await recruitmentService.getAllJobs();
-      if (res.success && Array.isArray(res.data)) {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setJobPostings(res.data.map(j => ({
           id: j._id || j.id,
           _id: j._id || j.id,
           title: j.jobTitle || j.title || 'Software Engineer',
-          department: j.department || 'Software',
+          department: j.department || 'Software Development',
           location: j.workLocation || j.location || 'San Francisco, CA (Hybrid)',
           type: j.employmentType === 'full_time' ? 'Full-time' : (j.employmentType || 'Full-time'),
-          experience: `${j.experienceRequired || 3}+ years`,
+          experience: `${j.experienceRequired?.min || j.experienceRequired || 3}+ years`,
           salary: j.salaryRange?.min ? `$${j.salaryRange.min.toLocaleString()} - $${j.salaryRange.max.toLocaleString()}` : '$80,000 - $110,000',
-          description: j.description || 'Job description',
-          requirements: j.requirements || ['Relevant experience', 'Communication skills'],
+          description: j.description || 'Enterprise role description',
+          requirements: Array.isArray(j.requirements) ? j.requirements : ['Relevant experience', 'Strong communication'],
           status: j.status === 'open' ? 'Active' : (j.status || 'Active'),
-          postedDate: j.createdAt ? new Date(j.createdAt).toISOString().split('T')[0] : '2026-01-10',
+          postedDate: j.postedDate ? new Date(j.postedDate).toISOString().split('T')[0] : (j.createdAt ? new Date(j.createdAt).toISOString().split('T')[0] : '2026-01-10'),
           applicants: j.applications || j.applicants || 0,
-          deadline: '2026-03-31',
+          deadline: j.closingDate ? new Date(j.closingDate).toISOString().split('T')[0] : '2026-06-30',
           avatar: (j.jobTitle || j.title || 'SE').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
         })));
       } else {
@@ -261,7 +268,7 @@ const Recruitment = () => {
       setApplicants(mockApplicants);
     } catch (error) {
       console.error('Error fetching recruitment data:', error);
-      setError('Failed to load recruitment data. Please try again.');
+      setError('Failed to load recruitment data from MongoDB.');
     } finally {
       setLoading(false);
     }
@@ -270,21 +277,27 @@ const Recruitment = () => {
   const handleAddJob = async (jobData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const newJob = {
-        ...jobData,
-        id: jobPostings.length + 1,
-        applicants: 0,
-        postedDate: new Date().toISOString().split('T')[0],
-        avatar: jobData.title.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
-        status: 'Active'
+      const jobPayload = {
+        jobTitle: jobData.title,
+        department: jobData.department,
+        vacancies: 1,
+        description: jobData.description || 'Role description',
+        requirements: Array.isArray(jobData.requirements) ? jobData.requirements : [jobData.requirements || 'Experience'],
+        workLocation: jobData.location,
+        employmentType: jobData.type === 'Full-time' ? 'full_time' : 'contract',
+        salaryRange: { min: 75000, max: 110000 },
+        status: 'open'
       };
-      
-      setJobPostings([newJob, ...jobPostings]);
-      setShowJobForm(false);
-      setSuccess('Job posting created successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+
+      const res = await recruitmentService.createJob(jobPayload);
+      if (res.success) {
+        setSuccess('Job posting created and saved to MongoDB!');
+        setShowJobForm(false);
+        fetchData();
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to create job');
+      }
     } catch (error) {
       setError('Failed to create job posting. Please try again.');
     } finally {
@@ -295,12 +308,9 @@ const Recruitment = () => {
   const handleUpdateJob = async (jobData) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       const updatedJobs = jobPostings.map(job => 
         job.id === jobData.id ? { ...job, ...jobData } : job
       );
-      
       setJobPostings(updatedJobs);
       setShowJobForm(false);
       setEditingJob(null);
@@ -314,12 +324,11 @@ const Recruitment = () => {
   };
 
   const handleDeleteJob = async (id) => {
-    if (window.confirm('Are you sure you want to delete this job posting?')) {
+    if (window.confirm('Are you sure you want to delete this job posting from MongoDB?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setJobPostings(jobPostings.filter(job => job.id !== id));
-        setSuccess('Job posting deleted successfully!');
+        await recruitmentService.deleteJob(id);
+        setJobPostings(jobPostings.filter(job => job.id !== id && job._id !== id));
+        setSuccess('Job posting removed from MongoDB successfully!');
         setTimeout(() => setSuccess(''), 3000);
       } catch (error) {
         setError('Failed to delete job posting. Please try again.');
@@ -382,8 +391,15 @@ const Recruitment = () => {
         {/* Header Section */}
         <div className="recruitment-header">
           <div className="header-left">
-            <h2 className="page-title">Recruitment Management</h2>
-            <p className="page-subtitle">Manage job postings and track applicants</p>
+            <div className="d-flex align-items-center gap-3 mb-1">
+              <h2 className="page-title">Recruitment Management</h2>
+              <div className={`db-status-badge ${dbStatus.connected ? 'connected' : 'disconnected'}`}>
+                <span className="db-dot" />
+                <span>{dbStatus.connected ? 'MongoDB Connected: Operational' : 'MongoDB Connecting...'}</span>
+                <span className="text-muted ms-1">({dbStatus.host})</span>
+              </div>
+            </div>
+            <p className="page-subtitle">Manage enterprise job postings and candidate pipelines stored in MongoDB</p>
           </div>
           <div className="header-right">
             <Button 

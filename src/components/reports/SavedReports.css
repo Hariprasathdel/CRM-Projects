@@ -193,3 +193,44 @@
     .saved-reports-table { font-size: 0.78rem; }
     .action-buttons { flex-direction: column; gap: 2px; }
   }
+
+  .db-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  
+  .db-status-badge.connected {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+
+  .db-status-badge.disconnected {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+  
+  .db-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #10b981;
+    animation: dbPulse 1.8s infinite ease-in-out;
+  }
+
+  .db-status-badge.disconnected .db-dot {
+    background-color: #ef4444;
+    animation: none;
+  }
+  
+  @keyframes dbPulse {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.7; }
+  }

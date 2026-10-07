@@ -5,6 +5,7 @@ import {
   FaCalendarAlt, FaPlus, FaTrash, FaUserPlus, FaArrowLeft
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import recruitmentService from '../../services/recruitmentService';
 import './AddJobPosting.css';
 
 const AddJobPosting = () => {
@@ -66,9 +67,30 @@ const AddJobPosting = () => {
     if (!validate()) return;
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 1000));
-      setSuccess('Job posting created successfully!');
-      setTimeout(() => navigate('/recruitment'), 1500);
+      const jobPayload = {
+        jobTitle: formData.title,
+        department: formData.department,
+        vacancies: 1,
+        description: formData.description,
+        requirements: requirements.filter(r => r.trim()),
+        responsibilities: responsibilities.filter(r => r.trim()),
+        skills: [formData.department, formData.experience],
+        workLocation: formData.location,
+        employmentType: formData.type === 'Full-time' ? 'full_time' : formData.type.toLowerCase().replace('-', '_'),
+        salaryRange: {
+          min: Number(formData.salaryMin) || 60000,
+          max: Number(formData.salaryMax) || 90000
+        },
+        status: 'open'
+      };
+
+      const res = await recruitmentService.createJob(jobPayload);
+      if (res.success) {
+        setSuccess('Job posting created and saved to MongoDB successfully!');
+        setTimeout(() => navigate('/recruitment'), 1200);
+      } else {
+        setError(res.error?.message || 'Failed to save job posting to MongoDB');
+      }
     } catch (err) {
       setError('Failed to create job posting.');
     } finally {
