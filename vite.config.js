@@ -10,6 +10,19 @@ export default defineConfig({
   resolve: {
     dedupe: ['react', 'react-dom'],
   },
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5002',
+        changeOrigin: true,
+      },
+      '/health': {
+        target: 'http://localhost:5002',
+        changeOrigin: true,
+      }
+    }
+  },
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] })

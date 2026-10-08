@@ -10,20 +10,18 @@ import {
   Spinner,
   Badge,
   Tabs,
-  Tab
+  Tab,
+  Form
 } from 'react-bootstrap';
 import { 
   FaPlus, 
   FaDownload, 
-  FaUserPlus, 
-  FaBriefcase,
-  FaCheckCircle,
+  FaBriefcase, 
+  FaUsers, 
+  FaClock, 
+  FaCheckCircle, 
   FaTimesCircle,
-  FaClock,
-  FaChartBar,
-  FaUsers,
-  FaFileAlt,
-  FaCalendarAlt
+  FaSync
 } from 'react-icons/fa';
 import JobPostings from './JobPostings';
 import ApplicantList from './ApplicantList';
@@ -32,10 +30,10 @@ import './Recruitment.css';
 
 const Recruitment = () => {
   const [loading, setLoading] = useState(false);
+  const [savingJob, setSavingJob] = useState(false);
   const [jobPostings, setJobPostings] = useState([]);
   const [applicants, setApplicants] = useState([]);
   const [showJobForm, setShowJobForm] = useState(false);
-  const [showApplicantForm, setShowApplicantForm] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [editingJob, setEditingJob] = useState(null);
   const [error, setError] = useState('');
@@ -45,204 +43,65 @@ const Recruitment = () => {
   const [dbStatus, setDbStatus] = useState({ connected: true, host: 'Atlas Cluster' });
   const [filter, setFilter] = useState('all');
 
-  // Mock data - In real app, this would come from API
+  // Form state for creating/editing job
+  const [jobFormData, setJobFormData] = useState({
+    title: '',
+    department: 'Software Development',
+    location: 'San Francisco, CA (Hybrid)',
+    type: 'Full-time',
+    experience: '3+ years',
+    salaryMin: '80000',
+    salaryMax: '120000',
+    description: '',
+    requirements: '',
+    status: 'Active'
+  });
+
   useEffect(() => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (editingJob) {
+      setJobFormData({
+        title: editingJob.title || '',
+        department: editingJob.department || 'Software Development',
+        location: editingJob.location || 'San Francisco, CA (Hybrid)',
+        type: editingJob.type || 'Full-time',
+        experience: editingJob.experience || '3+ years',
+        salaryMin: editingJob.salaryMin || '80000',
+        salaryMax: editingJob.salaryMax || '120000',
+        description: editingJob.description || '',
+        requirements: Array.isArray(editingJob.requirements) ? editingJob.requirements.join(', ') : (editingJob.requirements || ''),
+        status: editingJob.status || 'Active'
+      });
+    } else {
+      setJobFormData({
+        title: '',
+        department: 'Software Development',
+        location: 'San Francisco, CA (Hybrid)',
+        type: 'Full-time',
+        experience: '3+ years',
+        salaryMin: '80000',
+        salaryMax: '120000',
+        description: '',
+        requirements: 'React, Node.js, MongoDB',
+        status: 'Active'
+      });
+    }
+  }, [editingJob]);
+
   const fetchData = async () => {
     setLoading(true);
+    setError('');
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Mock Job Postings
-      const mockJobs = [
-        {
-          id: 1,
-          title: 'Senior Software Engineer',
-          department: 'Software',
-          location: 'New York, NY',
-          type: 'Full-time',
-          experience: '5-7 years',
-          salary: '$90,000 - $120,000',
-          description: 'Looking for an experienced software engineer to lead our development team.',
-          requirements: ['React', 'Node.js', 'Python', 'AWS', 'Docker'],
-          status: 'Active',
-          postedDate: '2026-01-10',
-          applicants: 45,
-          deadline: '2026-02-15',
-          avatar: 'SS'
-        },
-        {
-          id: 2,
-          title: 'Marketing Manager',
-          department: 'Marketing',
-          location: 'Los Angeles, CA',
-          type: 'Full-time',
-          experience: '3-5 years',
-          salary: '$70,000 - $90,000',
-          description: 'Lead marketing campaigns and strategy for our products.',
-          requirements: ['Digital Marketing', 'SEO', 'Content Strategy', 'Analytics'],
-          status: 'Active',
-          postedDate: '2026-01-12',
-          applicants: 32,
-          deadline: '2026-02-20',
-          avatar: 'MM'
-        },
-        {
-          id: 3,
-          title: 'Electrical Engineer',
-          department: 'Electrical',
-          location: 'Chicago, IL',
-          type: 'Full-time',
-          experience: '3-5 years',
-          salary: '$75,000 - $95,000',
-          description: 'Design and develop electrical systems for industrial applications.',
-          requirements: ['AutoCAD', 'Circuit Design', 'PLC', 'MATLAB'],
-          status: 'Active',
-          postedDate: '2026-01-08',
-          applicants: 28,
-          deadline: '2026-02-10',
-          avatar: 'EE'
-        },
-        {
-          id: 4,
-          title: 'Production Supervisor',
-          department: 'Production',
-          location: 'Houston, TX',
-          type: 'Full-time',
-          experience: '5-7 years',
-          salary: '$65,000 - $85,000',
-          description: 'Oversee production operations and ensure quality standards.',
-          requirements: ['Lean Manufacturing', 'Quality Control', 'Supply Chain'],
-          status: 'Closed',
-          postedDate: '2025-12-15',
-          applicants: 56,
-          deadline: '2026-01-15',
-          avatar: 'PS'
-        },
-        {
-          id: 5,
-          title: 'HR Coordinator',
-          department: 'HR',
-          location: 'Boston, MA',
-          type: 'Part-time',
-          experience: '1-3 years',
-          salary: '$40,000 - $55,000',
-          description: 'Assist with recruitment, onboarding, and employee relations.',
-          requirements: ['Recruitment', 'Employee Relations', 'Payroll', 'Training'],
-          status: 'Active',
-          postedDate: '2026-01-15',
-          applicants: 18,
-          deadline: '2026-03-01',
-          avatar: 'HR'
-        },
-        {
-          id: 6,
-          title: 'Data Analyst',
-          department: 'Analytics',
-          location: 'San Francisco, CA',
-          type: 'Full-time',
-          experience: '2-4 years',
-          salary: '$80,000 - $100,000',
-          description: 'Analyze data trends and provide actionable insights for business decisions.',
-          requirements: ['SQL', 'Python', 'Tableau', 'Statistics'],
-          status: 'Active',
-          postedDate: '2026-01-14',
-          applicants: 40,
-          deadline: '2026-02-28',
-          avatar: 'DA'
-        }
-      ];
-
-      // Mock Applicants
-      const mockApplicants = [
-        {
-          id: 1,
-          name: 'Alice Johnson',
-          email: 'alice.johnson@example.com',
-          phone: '+1 234 567 8901',
-          position: 'Senior Software Engineer',
-          experience: '6 years',
-          skills: ['React', 'Node.js', 'Python', 'AWS'],
-          status: 'Shortlisted',
-          appliedDate: '2026-01-11',
-          resume: 'alice_johnson_resume.pdf',
-          avatar: 'AJ'
-        },
-        {
-          id: 2,
-          name: 'Bob Smith',
-          email: 'bob.smith@example.com',
-          phone: '+1 345 678 9012',
-          position: 'Marketing Manager',
-          experience: '4 years',
-          skills: ['Digital Marketing', 'SEO', 'Content Strategy'],
-          status: 'Interview',
-          appliedDate: '2026-01-13',
-          resume: 'bob_smith_resume.pdf',
-          avatar: 'BS'
-        },
-        {
-          id: 3,
-          name: 'Carol White',
-          email: 'carol.white@example.com',
-          phone: '+1 456 789 0123',
-          position: 'Electrical Engineer',
-          experience: '4 years',
-          skills: ['AutoCAD', 'Circuit Design', 'PLC'],
-          status: 'Pending',
-          appliedDate: '2026-01-10',
-          resume: 'carol_white_resume.pdf',
-          avatar: 'CW'
-        },
-        {
-          id: 4,
-          name: 'David Green',
-          email: 'david.green@example.com',
-          phone: '+1 567 890 1234',
-          position: 'Production Supervisor',
-          experience: '6 years',
-          skills: ['Lean Manufacturing', 'Quality Control'],
-          status: 'Rejected',
-          appliedDate: '2025-12-18',
-          resume: 'david_green_resume.pdf',
-          avatar: 'DG'
-        },
-        {
-          id: 5,
-          name: 'Eva Martinez',
-          email: 'eva.martinez@example.com',
-          phone: '+1 678 901 2345',
-          position: 'HR Coordinator',
-          experience: '2 years',
-          skills: ['Recruitment', 'Employee Relations', 'Training'],
-          status: 'Hired',
-          appliedDate: '2026-01-16',
-          resume: 'eva_martinez_resume.pdf',
-          avatar: 'EM'
-        },
-        {
-          id: 6,
-          name: 'Frank Wilson',
-          email: 'frank.wilson@example.com',
-          phone: '+1 789 012 3456',
-          position: 'Senior Software Engineer',
-          experience: '7 years',
-          skills: ['React', 'Node.js', 'Docker', 'Kubernetes'],
-          status: 'Shortlisted',
-          appliedDate: '2026-01-12',
-          resume: 'frank_wilson_resume.pdf',
-          avatar: 'FW'
-        }
-      ];
-
-      // Check DB Health
+      // 1. Health check & DB status
       const health = await recruitmentService.checkHealth();
       if (health?.success && health.data?.database?.status === 'connected') {
         setDbStatus({ connected: true, host: health.data.database.host || 'Atlas Cluster' });
       }
 
+      // 2. Fetch Jobs from MongoDB
       const res = await recruitmentService.getAllJobs();
       if (res.success && Array.isArray(res.data) && res.data.length > 0) {
         setJobPostings(res.data.map(j => ({
@@ -254,6 +113,8 @@ const Recruitment = () => {
           type: j.employmentType === 'full_time' ? 'Full-time' : (j.employmentType || 'Full-time'),
           experience: `${j.experienceRequired?.min || j.experienceRequired || 3}+ years`,
           salary: j.salaryRange?.min ? `$${j.salaryRange.min.toLocaleString()} - $${j.salaryRange.max.toLocaleString()}` : '$80,000 - $110,000',
+          salaryMin: j.salaryRange?.min || 80000,
+          salaryMax: j.salaryRange?.max || 120000,
           description: j.description || 'Enterprise role description',
           requirements: Array.isArray(j.requirements) ? j.requirements : ['Relevant experience', 'Strong communication'],
           status: j.status === 'open' ? 'Active' : (j.status || 'Active'),
@@ -262,75 +123,122 @@ const Recruitment = () => {
           deadline: j.closingDate ? new Date(j.closingDate).toISOString().split('T')[0] : '2026-06-30',
           avatar: (j.jobTitle || j.title || 'SE').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
         })));
-      } else {
-        setJobPostings(mockJobs);
       }
-      setApplicants(mockApplicants);
-    } catch (error) {
-      console.error('Error fetching recruitment data:', error);
+
+      // 3. Fetch Applicants from MongoDB
+      const appRes = await recruitmentService.getAllApplicants();
+      if (appRes.success && Array.isArray(appRes.data?.data || appRes.data)) {
+        const rawApplicants = appRes.data?.data || appRes.data;
+        if (rawApplicants.length > 0) {
+          setApplicants(rawApplicants.map(a => {
+            const rawStatus = a.status || 'new';
+            const displayStatus = 
+              rawStatus === 'new' ? 'Pending' :
+              rawStatus === 'screening' ? 'Pending' :
+              rawStatus === 'shortlisted' ? 'Shortlisted' :
+              rawStatus === 'interview_scheduled' || rawStatus === 'interviewed' || rawStatus === 'technical_round' ? 'Interview' :
+              rawStatus === 'hired' ? 'Hired' :
+              rawStatus === 'rejected' ? 'Rejected' :
+              rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+
+            return {
+              id: a._id || a.id,
+              _id: a._id || a.id,
+              name: a.fullName || `${a.firstName || ''} ${a.lastName || ''}`.trim() || 'Candidate',
+              email: a.email || '',
+              phone: a.phone || '',
+              position: a.jobTitle || a.jobId?.jobTitle || a.position || 'Software Engineer',
+              jobId: a.jobId?._id || a.jobId || '',
+              experience: `${a.totalExperience || 3} years`,
+              skills: Array.isArray(a.skills) && a.skills.length > 0 ? a.skills : ['Technical Knowledge', 'Collaboration'],
+              status: displayStatus,
+              appliedDate: a.appliedDate ? new Date(a.appliedDate).toISOString().split('T')[0] : '2026-01-10',
+              resume: a.resume?.url || 'resume.pdf',
+              avatar: ((a.firstName ? a.firstName[0] : '') + (a.lastName ? a.lastName[0] : 'C')).toUpperCase() || 'AJ'
+            };
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching recruitment data:', err);
       setError('Failed to load recruitment data from MongoDB.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddJob = async (jobData) => {
-    setLoading(true);
-    try {
-      const jobPayload = {
-        jobTitle: jobData.title,
-        department: jobData.department,
-        vacancies: 1,
-        description: jobData.description || 'Role description',
-        requirements: Array.isArray(jobData.requirements) ? jobData.requirements : [jobData.requirements || 'Experience'],
-        workLocation: jobData.location,
-        employmentType: jobData.type === 'Full-time' ? 'full_time' : 'contract',
-        salaryRange: { min: 75000, max: 110000 },
-        status: 'open'
-      };
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (!jobFormData.title.trim()) {
+      setError('Job title is required');
+      return;
+    }
 
-      const res = await recruitmentService.createJob(jobPayload);
-      if (res.success) {
-        setSuccess('Job posting created and saved to MongoDB!');
-        setShowJobForm(false);
-        fetchData();
-        setTimeout(() => setSuccess(''), 3000);
+    setSavingJob(true);
+    setError('');
+
+    const requirementsList = typeof jobFormData.requirements === 'string'
+      ? jobFormData.requirements.split(',').map(r => r.trim()).filter(Boolean)
+      : jobFormData.requirements;
+
+    const payload = {
+      jobTitle: jobFormData.title,
+      department: jobFormData.department,
+      vacancies: 1,
+      description: jobFormData.description || 'Enterprise role description',
+      requirements: requirementsList.length > 0 ? requirementsList : ['Relevant experience'],
+      workLocation: jobFormData.location,
+      employmentType: jobFormData.type === 'Full-time' ? 'full_time' : 'contract',
+      salaryRange: {
+        min: Number(jobFormData.salaryMin) || 75000,
+        max: Number(jobFormData.salaryMax) || 110000
+      },
+      status: jobFormData.status === 'Active' ? 'open' : 'closed'
+    };
+
+    try {
+      if (editingJob) {
+        const id = editingJob._id || editingJob.id;
+        const res = await recruitmentService.updateJob(id, payload);
+        if (res.success) {
+          setSuccess('Job posting updated in MongoDB successfully!');
+          setShowJobForm(false);
+          setEditingJob(null);
+          await fetchData();
+        } else {
+          setError(res.error?.message || 'Failed to update job posting');
+        }
       } else {
-        setError(res.error?.message || 'Failed to create job');
+        const res = await recruitmentService.createJob(payload);
+        if (res.success) {
+          setSuccess('Job posting created and stored in MongoDB successfully!');
+          setShowJobForm(false);
+          await fetchData();
+        } else {
+          setError(res.error?.message || 'Failed to create job posting');
+        }
       }
-    } catch (error) {
-      setError('Failed to create job posting. Please try again.');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      setError(err.message || 'Operation failed. Please try again.');
     } finally {
-      setLoading(false);
+      setSavingJob(false);
     }
   };
 
-  const handleUpdateJob = async (jobData) => {
-    setLoading(true);
-    try {
-      const updatedJobs = jobPostings.map(job => 
-        job.id === jobData.id ? { ...job, ...jobData } : job
-      );
-      setJobPostings(updatedJobs);
-      setShowJobForm(false);
-      setEditingJob(null);
-      setSuccess('Job posting updated successfully!');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
-      setError('Failed to update job posting. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleEditClick = (job) => {
+    setEditingJob(job);
+    setShowJobForm(true);
   };
 
   const handleDeleteJob = async (id) => {
     if (window.confirm('Are you sure you want to delete this job posting from MongoDB?')) {
       try {
         await recruitmentService.deleteJob(id);
-        setJobPostings(jobPostings.filter(job => job.id !== id && job._id !== id));
+        setJobPostings(prev => prev.filter(job => job.id !== id && job._id !== id));
         setSuccess('Job posting removed from MongoDB successfully!');
         setTimeout(() => setSuccess(''), 3000);
-      } catch (error) {
+      } catch (err) {
         setError('Failed to delete job posting. Please try again.');
       }
     }
@@ -343,37 +251,50 @@ const Recruitment = () => {
 
   const handleUpdateApplicantStatus = async (id, status) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedApplicants = applicants.map(applicant => 
-        applicant.id === id ? { ...applicant, status } : applicant
-      );
-      
-      setApplicants(updatedApplicants);
-      setSuccess(`Applicant status updated to ${status}!`);
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (error) {
+      const res = await recruitmentService.updateApplicantStatus(id, status);
+      if (res.success) {
+        setApplicants(prev => prev.map(applicant => 
+          (applicant.id === id || applicant._id === id) ? { ...applicant, status } : applicant
+        ));
+        setSuccess(`Applicant status updated to ${status}!`);
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to update applicant status');
+      }
+    } catch (err) {
       setError('Failed to update applicant status. Please try again.');
     }
   };
 
   const handleDeleteApplicant = async (id) => {
-    if (window.confirm('Are you sure you want to delete this applicant?')) {
+    if (window.confirm('Are you sure you want to delete this applicant from MongoDB?')) {
       try {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setApplicants(applicants.filter(applicant => applicant.id !== id));
-        setSuccess('Applicant deleted successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-      } catch (error) {
+        const res = await recruitmentService.deleteApplicant(id);
+        if (res.success) {
+          setApplicants(prev => prev.filter(applicant => applicant.id !== id && applicant._id !== id));
+          setSuccess('Applicant deleted from MongoDB successfully!');
+          setTimeout(() => setSuccess(''), 3000);
+        } else {
+          setError(res.error?.message || 'Failed to delete applicant from MongoDB');
+        }
+      } catch (err) {
         setError('Failed to delete applicant. Please try again.');
       }
     }
   };
 
   const handleExport = () => {
-    console.log('Exporting recruitment data...');
-    setSuccess('Data exported successfully!');
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Title,Department,Location,Type,Status,Applicants\n"
+      + jobPostings.map(j => `"${j.title}","${j.department}","${j.location}","${j.type}","${j.status}",${j.applicants}`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `recruitment_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setSuccess('Recruitment report exported as CSV!');
     setTimeout(() => setSuccess(''), 3000);
   };
 
@@ -399,9 +320,17 @@ const Recruitment = () => {
                 <span className="text-muted ms-1">({dbStatus.host})</span>
               </div>
             </div>
-            <p className="page-subtitle">Manage enterprise job postings and candidate pipelines stored in MongoDB</p>
+            <p className="page-subtitle">Manage enterprise job postings and candidate pipelines stored in MongoDB Atlas</p>
           </div>
           <div className="header-right">
+            <Button 
+              variant="outline-primary" 
+              className="me-2"
+              onClick={fetchData}
+              disabled={loading}
+            >
+              <FaSync className={`me-1 ${loading ? 'fa-spin' : ''}`} /> Refresh
+            </Button>
             <Button 
               variant="primary" 
               className="me-2"
@@ -413,7 +342,7 @@ const Recruitment = () => {
               <FaPlus className="me-1" /> Post Job
             </Button>
             <Button variant="outline-secondary" onClick={handleExport}>
-              <FaDownload className="me-1" /> Export
+              <FaDownload className="me-1" /> Export CSV
             </Button>
           </div>
         </div>
@@ -430,7 +359,7 @@ const Recruitment = () => {
                   <div className="stat-info">
                     <h3 className="stat-number">{totalJobs}</h3>
                     <p className="stat-label">Total Jobs</p>
-                    <small className="stat-detail">{activeJobs} active positions</small>
+                    <small className="stat-detail">{activeJobs} active positions in MongoDB</small>
                   </div>
                 </div>
               </Card.Body>
@@ -447,7 +376,7 @@ const Recruitment = () => {
                   <div className="stat-info">
                     <h3 className="stat-number">{totalApplicants}</h3>
                     <p className="stat-label">Total Applicants</p>
-                    <small className="stat-detail">Across all positions</small>
+                    <small className="stat-detail">Live from MongoDB</small>
                   </div>
                 </div>
               </Card.Body>
@@ -463,7 +392,7 @@ const Recruitment = () => {
                   </div>
                   <div className="stat-info">
                     <h3 className="stat-number">{shortlisted + interviewed}</h3>
-                    <p className="stat-label">In Progress</p>
+                    <p className="stat-label">In Pipeline</p>
                     <small className="stat-detail">{shortlisted} shortlisted, {interviewed} interviewing</small>
                   </div>
                 </div>
@@ -507,8 +436,11 @@ const Recruitment = () => {
           <Card.Body>
             <Tabs
               activeKey={activeTab}
-              onSelect={(k) => setActiveTab(k)}
-              className="recruitment-tabs"
+              onSelect={(k) => {
+                setActiveTab(k);
+                if (k === 'jobs') setSelectedJob(null);
+              }}
+              className="recruitment-tabs mb-3"
             >
               <Tab eventKey="jobs" title={
                 <span>
@@ -519,13 +451,13 @@ const Recruitment = () => {
                 {loading ? (
                   <div className="text-center py-5">
                     <Spinner animation="border" variant="primary" />
-                    <p className="mt-3 text-muted">Loading job postings...</p>
+                    <p className="mt-3 text-muted">Loading job postings from MongoDB...</p>
                   </div>
                 ) : (
                   <JobPostings 
                     jobs={jobPostings}
                     onViewApplicants={handleViewApplicants}
-                    onEdit={setEditingJob}
+                    onEdit={handleEditClick}
                     onDelete={handleDeleteJob}
                     setShowForm={setShowJobForm}
                     searchTerm={searchTerm}
@@ -545,7 +477,7 @@ const Recruitment = () => {
                 {loading ? (
                   <div className="text-center py-5">
                     <Spinner animation="border" variant="primary" />
-                    <p className="mt-3 text-muted">Loading applicants...</p>
+                    <p className="mt-3 text-muted">Loading applicants from MongoDB...</p>
                   </div>
                 ) : (
                   <ApplicantList 
@@ -564,7 +496,7 @@ const Recruitment = () => {
           </Card.Body>
         </Card>
 
-        {/* Job Form Modal */}
+        {/* Interactive Job Form Modal */}
         <Modal 
           show={showJobForm} 
           onHide={() => {
@@ -574,27 +506,162 @@ const Recruitment = () => {
           size="lg"
           centered
         >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              <FaBriefcase className="me-2" />
-              {editingJob ? 'Edit Job Posting' : 'Create New Job Posting'}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {/* Job form would be implemented here */}
-            <div className="text-center py-3">
-              <p>Job form implementation would go here.</p>
+          <Form onSubmit={handleFormSubmit}>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                <FaBriefcase className="me-2" />
+                {editingJob ? 'Edit Job Posting' : 'Post New Job to MongoDB'}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Row>
+                <Col md={12} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Job Title <span className="text-danger">*</span></Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. Senior Full Stack Engineer"
+                      value={jobFormData.title}
+                      onChange={(e) => setJobFormData({ ...jobFormData, title: e.target.value })}
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                
+                <Col md={6} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Department <span className="text-danger">*</span></Form.Label>
+                    <Form.Select
+                      value={jobFormData.department}
+                      onChange={(e) => setJobFormData({ ...jobFormData, department: e.target.value })}
+                    >
+                      <option value="Software Development">Software Development</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Human Resources">Human Resources</option>
+                      <option value="Finance">Finance</option>
+                      <option value="Operations">Operations</option>
+                      <option value="Electrical">Electrical</option>
+                      <option value="Production">Production</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+
+                <Col md={6} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Location</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. San Francisco, CA (Hybrid)"
+                      value={jobFormData.location}
+                      onChange={(e) => setJobFormData({ ...jobFormData, location: e.target.value })}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Employment Type</Form.Label>
+                    <Form.Select
+                      value={jobFormData.type}
+                      onChange={(e) => setJobFormData({ ...jobFormData, type: e.target.value })}
+                    >
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Internship">Internship</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Min Salary ($)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="80000"
+                      value={jobFormData.salaryMin}
+                      onChange={(e) => setJobFormData({ ...jobFormData, salaryMin: e.target.value })}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Max Salary ($)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="120000"
+                      value={jobFormData.salaryMax}
+                      onChange={(e) => setJobFormData({ ...jobFormData, salaryMax: e.target.value })}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={12} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Detailed responsibilities and role summary..."
+                      value={jobFormData.description}
+                      onChange={(e) => setJobFormData({ ...jobFormData, description: e.target.value })}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={12} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Requirements (comma separated)</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. React, Node.js, MongoDB, TypeScript"
+                      value={jobFormData.requirements}
+                      onChange={(e) => setJobFormData({ ...jobFormData, requirements: e.target.value })}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={6} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>Status</Form.Label>
+                    <Form.Select
+                      value={jobFormData.status}
+                      onChange={(e) => setJobFormData({ ...jobFormData, status: e.target.value })}
+                    >
+                      <option value="Active">Active / Open</option>
+                      <option value="Closed">Closed</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+            </Modal.Body>
+            <Modal.Footer>
               <Button 
-                variant="primary" 
+                variant="secondary" 
                 onClick={() => {
                   setShowJobForm(false);
                   setEditingJob(null);
                 }}
               >
-                Close
+                Cancel
               </Button>
-            </div>
-          </Modal.Body>
+              <Button 
+                variant="primary" 
+                type="submit"
+                disabled={savingJob}
+              >
+                {savingJob ? (
+                  <>
+                    <Spinner animation="border" size="sm" className="me-1" />
+                    Saving to MongoDB...
+                  </>
+                ) : (
+                  editingJob ? 'Save Changes' : 'Publish Job'
+                )}
+              </Button>
+            </Modal.Footer>
+          </Form>
         </Modal>
       </Container>
     </div>

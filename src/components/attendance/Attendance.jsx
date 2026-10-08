@@ -9,6 +9,7 @@ import {
 } from 'react-icons/fa';
 import AttendanceTable from './AttendanceTable';
 import AttendanceForm from './AttendanceForm';
+import attendanceService from '../../services/attendanceService';
 import './Attendance.css';
 
 const Attendance = () => {
@@ -27,102 +28,106 @@ const Attendance = () => {
     fetchAttendance();
   }, []);
 
+  const normalizeAttendance = (item) => ({
+    id: item._id || item.id,
+    _id: item._id || item.id,
+    employeeName: item.employeeId?.name || item.employeeName || 'Employee',
+    employeeId: item.employeeId?.employeeCode || (typeof item.employeeId === 'object' ? `EMP-${String(item.employeeId._id).slice(-4).toUpperCase()}` : item.employeeId || 'EMP001'),
+    employeeMongoId: item.employeeId?._id || item.employeeId,
+    department: item.employeeId?.department || item.department || 'General',
+    date: item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0],
+    checkIn: item.checkIn || '--',
+    checkOut: item.checkOut || '--',
+    status: item.status || 'present',
+    workingHours: item.workHours ? `${item.workHours}h` : '8h',
+    overtime: item.overtime ? `${item.overtime}h` : '0h',
+    avatar: (item.employeeId?.name || item.employeeName || 'EM').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+    location: item.location?.name || 'Main Office',
+    remarks: item.remarks || ''
+  });
+
   const fetchAttendance = async () => {
     setLoading(true);
+    setError('');
     try {
-      await new Promise((r) => setTimeout(r, 500));
-      setAttendanceRecords([
-        {
-          id: 1, employeeName: 'John Doe', employeeId: 'EMP001',
-          department: 'Software', date: '2026-01-20',
-          checkIn: '09:00 AM', checkOut: '06:00 PM', status: 'present',
-          workingHours: '8h', overtime: '1h', avatar: 'JD',
-          location: 'Main Office', remarks: 'On time'
-        },
-        {
-          id: 2, employeeName: 'Jane Smith', employeeId: 'EMP002',
-          department: 'Marketing', date: '2026-01-20',
-          checkIn: '09:30 AM', checkOut: '05:30 PM', status: 'present',
-          workingHours: '7.5h', overtime: '0.5h', avatar: 'JS',
-          location: 'Main Office', remarks: ''
-        },
-        {
-          id: 3, employeeName: 'Mike Johnson', employeeId: 'EMP003',
-          department: 'Electrical', date: '2026-01-20',
-          checkIn: '--', checkOut: '--', status: 'absent',
-          workingHours: '0h', overtime: '0h', avatar: 'MJ',
-          location: '--', remarks: 'Sick leave'
-        },
-        {
-          id: 4, employeeName: 'Sarah Williams', employeeId: 'EMP004',
-          department: 'Production', date: '2026-01-20',
-          checkIn: '--', checkOut: '--', status: 'leave',
-          workingHours: '0h', overtime: '0h', avatar: 'SW',
-          location: '--', remarks: 'Personal leave'
-        },
-        {
-          id: 5, employeeName: 'Robert Brown', employeeId: 'EMP005',
-          department: 'Software', date: '2026-01-20',
-          checkIn: '08:45 AM', checkOut: '06:15 PM', status: 'present',
-          workingHours: '9h', overtime: '1.5h', avatar: 'RB',
-          location: 'Remote', remarks: ''
-        },
-        {
-          id: 6, employeeName: 'Emily Davis', employeeId: 'EMP006',
-          department: 'HR', date: '2026-01-20',
-          checkIn: '09:15 AM', checkOut: '05:45 PM', status: 'present',
-          workingHours: '7.5h', overtime: '0h', avatar: 'ED',
-          location: 'Main Office', remarks: ''
-        },
-        {
-          id: 7, employeeName: 'David Wilson', employeeId: 'EMP007',
-          department: 'Finance', date: '2026-01-20',
-          checkIn: '09:45 AM', checkOut: '06:00 PM', status: 'late',
-          workingHours: '7h', overtime: '0h', avatar: 'DW',
-          location: 'Main Office', remarks: 'Traffic delay'
+      const res = await attendanceService.getAllAttendance({ limit: 100 });
+      if (res.success && res.data) {
+        const list = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        if (list.length > 0) {
+          setAttendanceRecords(list.map(normalizeAttendance));
+          return;
         }
-      ]);
+      }
+      setAttendanceRecords([]);
     } catch (err) {
-      setError('Failed to load attendance records.');
+      console.error('Error fetching attendance:', err);
+      setError('Failed to load attendance records from database.');
     } finally {
       setLoading(false);
     }
   };
 
   // ==================== HANDLERS ====================
-  const handleAdd = (recordData) => {
-    const newRecord = {
-      ...recordData,
-      id: attendanceRecords.length + 1,
-      avatar: recordData.employeeName
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-    };
-    setAttendanceRecords([newRecord, ...attendanceRecords]);
-    setShowForm(false);
-    setSuccess('Attendance marked successfully!');
-    setTimeout(() => setSuccess(''), 3000);
+  const handleAdd = async (recordData) => {
+    try {
+      const payload = {
+        employeeId: recordData.employeeMongoId || recordData.employeeId,
+        status: (recordData.status || 'present').toLowerCase(),
+        date: recordData.date || new Date().toISOString(),
+        checkIn: recordData.checkIn && recordData.checkIn !== '--' ? recordData.checkIn : '09:00',
+        checkOut: recordData.checkOut && recordData.checkOut !== '--' ? recordData.checkOut : '18:00'
+      };
+      const res = await attendanceService.createAttendance(payload);
+      if (res.success) {
+        await fetchAttendance();
+        setShowForm(false);
+        setSuccess('Attendance marked successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to mark attendance');
+      }
+    } catch (err) {
+      setError('Failed to mark attendance.');
+    }
   };
 
-  const handleUpdate = (recordData) => {
-    setAttendanceRecords(
-      attendanceRecords.map((r) =>
-        r.id === recordData.id ? { ...r, ...recordData } : r
-      )
-    );
-    setShowForm(false);
-    setEditingRecord(null);
-    setSuccess('Attendance record updated successfully!');
-    setTimeout(() => setSuccess(''), 3000);
+  const handleUpdate = async (recordData) => {
+    try {
+      const id = recordData._id || recordData.id;
+      const payload = {
+        status: (recordData.status || 'present').toLowerCase(),
+        checkIn: recordData.checkIn && recordData.checkIn !== '--' ? recordData.checkIn : undefined,
+        checkOut: recordData.checkOut && recordData.checkOut !== '--' ? recordData.checkOut : undefined
+      };
+      const res = await attendanceService.updateAttendance(id, payload);
+      if (res.success) {
+        await fetchAttendance();
+        setShowForm(false);
+        setEditingRecord(null);
+        setSuccess('Attendance record updated successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to update attendance');
+      }
+    } catch (err) {
+      setError('Failed to update attendance.');
+    }
   };
 
-  const handleDelete = (id) => {
-    if (!window.confirm('Delete this attendance record?')) return;
-    setAttendanceRecords(attendanceRecords.filter((r) => r.id !== id));
-    setSuccess('Attendance record deleted successfully!');
-    setTimeout(() => setSuccess(''), 3000);
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this attendance record from MongoDB?')) return;
+    try {
+      const res = await attendanceService.deleteAttendance(id);
+      if (res.success) {
+        setAttendanceRecords(prev => prev.filter(r => r.id !== id && r._id !== id));
+        setSuccess('Attendance record deleted successfully!');
+        setTimeout(() => setSuccess(''), 3000);
+      } else {
+        setError(res.error?.message || 'Failed to delete attendance record');
+      }
+    } catch (err) {
+      setError('Failed to delete attendance record.');
+    }
   };
 
   const handleView = (record) => {
@@ -136,6 +141,16 @@ const Attendance = () => {
   };
 
   const handleExport = () => {
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + "Name,Employee ID,Department,Date,Check In,Check Out,Status,Working Hours\n"
+      + attendanceRecords.map(r => `"${r.employeeName}","${r.employeeId}","${r.department}","${r.date}","${r.checkIn}","${r.checkOut}","${r.status}","${r.workingHours}"`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `attendance_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     setSuccess('Attendance data exported successfully!');
     setTimeout(() => setSuccess(''), 3000);
   };

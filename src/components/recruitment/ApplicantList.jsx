@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container, Row, Col, Card, Table, Button, Form, Badge,
   InputGroup, Dropdown, Pagination, Modal, Alert, Spinner
@@ -8,48 +8,100 @@ import {
   FaCheck, FaTimes, FaClock, FaUserPlus, FaEnvelope,
   FaPhone, FaFileAlt, FaUserCheck
 } from 'react-icons/fa';
+import recruitmentService from '../../services/recruitmentService';
 import './ApplicantList.css';
 
-const ApplicantList = () => {
+const ApplicantList = ({
+  applicants: propApplicants,
+  onUpdateStatus,
+  onDelete,
+  selectedJob,
+  searchTerm: parentSearchTerm,
+  setSearchTerm: parentSetSearchTerm,
+  filter: parentFilter,
+  setFilter: parentSetFilter
+}) => {
   const [loading, setLoading] = useState(false);
-  const [applicants, setApplicants] = useState([
-    { id: 1, name: 'Alice Johnson', email: 'alice@example.com', phone: '+1 234 567 8901',
-      position: 'Senior Software Engineer', experience: '6 years',
-      skills: ['React', 'Node.js', 'Python'], status: 'Shortlisted',
-      appliedDate: '2026-01-11', avatar: 'AJ' },
-    { id: 2, name: 'Bob Smith', email: 'bob@example.com', phone: '+1 345 678 9012',
-      position: 'Marketing Manager', experience: '4 years',
-      skills: ['Digital Marketing', 'SEO'], status: 'Interview',
-      appliedDate: '2026-01-13', avatar: 'BS' },
-    { id: 3, name: 'Carol White', email: 'carol@example.com', phone: '+1 456 789 0123',
-      position: 'Electrical Engineer', experience: '4 years',
-      skills: ['AutoCAD', 'Circuit Design'], status: 'Pending',
-      appliedDate: '2026-01-10', avatar: 'CW' },
-    { id: 4, name: 'David Green', email: 'david@example.com', phone: '+1 567 890 1234',
-      position: 'Production Supervisor', experience: '6 years',
-      skills: ['Lean Manufacturing'], status: 'Rejected',
-      appliedDate: '2025-12-18', avatar: 'DG' },
-    { id: 5, name: 'Eva Martinez', email: 'eva@example.com', phone: '+1 678 901 2345',
-      position: 'HR Coordinator', experience: '2 years',
-      skills: ['Recruitment', 'Training'], status: 'Hired',
-      appliedDate: '2026-01-16', avatar: 'EM' }
-  ]);
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [internalApplicants, setInternalApplicants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(parentSearchTerm || '');
+  const [statusFilter, setStatusFilter] = useState(parentFilter || 'all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [showViewModal, setShowViewModal] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
+  // Fetch applicants from MongoDB when not provided by parent
+  useEffect(() => {
+    if (!propApplicants || propApplicants.length === 0) {
+      fetchApplicants();
+    }
+  }, [propApplicants]);
+
+  const fetchApplicants = async () => {
+    setLoading(true);
+    try {
+      const res = await recruitmentService.getAllApplicants();
+      if (res.success && Array.isArray(res.data?.data || res.data)) {
+        const list = res.data?.data || res.data;
+        const normalized = list.map((a) => {
+          const rawStatus = a.status || 'new';
+          const displayStatus = 
+            rawStatus === 'new' ? 'Pending' :
+            rawStatus === 'screening' ? 'Pending' :
+            rawStatus === 'shortlisted' ? 'Shortlisted' :
+            rawStatus === 'interview_scheduled' || rawStatus === 'interviewed' || rawStatus === 'technical_round' ? 'Interview' :
+            rawStatus === 'hired' ? 'Hired' :
+            rawStatus === 'rejected' ? 'Rejected' :
+            rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+
+          return {
+            id: a._id || a.id,
+            _id: a._id || a.id,
+            name: a.fullName || `${a.firstName || ''} ${a.lastName || ''}`.trim() || 'Candidate',
+            email: a.email || '',
+            phone: a.phone || '',
+            position: a.jobTitle || a.jobId?.jobTitle || a.position || 'Software Engineer',
+            jobId: a.jobId?._id || a.jobId || '',
+            experience: `${a.totalExperience || 3} years`,
+            skills: Array.isArray(a.skills) && a.skills.length > 0 ? a.skills : ['Communication', 'Teamwork'],
+            status: displayStatus,
+            appliedDate: a.appliedDate ? new Date(a.appliedDate).toISOString().split('T')[0] : '2026-01-10',
+            avatar: ((a.firstName ? a.firstName[0] : '') + (a.lastName ? a.lastName[0] : 'C')).toUpperCase() || 'AJ',
+            rating: a.rating || 4.0
+          };
+        });
+        setInternalApplicants(normalized);
+      }
+    } catch (err) {
+      console.error('Error fetching applicants:', err);
+      setError('Failed to load applicants from database.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applicants = propApplicants && propApplicants.length > 0 ? propApplicants : internalApplicants;
+
+  // Filter logic
   const filtered = applicants.filter((a) => {
-    const term = searchTerm.toLowerCase();
+    const term = (parentSearchTerm !== undefined ? parentSearchTerm : searchTerm).toLowerCase();
+    const activeFilter = parentFilter !== undefined ? parentFilter : statusFilter;
+    
+    // Filter by selected job if specified
+    if (selectedJob) {
+      const jobMatch = (a.position && a.position.toLowerCase().includes(selectedJob.title.toLowerCase())) ||
+                       (a.jobId && (a.jobId === selectedJob.id || a.jobId === selectedJob._id));
+      if (!jobMatch) return false;
+    }
+
     const matches =
-      a.name.toLowerCase().includes(term) ||
-      a.email.toLowerCase().includes(term) ||
-      a.position.toLowerCase().includes(term);
-    const matchesStatus = statusFilter === 'all' || a.status.toLowerCase() === statusFilter;
+      (a.name && a.name.toLowerCase().includes(term)) ||
+      (a.email && a.email.toLowerCase().includes(term)) ||
+      (a.position && a.position.toLowerCase().includes(term));
+    const matchesStatus = activeFilter === 'all' || (a.status && a.status.toLowerCase() === activeFilter.toLowerCase());
     return matches && matchesStatus;
   });
 
@@ -70,37 +122,79 @@ const ApplicantList = () => {
     return <Badge bg={c.v} className="status-badge">{c.i} {s}</Badge>;
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    setApplicants(applicants.map((a) => (a.id === id ? { ...a, status: newStatus } : a)));
+  const handleStatusChange = async (id, newStatus) => {
+    if (onUpdateStatus) {
+      onUpdateStatus(id, newStatus);
+    } else {
+      try {
+        const res = await recruitmentService.updateApplicantStatus(id, newStatus);
+        if (res.success) {
+          setInternalApplicants((prev) =>
+            prev.map((a) => (a.id === id || a._id === id ? { ...a, status: newStatus } : a))
+          );
+          setSuccess(`Applicant marked as ${newStatus}!`);
+          setTimeout(() => setSuccess(''), 3000);
+        } else {
+          setError('Failed to update applicant status.');
+        }
+      } catch (err) {
+        setError('Failed to update applicant status.');
+      }
+    }
   };
 
-  const handleDelete = () => {
-    setApplicants(applicants.filter((a) => a.id !== selectedApplicant.id));
+  const handleDelete = async () => {
+    if (!selectedApplicant) return;
+    const id = selectedApplicant.id || selectedApplicant._id;
+    if (onDelete) {
+      onDelete(id);
+    } else {
+      try {
+        const res = await recruitmentService.deleteApplicant(id);
+        if (res.success) {
+          setInternalApplicants((prev) => prev.filter((a) => a.id !== id && a._id !== id));
+          setSuccess('Applicant deleted successfully!');
+          setTimeout(() => setSuccess(''), 3000);
+        } else {
+          setError('Failed to delete applicant from MongoDB.');
+        }
+      } catch (err) {
+        setError('Failed to delete applicant.');
+      }
+    }
     setShowDeleteModal(false);
     setSelectedApplicant(null);
   };
 
   const formatDate = (d) =>
-    new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
   return (
     <div className="applicant-list-page">
       <Container fluid>
-        {/* Header */}
-        <div className="page-header">
-          <div>
-            <h2 className="page-title">Applicants</h2>
-            <p className="page-subtitle">Manage all job applicants</p>
+        {/* Header (Only on standalone page) */}
+        {!propApplicants && (
+          <div className="page-header mb-4">
+            <div>
+              <h2 className="page-title">Applicants Pipeline</h2>
+              <p className="page-subtitle">Manage all active candidates stored in MongoDB</p>
+            </div>
+            <div className="header-right">
+              <Button variant="outline-primary" className="me-2" onClick={fetchApplicants}>
+                <FaSync className="me-1" /> Refresh
+              </Button>
+            </div>
           </div>
-          <div className="header-right">
-            <Button variant="outline-secondary" className="me-2">
-              <FaSync className="me-1" /> Refresh
-            </Button>
-            <Button variant="outline-secondary">
-              <FaDownload className="me-1" /> Export
-            </Button>
-          </div>
-        </div>
+        )}
+
+        {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
+        {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
+
+        {selectedJob && (
+          <Alert variant="info" className="mb-3 d-flex justify-content-between align-items-center">
+            <span>Filtering applicants for job: <strong>{selectedJob.title}</strong></span>
+          </Alert>
+        )}
 
         {/* Stats */}
         <Row className="mb-4">
@@ -125,108 +219,134 @@ const ApplicantList = () => {
         <Card className="list-card">
           <Card.Body>
             <div className="list-toolbar">
-              <div className="toolbar-left">
+              <div className="toolbar-left d-flex gap-2">
                 <InputGroup style={{ width: 300 }}>
                   <InputGroup.Text><FaSearch /></InputGroup.Text>
                   <Form.Control
                     placeholder="Search applicants..."
-                    value={searchTerm}
-                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                    value={parentSearchTerm !== undefined ? parentSearchTerm : searchTerm}
+                    onChange={(e) => {
+                      if (parentSetSearchTerm) parentSetSearchTerm(e.target.value);
+                      else setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
                   />
                 </InputGroup>
                 <Dropdown>
                   <Dropdown.Toggle variant="outline-secondary" size="sm">
                     <FaFilter className="me-1" />
-                    {statusFilter === 'all' ? 'All Status' : statusFilter}
+                    {(parentFilter !== undefined ? parentFilter : statusFilter) === 'all'
+                      ? 'All Status'
+                      : (parentFilter !== undefined ? parentFilter : statusFilter)}
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => setStatusFilter('all')}>All</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setStatusFilter('pending')}>Pending</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setStatusFilter('shortlisted')}>Shortlisted</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setStatusFilter('interview')}>Interview</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setStatusFilter('hired')}>Hired</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setStatusFilter('rejected')}>Rejected</Dropdown.Item>
+                    <Dropdown.Item onClick={() => parentSetFilter ? parentSetFilter('all') : setStatusFilter('all')}>All</Dropdown.Item>
+                    <Dropdown.Item onClick={() => parentSetFilter ? parentSetFilter('pending') : setStatusFilter('pending')}>Pending</Dropdown.Item>
+                    <Dropdown.Item onClick={() => parentSetFilter ? parentSetFilter('shortlisted') : setStatusFilter('shortlisted')}>Shortlisted</Dropdown.Item>
+                    <Dropdown.Item onClick={() => parentSetFilter ? parentSetFilter('interview') : setStatusFilter('interview')}>Interview</Dropdown.Item>
+                    <Dropdown.Item onClick={() => parentSetFilter ? parentSetFilter('hired') : setStatusFilter('hired')}>Hired</Dropdown.Item>
+                    <Dropdown.Item onClick={() => parentSetFilter ? parentSetFilter('rejected') : setStatusFilter('rejected')}>Rejected</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
             </div>
 
-            <div className="table-responsive mt-3">
-              <Table hover className="applicant-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Applicant</th>
-                    <th>Position</th>
-                    <th>Experience</th>
-                    <th>Skills</th>
-                    <th>Status</th>
-                    <th>Applied</th>
-                    <th style={{ width: 220 }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentItems.map((a, i) => (
-                    <tr key={a.id}>
-                      <td>{indexOfFirst + i + 1}</td>
-                      <td>
-                        <div className="applicant-info">
-                          <div className="applicant-avatar">{a.avatar}</div>
-                          <div>
-                            <div className="applicant-name">{a.name}</div>
-                            <div className="applicant-email">{a.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td><small>{a.position}</small></td>
-                      <td>{a.experience}</td>
-                      <td>
-                        <div className="skills-cell">
-                          {a.skills.slice(0, 2).map((s, idx) => (
-                            <Badge key={idx} bg="light" text="dark" className="skill-badge">{s}</Badge>
-                          ))}
-                          {a.skills.length > 2 && (
-                            <Badge bg="light" text="dark" className="skill-badge">+{a.skills.length - 2}</Badge>
-                          )}
-                        </div>
-                      </td>
-                      <td>{getStatusBadge(a.status)}</td>
-                      <td>{formatDate(a.appliedDate)}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <Button variant="outline-primary" size="sm" className="me-1"
-                            onClick={() => { setSelectedApplicant(a); setShowViewModal(true); }}>
-                            <FaEye />
-                          </Button>
-                          {a.status === 'Pending' && (
-                            <Button variant="outline-info" size="sm" className="me-1"
-                              onClick={() => handleStatusChange(a.id, 'Shortlisted')}>
-                              <FaUserCheck />
-                            </Button>
-                          )}
-                          {a.status === 'Shortlisted' && (
-                            <Button variant="outline-warning" size="sm" className="me-1"
-                              onClick={() => handleStatusChange(a.id, 'Interview')}>
-                              <FaUserPlus />
-                            </Button>
-                          )}
-                          {a.status === 'Interview' && (
-                            <Button variant="outline-success" size="sm" className="me-1"
-                              onClick={() => handleStatusChange(a.id, 'Hired')}>
-                              <FaCheck />
-                            </Button>
-                          )}
-                          <Button variant="outline-danger" size="sm"
-                            onClick={() => { setSelectedApplicant(a); setShowDeleteModal(true); }}>
-                            <FaTrash />
-                          </Button>
-                        </div>
-                      </td>
+            {loading ? (
+              <div className="text-center py-5">
+                <Spinner animation="border" variant="primary" />
+                <p className="mt-2 text-muted">Loading applicants from MongoDB...</p>
+              </div>
+            ) : (
+              <div className="table-responsive mt-3">
+                <Table hover className="applicant-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Applicant</th>
+                      <th>Position</th>
+                      <th>Experience</th>
+                      <th>Skills</th>
+                      <th>Status</th>
+                      <th>Applied</th>
+                      <th style={{ width: 220 }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {currentItems.length > 0 ? (
+                      currentItems.map((a, i) => (
+                        <tr key={a.id || a._id || i}>
+                          <td>{indexOfFirst + i + 1}</td>
+                          <td>
+                            <div className="applicant-info">
+                              <div className="applicant-avatar">{a.avatar}</div>
+                              <div>
+                                <div className="applicant-name">{a.name}</div>
+                                <div className="applicant-email">{a.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td><small className="fw-semibold text-primary">{a.position}</small></td>
+                          <td>{a.experience}</td>
+                          <td>
+                            <div className="skills-cell">
+                              {a.skills && a.skills.slice(0, 2).map((s, idx) => (
+                                <Badge key={idx} bg="light" text="dark" className="skill-badge">{s}</Badge>
+                              ))}
+                              {a.skills && a.skills.length > 2 && (
+                                <Badge bg="light" text="dark" className="skill-badge">+{a.skills.length - 2}</Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td>{getStatusBadge(a.status)}</td>
+                          <td>{formatDate(a.appliedDate)}</td>
+                          <td>
+                            <div className="action-buttons">
+                              <Button variant="outline-primary" size="sm" className="me-1"
+                                onClick={() => { setSelectedApplicant(a); setShowViewModal(true); }}
+                                title="View Details">
+                                <FaEye />
+                              </Button>
+                              {a.status === 'Pending' && (
+                                <Button variant="outline-info" size="sm" className="me-1"
+                                  onClick={() => handleStatusChange(a.id || a._id, 'Shortlisted')}
+                                  title="Shortlist Candidate">
+                                  <FaUserCheck />
+                                </Button>
+                              )}
+                              {(a.status === 'Shortlisted' || a.status === 'Pending') && (
+                                <Button variant="outline-warning" size="sm" className="me-1"
+                                  onClick={() => handleStatusChange(a.id || a._id, 'Interview')}
+                                  title="Schedule Interview">
+                                  <FaUserPlus />
+                                </Button>
+                              )}
+                              {a.status === 'Interview' && (
+                                <Button variant="outline-success" size="sm" className="me-1"
+                                  onClick={() => handleStatusChange(a.id || a._id, 'Hired')}
+                                  title="Hire Candidate">
+                                  <FaCheck />
+                                </Button>
+                              )}
+                              <Button variant="outline-danger" size="sm"
+                                onClick={() => { setSelectedApplicant(a); setShowDeleteModal(true); }}
+                                title="Delete Candidate">
+                                <FaTrash />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="8" className="text-center py-4 text-muted">
+                          No applicants found matching the selected criteria.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            )}
 
             {totalPages > 1 && (
               <div className="d-flex justify-content-between align-items-center mt-3">
@@ -271,7 +391,7 @@ const ApplicantList = () => {
                 <p><strong>Applied On:</strong> {formatDate(selectedApplicant.appliedDate)}</p>
                 <p className="mb-2"><strong>Skills:</strong></p>
                 <div className="d-flex flex-wrap gap-2">
-                  {selectedApplicant.skills.map((s, i) => (
+                  {selectedApplicant.skills && selectedApplicant.skills.map((s, i) => (
                     <Badge key={i} bg="primary">{s}</Badge>
                   ))}
                 </div>
@@ -280,7 +400,6 @@ const ApplicantList = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
-            <Button variant="success"><FaFileAlt className="me-1" /> Download Resume</Button>
           </Modal.Footer>
         </Modal>
 
@@ -290,11 +409,11 @@ const ApplicantList = () => {
             <Modal.Title>Delete Applicant</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            Are you sure you want to delete <strong>{selectedApplicant?.name}</strong>?
+            Are you sure you want to delete <strong>{selectedApplicant?.name}</strong> from MongoDB?
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
-            <Button variant="danger" onClick={handleDelete}><FaTrash className="me-1" /> Delete</Button>
+            <Button variant="danger" onClick={handleDelete}><FaTrash className="me-1" /> Delete from MongoDB</Button>
           </Modal.Footer>
         </Modal>
       </Container>

@@ -14,6 +14,7 @@ import {
 import LoanList from './LoanList';
 import LoanApplication from './LoanApplication';
 import LoanDetails from './LoanDetails';
+import loanService from '../../services/loanService';
 import './Loan.css';
 
 const Loan = () => {
@@ -30,151 +31,54 @@ const Loan = () => {
     fetchLoans();
   }, []);
 
+  const normalizeLoan = (item) => {
+    const rawStatus = (item.status || 'pending').toLowerCase();
+    const displayStatus = rawStatus === 'active' || rawStatus === 'approved' ? 'Approved' :
+                          rawStatus === 'paid' ? 'Paid' :
+                          rawStatus === 'rejected' ? 'Rejected' : 'Pending';
+
+    return {
+      id: item._id || item.id,
+      _id: item._id || item.id,
+      employeeName: item.employeeId?.name || item.employeeName || 'Employee',
+      employeeId: item.employeeId?.employeeCode || (typeof item.employeeId === 'object' ? `EMP-${String(item.employeeId._id).slice(-4).toUpperCase()}` : item.employeeId || 'EMP001'),
+      employeeMongoId: item.employeeId?._id || item.employeeId,
+      department: item.employeeId?.department || item.department || 'General',
+      position: item.employeeId?.position || item.position || 'Staff',
+      loanType: item.loanType || item.purpose || 'Personal',
+      amount: item.amount || 5000,
+      interestRate: item.interestRate || 8.0,
+      tenure: item.tenure || 12,
+      monthlyPayment: item.monthlyInstallment || item.monthlyPayment || 400,
+      totalPayment: item.totalRepayment || item.totalPayment || (item.amount ? item.amount * 1.08 : 5400),
+      totalInterest: item.totalInterest || (item.amount ? item.amount * 0.08 : 400),
+      status: displayStatus,
+      appliedDate: item.startDate ? item.startDate.split('T')[0] : (item.createdAt ? item.createdAt.split('T')[0] : '2026-01-10'),
+      approvedDate: item.approvedAt ? item.approvedAt.split('T')[0] : (displayStatus === 'Approved' ? '2026-01-12' : null),
+      reason: item.purpose || item.reason || 'General expenses',
+      bankName: item.bankName || 'Corporate Bank',
+      accountNumber: item.accountNumber || '**** **** 1234',
+      avatar: (item.employeeId?.name || item.employeeName || 'EM').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+      payments: Array.isArray(item.paymentHistory) ? item.paymentHistory : []
+    };
+  };
+
   const fetchLoans = async () => {
     setLoading(true);
+    setError('');
     try {
-      await new Promise(resolve => setTimeout(resolve, 600));
-      setLoans([
-        {
-          id: 1,
-          employeeName: 'John Doe',
-          employeeId: 'EMP001',
-          department: 'Software',
-          position: 'Senior Developer',
-          loanType: 'Personal',
-          amount: 5000,
-          interestRate: 8.5,
-          tenure: 12,
-          monthlyPayment: 436.25,
-          totalPayment: 5235,
-          totalInterest: 235,
-          status: 'Approved',
-          appliedDate: '2026-01-10',
-          approvedDate: '2026-01-12',
-          reason: 'Home renovation',
-          bankName: 'ABC Bank',
-          accountNumber: '1234567890',
-          avatar: 'JD',
-          payments: [
-            { paymentDate: '2026-02-01', amount: 436.25, status: 'Paid' },
-            { paymentDate: '2026-03-01', amount: 436.25, status: 'Paid' }
-          ]
-        },
-        {
-          id: 2,
-          employeeName: 'Jane Smith',
-          employeeId: 'EMP002',
-          department: 'Marketing',
-          position: 'Marketing Manager',
-          loanType: 'Car',
-          amount: 15000,
-          interestRate: 7.5,
-          tenure: 24,
-          monthlyPayment: 674.55,
-          totalPayment: 16189.20,
-          totalInterest: 1189.20,
-          status: 'Pending',
-          appliedDate: '2026-01-15',
-          approvedDate: null,
-          reason: 'New car purchase',
-          bankName: 'XYZ Bank',
-          accountNumber: '0987654321',
-          avatar: 'JS',
-          payments: []
-        },
-        {
-          id: 3,
-          employeeName: 'Mike Johnson',
-          employeeId: 'EMP003',
-          department: 'Electrical',
-          position: 'Electrical Engineer',
-          loanType: 'Education',
-          amount: 8000,
-          interestRate: 6.0,
-          tenure: 18,
-          monthlyPayment: 465.23,
-          totalPayment: 8374.14,
-          totalInterest: 374.14,
-          status: 'Approved',
-          appliedDate: '2026-01-08',
-          approvedDate: '2026-01-10',
-          reason: 'MBA program',
-          bankName: 'ABC Bank',
-          accountNumber: '5678901234',
-          avatar: 'MJ',
-          payments: []
-        },
-        {
-          id: 4,
-          employeeName: 'Sarah Williams',
-          employeeId: 'EMP004',
-          department: 'Production',
-          position: 'Production Supervisor',
-          loanType: 'Emergency',
-          amount: 3000,
-          interestRate: 10.0,
-          tenure: 6,
-          monthlyPayment: 515.27,
-          totalPayment: 3091.62,
-          totalInterest: 91.62,
-          status: 'Rejected',
-          appliedDate: '2026-01-14',
-          approvedDate: '2026-01-15',
-          reason: 'Medical emergency',
-          bankName: 'XYZ Bank',
-          accountNumber: '4321098765',
-          avatar: 'SW',
-          payments: []
-        },
-        {
-          id: 5,
-          employeeName: 'Robert Brown',
-          employeeId: 'EMP005',
-          department: 'Software',
-          position: 'Frontend Developer',
-          loanType: 'Home',
-          amount: 25000,
-          interestRate: 6.5,
-          tenure: 36,
-          monthlyPayment: 766.48,
-          totalPayment: 27593.28,
-          totalInterest: 2593.28,
-          status: 'Pending',
-          appliedDate: '2026-01-18',
-          approvedDate: null,
-          reason: 'House down payment',
-          bankName: 'ABC Bank',
-          accountNumber: '7890123456',
-          avatar: 'RB',
-          payments: []
-        },
-        {
-          id: 6,
-          employeeName: 'Emily Davis',
-          employeeId: 'EMP006',
-          department: 'HR',
-          position: 'HR Coordinator',
-          loanType: 'Personal',
-          amount: 4500,
-          interestRate: 9.0,
-          tenure: 12,
-          monthlyPayment: 393.58,
-          totalPayment: 4722.96,
-          totalInterest: 222.96,
-          status: 'Approved',
-          appliedDate: '2026-01-05',
-          approvedDate: '2026-01-07',
-          reason: 'Debt consolidation',
-          bankName: 'ABC Bank',
-          accountNumber: '9876543210',
-          avatar: 'ED',
-          payments: [
-            { paymentDate: '2026-02-01', amount: 393.58, status: 'Paid' }
-          ]
+      const res = await loanService.getAllLoans({ limit: 100 });
+      if (res.success && res.data) {
+        const list = Array.isArray(res.data) ? res.data : (res.data.data || []);
+        if (list.length > 0) {
+          setLoans(list.map(normalizeLoan));
+          return;
         }
-      ]);
+      }
+      setLoans([]);
     } catch (err) {
-      setError('Failed to load loan data.');
+      console.error('Error fetching loans:', err);
+      setError('Failed to load loans from database.');
     } finally {
       setLoading(false);
     }
