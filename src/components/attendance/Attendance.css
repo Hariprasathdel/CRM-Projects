@@ -1,4 +1,9 @@
 /* Attendance Page Styles */
+.attendance-form-modal {
+  width: calc(100vw - 24px);
+  max-width: 1280px;
+}
+
 .attendance-page {
   padding: 20px 0;
   background: #f5f7fa;

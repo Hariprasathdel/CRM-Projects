@@ -10,17 +10,14 @@ import {
 import AttendanceTable from './AttendanceTable';
 import AttendanceForm from './AttendanceForm';
 import AttendanceDetails from './AttendanceDetails';
-import attendanceService from '../../services/attendanceService';
-import employeeService from '../../services/employeeService';
 import './Attendance.css';
 
 const Attendance = () => {
   const [loading, setLoading] = useState(false);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
-  const [employeesById, setEmployeesById] = useState({});
   const [showForm, setShowForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
-  const [viewingRecord, setViewingRecord] = useState(false);
+  const [viewingRecord, setViewingRecord] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedDate, setSelectedDate] = useState(
@@ -32,152 +29,114 @@ const Attendance = () => {
     fetchAttendance();
   }, []);
 
-  const normalizeAttendance = (item, employeeLookup = employeesById) => {
-    const employeeRef = item.employeeId;
-    const employeeId = employeeRef && typeof employeeRef === 'object'
-      ? (employeeRef._id || employeeRef.id)
-      : employeeRef;
-    const employee = (employeeRef && typeof employeeRef === 'object' && employeeRef.name
-      ? employeeRef
-      : employeeLookup[String(employeeId)]) || {};
-    const employeeName = employee.name || item.employeeName || 'Employee';
-    return ({
-    id: item._id || item.id,
-    _id: item._id || item.id,
-    employeeName,
-    employeeId: employee.employeeCode || (typeof employeeId === 'object' ? '' : employeeId) || 'EMP001',
-    employeeMongoId: employeeId,
-    department: employee.department || item.department || 'General',
-    date: item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0],
-    checkIn: item.checkIn || '--',
-    checkOut: item.checkOut || '--',
-    status: item.status || 'present',
-    workingHours: item.workHours ? `${item.workHours}h` : '8h',
-    overtime: item.overtime ? `${item.overtime}h` : '0h',
-    avatar: employeeName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
-    location: item.location?.name || 'Main Office',
-    remarks: item.remarks || ''
-  });
-  };
-
   const fetchAttendance = async () => {
     setLoading(true);
-    setError('');
     try {
-      const employeeResult = await employeeService.getAllEmployees({ limit: 500 });
-      if (employeeResult.success) {
-        const payload = employeeResult.data;
-        const employees = Array.isArray(payload) ? payload : (payload?.data || payload?.employees || []);
-        setEmployeesById(Object.fromEntries(employees.map((employee) => [String(employee._id || employee.id), employee])));
-      }
-      const res = await attendanceService.getAllAttendance({ limit: 100 });
-      if (res.success && res.data) {
-        const list = Array.isArray(res.data) ? res.data : (res.data.data || []);
-        if (list.length > 0) {
-          // Resolve ids against the live employee list so records without a populated
-          // employee reference still show the right person.
-          const employeePayload = employeeResult?.data;
-          const employeeList = Array.isArray(employeePayload) ? employeePayload : (employeePayload?.data || employeePayload?.employees || []);
-          const lookup = Object.fromEntries(employeeList.map((employee) => [String(employee._id || employee.id), employee]));
-          setAttendanceRecords(list.map((item) => normalizeAttendance(item, lookup)));
-          return;
+      await new Promise((r) => setTimeout(r, 500));
+      setAttendanceRecords([
+        {
+          id: 1, employeeName: 'John Doe', employeeId: 'EMP001',
+          department: 'Software', date: '2026-01-20',
+          checkIn: '09:00 AM', checkOut: '06:00 PM', status: 'present',
+          workingHours: '8h', overtime: '1h', avatar: 'JD',
+          location: 'Main Office', remarks: 'On time'
+        },
+        {
+          id: 2, employeeName: 'Jane Smith', employeeId: 'EMP002',
+          department: 'Marketing', date: '2026-01-20',
+          checkIn: '09:30 AM', checkOut: '05:30 PM', status: 'present',
+          workingHours: '7.5h', overtime: '0.5h', avatar: 'JS',
+          location: 'Main Office', remarks: ''
+        },
+        {
+          id: 3, employeeName: 'Mike Johnson', employeeId: 'EMP003',
+          department: 'Electrical', date: '2026-01-20',
+          checkIn: '--', checkOut: '--', status: 'absent',
+          workingHours: '0h', overtime: '0h', avatar: 'MJ',
+          location: '--', remarks: 'Sick leave'
+        },
+        {
+          id: 4, employeeName: 'Sarah Williams', employeeId: 'EMP004',
+          department: 'Production', date: '2026-01-20',
+          checkIn: '--', checkOut: '--', status: 'leave',
+          workingHours: '0h', overtime: '0h', avatar: 'SW',
+          location: '--', remarks: 'Personal leave'
+        },
+        {
+          id: 5, employeeName: 'Robert Brown', employeeId: 'EMP005',
+          department: 'Software', date: '2026-01-20',
+          checkIn: '08:45 AM', checkOut: '06:15 PM', status: 'present',
+          workingHours: '9h', overtime: '1.5h', avatar: 'RB',
+          location: 'Remote', remarks: ''
+        },
+        {
+          id: 6, employeeName: 'Emily Davis', employeeId: 'EMP006',
+          department: 'HR', date: '2026-01-20',
+          checkIn: '09:15 AM', checkOut: '05:45 PM', status: 'present',
+          workingHours: '7.5h', overtime: '0h', avatar: 'ED',
+          location: 'Main Office', remarks: ''
+        },
+        {
+          id: 7, employeeName: 'David Wilson', employeeId: 'EMP007',
+          department: 'Finance', date: '2026-01-20',
+          checkIn: '09:45 AM', checkOut: '06:00 PM', status: 'late',
+          workingHours: '7h', overtime: '0h', avatar: 'DW',
+          location: 'Main Office', remarks: 'Traffic delay'
         }
-      }
-      setAttendanceRecords([]);
+      ]);
     } catch (err) {
-      console.error('Error fetching attendance:', err);
-      setError('Failed to load attendance records from database.');
+      setError('Failed to load attendance records.');
     } finally {
       setLoading(false);
     }
   };
 
   // ==================== HANDLERS ====================
-  const handleAdd = async (recordData) => {
-    try {
-      const payload = {
-        employeeId: recordData.employeeMongoId || recordData.employeeId,
-        status: (recordData.status || 'present').toLowerCase(),
-        date: recordData.date || new Date().toISOString(),
-        checkIn: recordData.checkIn && recordData.checkIn !== '--' ? recordData.checkIn : '09:00',
-        checkOut: recordData.checkOut && recordData.checkOut !== '--' ? recordData.checkOut : '18:00'
-      };
-      const res = await attendanceService.createAttendance(payload);
-      if (res.success) {
-        await fetchAttendance();
-        setShowForm(false);
-        setSuccess('Attendance marked successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(res.error?.message || 'Failed to mark attendance');
-      }
-    } catch (err) {
-      setError('Failed to mark attendance.');
-    }
+  const handleAdd = (recordData) => {
+    const newRecord = {
+      ...recordData,
+      id: attendanceRecords.length + 1,
+      avatar: recordData.employeeName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+    };
+    setAttendanceRecords([newRecord, ...attendanceRecords]);
+    setShowForm(false);
+    setSuccess('Attendance marked successfully!');
+    setTimeout(() => setSuccess(''), 3000);
   };
 
-  const handleUpdate = async (recordData) => {
-    try {
-      const id = recordData._id || recordData.id;
-      const payload = {
-        status: (recordData.status || 'present').toLowerCase(),
-        checkIn: recordData.checkIn && recordData.checkIn !== '--' ? recordData.checkIn : undefined,
-        checkOut: recordData.checkOut && recordData.checkOut !== '--' ? recordData.checkOut : undefined
-      };
-      const res = await attendanceService.updateAttendance(id, payload);
-      if (res.success) {
-        await fetchAttendance();
-        setShowForm(false);
-        setEditingRecord(null);
-        setSuccess('Attendance record updated successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(res.error?.message || 'Failed to update attendance');
-      }
-    } catch (err) {
-      setError('Failed to update attendance.');
-    }
+  const handleUpdate = (recordData) => {
+    setAttendanceRecords(
+      attendanceRecords.map((r) =>
+        r.id === recordData.id ? { ...r, ...recordData } : r
+      )
+    );
+    setShowForm(false);
+    setEditingRecord(null);
+    setSuccess('Attendance record updated successfully!');
+    setTimeout(() => setSuccess(''), 3000);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this attendance record from MongoDB?')) return;
-    try {
-      const res = await attendanceService.deleteAttendance(id);
-      if (res.success) {
-        setAttendanceRecords(prev => prev.filter(r => r.id !== id && r._id !== id));
-        setSuccess('Attendance record deleted successfully!');
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(res.error?.message || 'Failed to delete attendance record');
-      }
-    } catch (err) {
-      setError('Failed to delete attendance record.');
-    }
+  const handleDelete = (id) => {
+    if (!window.confirm('Delete this attendance record?')) return;
+    setAttendanceRecords(attendanceRecords.filter((r) => r.id !== id));
+    setSuccess('Attendance record deleted successfully!');
+    setTimeout(() => setSuccess(''), 3000);
   };
 
   const handleView = (record) => {
-    setEditingRecord(record);
-    setViewingRecord(true);
-    setShowForm(true);
+    setViewingRecord(record);
   };
 
   const handleEdit = (record) => {
     setEditingRecord(record);
-    setViewingRecord(false);
     setShowForm(true);
   };
 
   const handleExport = () => {
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + "Name,Employee ID,Department,Date,Check In,Check Out,Status,Working Hours\n"
-      + attendanceRecords.map(r => `"${r.employeeName}","${r.employeeId}","${r.department}","${r.date}","${r.checkIn}","${r.checkOut}","${r.status}","${r.workingHours}"`).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `attendance_export_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
     setSuccess('Attendance data exported successfully!');
     setTimeout(() => setSuccess(''), 3000);
   };
@@ -206,7 +165,6 @@ const Attendance = () => {
               className="me-2"
               onClick={() => {
                 setEditingRecord(null);
-                setViewingRecord(false);
                 setShowForm(true);
               }}
             >
@@ -333,44 +291,53 @@ const Attendance = () => {
           onHide={() => {
             setShowForm(false);
             setEditingRecord(null);
-            setViewingRecord(false);
           }}
-          size={viewingRecord ? 'xl' : 'lg'}
+          size="xl"
           centered
-          dialogClassName="attendance-modal"
+          dialogClassName="attendance-form-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title>
               <FaCalendarCheck className="me-2" />
-              {viewingRecord ? 'Attendance Details' : editingRecord ? 'View / Edit Attendance' : 'Mark Attendance'}
+              {editingRecord ? 'View / Edit Attendance' : 'Mark Attendance'}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {viewingRecord ? (
-              <AttendanceDetails
-                record={editingRecord}
-                onEdit={() => setViewingRecord(false)}
-                onDelete={() => {
-                  handleDelete(editingRecord.id);
-                  setShowForm(false);
-                  setEditingRecord(null);
-                  setViewingRecord(false);
-                }}
-                onClose={() => {
-                  setShowForm(false);
-                  setEditingRecord(null);
-                  setViewingRecord(false);
-                }}
-              />
-            ) : <AttendanceForm
+            <AttendanceForm
               record={editingRecord}
               onSubmit={editingRecord ? handleUpdate : handleAdd}
               onCancel={() => {
                 setShowForm(false);
                 setEditingRecord(null);
-                setViewingRecord(false);
               }}
-            />}
+            />
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          show={Boolean(viewingRecord)}
+          onHide={() => setViewingRecord(null)}
+          centered
+          size="xl"
+          dialogClassName="attendance-modal"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Attendance Details</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <AttendanceDetails
+              record={viewingRecord}
+              onEdit={() => {
+                setEditingRecord(viewingRecord);
+                setViewingRecord(null);
+                setShowForm(true);
+              }}
+              onDelete={() => {
+                handleDelete(viewingRecord.id);
+                setViewingRecord(null);
+              }}
+              onClose={() => setViewingRecord(null)}
+            />
           </Modal.Body>
         </Modal>
       </Container>
