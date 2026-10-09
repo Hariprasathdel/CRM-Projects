@@ -7,8 +7,9 @@ import {
   FaPlus, FaSearch, FaFilter, FaSync, FaTasks, FaPlay,
   FaPause, FaCheckCircle, FaEdit, FaTrash, FaUser,
   FaCalendarAlt, FaFlag, FaCommentDots, FaPaperclip,
-  FaEllipsisV, FaBars
+  FaEllipsisV
 } from 'react-icons/fa';
+import { MdMenu } from 'react-icons/md';
 import './TaskBoard.css';
 
 const TaskBoard = () => {
@@ -17,6 +18,7 @@ const TaskBoard = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [assigneeFilter, setAssigneeFilter] = useState('all');
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [viewingTask, setViewingTask] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
   const [draggedTask, setDraggedTask] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
@@ -231,6 +233,8 @@ const TaskBoard = () => {
     setShowTaskModal(true);
   };
 
+  const handleOpenView = (task) => setViewingTask(task);
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -289,7 +293,7 @@ const TaskBoard = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <Dropdown.Item onClick={() => handleOpenView(task)}>
-                <FaBars className="me-2" /> View
+                <MdMenu className="me-2 task-view-icon" /> View
               </Dropdown.Item>
               <Dropdown.Item onClick={() => handleOpenEdit(task)}>
                 <FaEdit className="me-2" /> Edit
@@ -462,6 +466,37 @@ const TaskBoard = () => {
             );
           })}
         </Row>
+
+        {/* Task Details */}
+        <Modal show={Boolean(viewingTask)} onHide={() => setViewingTask(null)} centered>
+          {viewingTask && (
+            <>
+              <Modal.Header closeButton>
+                <Modal.Title>{viewingTask.title}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="task-view-details">
+                <div className="task-view-project">{viewingTask.project}</div>
+                <p className="task-view-description">{viewingTask.description || 'No description provided.'}</p>
+                <div className="task-view-grid">
+                  <div><span>Priority</span>{getPriorityBadge(viewingTask.priority)}</div>
+                  <div><span>Status</span>{columns.find((column) => column.key === viewingTask.status)?.title || viewingTask.status}</div>
+                  <div><span>Assignee</span>{viewingTask.assignee || 'Unassigned'}</div>
+                  <div><span>Due date</span>{formatDate(viewingTask.dueDate)}</div>
+                </div>
+                <div className="task-view-stats">
+                  <span><FaCommentDots /> {viewingTask.comments || 0} comments</span>
+                  <span><FaPaperclip /> {viewingTask.attachments || 0} attachments</span>
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setViewingTask(null)}>Close</Button>
+                <Button variant="primary" onClick={() => { setViewingTask(null); handleOpenEdit(viewingTask); }}>
+                  <FaEdit className="me-2" /> Edit task
+                </Button>
+              </Modal.Footer>
+            </>
+          )}
+        </Modal>
 
         {/* Task Modal */}
         <Modal
