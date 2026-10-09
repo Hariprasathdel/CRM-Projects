@@ -150,6 +150,16 @@
   .report-table tbody tr:hover {
     background: #f8fafc;
   }
+
+  .employee-report-actions .btn {
+    white-space: nowrap;
+  }
+
+  .employee-report-view-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
   
   /* Employee cell */
   .employee-cell {
@@ -212,6 +222,47 @@
   
     .page-title {
       font-size: 1.4rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .employee-report-actions {
+      justify-content: center !important;
+      flex-wrap: nowrap;
+      gap: 0 !important;
+    }
+
+    .employee-report-actions .btn {
+      min-height: 72px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .employee-report-actions .btn:first-child {
+      width: 96px;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 1rem;
+      border-radius: 8px 0 0 8px;
+    }
+
+    .employee-report-actions .employee-report-export {
+      display: none;
+    }
+
+    .employee-report-view-content {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .employee-report-actions .btn:last-child {
+      width: 56px;
+      border-radius: 0;
+    }
+
+    .employee-report-actions .btn:last-child {
+      border-radius: 0 8px 8px 0;
     }
   }
   

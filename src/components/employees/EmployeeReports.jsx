@@ -426,7 +426,7 @@ const EmployeeReports = () => {
                                 </Badge>
                               </td>
                               <td className="text-end">
-                                <div className="d-flex justify-content-end gap-1">
+                                <div className="employee-report-actions d-flex justify-content-end gap-1">
                                   <Button
                                     size="sm"
                                     variant="outline-primary"
@@ -436,11 +436,12 @@ const EmployeeReports = () => {
                                     }}
                                     title="View Full Report Details"
                                   >
-                                    <FaEye className="me-1" /> View
+                                    <span className="employee-report-view-content"><FaEye /> <span>View</span></span>
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="outline-success"
+                                    className="employee-report-export"
                                     onClick={() => handleExportCSV(rep)}
                                     title="Export to CSV"
                                   >
