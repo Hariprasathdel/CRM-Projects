@@ -59,7 +59,7 @@
 
 .attendance-details-content { row-gap: 18px; }
 .attendance-details-card {
-  height: 100%;
+  height: auto;
   border: 0;
   border-radius: 13px;
   overflow: hidden;
@@ -96,12 +96,20 @@
 .attendance-detail-icon { color: #3498db; flex: 0 0 auto; }
 .attendance-detail-value { color: #2c3e50; text-align: right; overflow-wrap: anywhere; }
 
-.attendance-modal .modal-dialog { max-width: 1100px; }
+.attendance-modal .modal-dialog {
+  width: min(92vw, 1000px);
+  max-width: 1000px;
+  min-width: 320px;
+  max-height: 90vh;
+}
+.attendance-modal .modal-content { max-height: 90vh; }
+.attendance-modal .modal-body { min-height: 0; overflow-y: auto; }
 .attendance-modal .modal-content { border: 0; border-radius: 14px; box-shadow: 0 12px 40px rgba(15, 23, 42, .18); }
 .attendance-modal .modal-header { padding: 18px 24px; border-bottom-color: #e9eef5; }
 .attendance-modal .modal-body { padding: 22px 24px 26px; }
 
 @media (max-width: 575px) {
+  .attendance-modal .modal-dialog { width: calc(100vw - 1rem); min-width: 0; margin: 0.5rem; }
   .attendance-details-header { align-items: flex-start; gap: 14px; }
   .attendance-details-avatar { width: 64px; height: 64px; flex-basis: 64px; font-size: 1.5rem; }
   .attendance-details-title h3 { font-size: 1.25rem; }
