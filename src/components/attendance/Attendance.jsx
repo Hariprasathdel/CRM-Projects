@@ -9,14 +9,18 @@ import {
 } from 'react-icons/fa';
 import AttendanceTable from './AttendanceTable';
 import AttendanceForm from './AttendanceForm';
+import AttendanceDetails from './AttendanceDetails';
 import attendanceService from '../../services/attendanceService';
+import employeeService from '../../services/employeeService';
 import './Attendance.css';
 
 const Attendance = () => {
   const [loading, setLoading] = useState(false);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [employeesById, setEmployeesById] = useState({});
   const [showForm, setShowForm] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
+  const [viewingRecord, setViewingRecord] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedDate, setSelectedDate] = useState(
@@ -28,33 +32,54 @@ const Attendance = () => {
     fetchAttendance();
   }, []);
 
-  const normalizeAttendance = (item) => ({
+  const normalizeAttendance = (item, employeeLookup = employeesById) => {
+    const employeeRef = item.employeeId;
+    const employeeId = employeeRef && typeof employeeRef === 'object'
+      ? (employeeRef._id || employeeRef.id)
+      : employeeRef;
+    const employee = (employeeRef && typeof employeeRef === 'object' && employeeRef.name
+      ? employeeRef
+      : employeeLookup[String(employeeId)]) || {};
+    const employeeName = employee.name || item.employeeName || 'Employee';
+    return ({
     id: item._id || item.id,
     _id: item._id || item.id,
-    employeeName: item.employeeId?.name || item.employeeName || 'Employee',
-    employeeId: item.employeeId?.employeeCode || (typeof item.employeeId === 'object' ? `EMP-${String(item.employeeId._id).slice(-4).toUpperCase()}` : item.employeeId || 'EMP001'),
-    employeeMongoId: item.employeeId?._id || item.employeeId,
-    department: item.employeeId?.department || item.department || 'General',
+    employeeName,
+    employeeId: employee.employeeCode || (typeof employeeId === 'object' ? '' : employeeId) || 'EMP001',
+    employeeMongoId: employeeId,
+    department: employee.department || item.department || 'General',
     date: item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0],
     checkIn: item.checkIn || '--',
     checkOut: item.checkOut || '--',
     status: item.status || 'present',
     workingHours: item.workHours ? `${item.workHours}h` : '8h',
     overtime: item.overtime ? `${item.overtime}h` : '0h',
-    avatar: (item.employeeId?.name || item.employeeName || 'EM').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+    avatar: employeeName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
     location: item.location?.name || 'Main Office',
     remarks: item.remarks || ''
   });
+  };
 
   const fetchAttendance = async () => {
     setLoading(true);
     setError('');
     try {
+      const employeeResult = await employeeService.getAllEmployees({ limit: 500 });
+      if (employeeResult.success) {
+        const payload = employeeResult.data;
+        const employees = Array.isArray(payload) ? payload : (payload?.data || payload?.employees || []);
+        setEmployeesById(Object.fromEntries(employees.map((employee) => [String(employee._id || employee.id), employee])));
+      }
       const res = await attendanceService.getAllAttendance({ limit: 100 });
       if (res.success && res.data) {
         const list = Array.isArray(res.data) ? res.data : (res.data.data || []);
         if (list.length > 0) {
-          setAttendanceRecords(list.map(normalizeAttendance));
+          // Resolve ids against the live employee list so records without a populated
+          // employee reference still show the right person.
+          const employeePayload = employeeResult?.data;
+          const employeeList = Array.isArray(employeePayload) ? employeePayload : (employeePayload?.data || employeePayload?.employees || []);
+          const lookup = Object.fromEntries(employeeList.map((employee) => [String(employee._id || employee.id), employee]));
+          setAttendanceRecords(list.map((item) => normalizeAttendance(item, lookup)));
           return;
         }
       }
@@ -132,11 +157,13 @@ const Attendance = () => {
 
   const handleView = (record) => {
     setEditingRecord(record);
+    setViewingRecord(true);
     setShowForm(true);
   };
 
   const handleEdit = (record) => {
     setEditingRecord(record);
+    setViewingRecord(false);
     setShowForm(true);
   };
 
@@ -179,6 +206,7 @@ const Attendance = () => {
               className="me-2"
               onClick={() => {
                 setEditingRecord(null);
+                setViewingRecord(false);
                 setShowForm(true);
               }}
             >
@@ -305,25 +333,44 @@ const Attendance = () => {
           onHide={() => {
             setShowForm(false);
             setEditingRecord(null);
+            setViewingRecord(false);
           }}
-          size="lg"
+          size={viewingRecord ? 'xl' : 'lg'}
           centered
+          dialogClassName="attendance-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title>
               <FaCalendarCheck className="me-2" />
-              {editingRecord ? 'View / Edit Attendance' : 'Mark Attendance'}
+              {viewingRecord ? 'Attendance Details' : editingRecord ? 'View / Edit Attendance' : 'Mark Attendance'}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <AttendanceForm
+            {viewingRecord ? (
+              <AttendanceDetails
+                record={editingRecord}
+                onEdit={() => setViewingRecord(false)}
+                onDelete={() => {
+                  handleDelete(editingRecord.id);
+                  setShowForm(false);
+                  setEditingRecord(null);
+                  setViewingRecord(false);
+                }}
+                onClose={() => {
+                  setShowForm(false);
+                  setEditingRecord(null);
+                  setViewingRecord(false);
+                }}
+              />
+            ) : <AttendanceForm
               record={editingRecord}
               onSubmit={editingRecord ? handleUpdate : handleAdd}
               onCancel={() => {
                 setShowForm(false);
                 setEditingRecord(null);
+                setViewingRecord(false);
               }}
-            />
+            />}
           </Modal.Body>
         </Modal>
       </Container>
