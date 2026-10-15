@@ -50,7 +50,7 @@ const Sidebar = () => {
       subMenus: [
         { name: 'All Attendance', path: '/attendance' },
         { name: 'Attendance Report', path: '/attendance/report' },
-        { name: 'Mark Attendance', path: '/attendance/mark' },
+        // { name: 'Mark Attendance', path: '/attendance/mark' },
       ]
     },
     {
