@@ -117,8 +117,8 @@ const Sidebar = () => {
       icon: <FaUserPlus className="menu-icon" />,
       subMenus: [
         { name: 'Job Postings', path: '/recruitment' },
-        { name: 'Add Job Posting', path: '/recruitment/add' },
-        { name: 'Applicants', path: '/recruitment/applicants' }
+        { name: 'Applicants', path: '/recruitment/applicants' },
+        // { name: 'Add Job Posting', path: '/recruitment/add' },
       ]
     },
     {
