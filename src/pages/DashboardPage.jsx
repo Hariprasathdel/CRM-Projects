@@ -75,7 +75,7 @@ const DashboardPage = () => {
         <Container fluid className="p-4">
           <h2 className="mb-4">Dashboard</h2>
           
-          <Row className="mb-4">
+          {/* <Row className="mb-4">
             <Col xxl={3} xl={6} md={6} className="mb-3">
               <TotalEmployeeCard 
                 total={totalEmployees} 
@@ -110,7 +110,7 @@ const DashboardPage = () => {
                 loading={loading} 
               />
             </Col>
-          </Row>
+          </Row> */}
 
           <Row className="mb-4">
             <Col lg={8} className="mb-3">
