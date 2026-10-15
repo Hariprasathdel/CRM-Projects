@@ -3,6 +3,41 @@
     background: #f5f7fa;
     min-height: calc(100vh - 70px);
   }
+
+/* Keep the report preview compact and let the page handle overflow. */
+.award-report-modal {
+  width: calc(100vw - 3rem);
+  max-width: 1100px;
+}
+
+.award-report-modal .modal-body {
+  padding: 1rem 1.25rem;
+  overflow: visible;
+}
+
+.award-report-modal .modal-body > div > .row {
+  margin-bottom: 1rem !important;
+}
+
+.award-report-modal .modal-body .table {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+}
+
+.award-report-modal .modal-body .table > :not(caption) > * > * {
+  padding: 0.4rem 0.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .award-report-modal {
+    width: calc(100vw - 1rem);
+    margin: 0.5rem auto;
+  }
+
+  .award-report-modal .modal-body {
+    padding: 0.75rem;
+  }
+}
   
   .page-header {
     display: flex;

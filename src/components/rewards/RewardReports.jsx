@@ -1071,7 +1071,7 @@ const RewardReports = () => {
       {/* =========================================================================
           MODAL: VIEW SINGLE AWARD REPORT DETAILS
          ========================================================================= */}
-      <Modal show={showViewReportModal} onHide={() => setShowViewReportModal(false)} size="lg" centered>
+      <Modal show={showViewReportModal} onHide={() => setShowViewReportModal(false)} centered dialogClassName="award-report-modal">
         <Modal.Header closeButton>
           <Modal.Title className="d-flex align-items-center gap-2">
             <FaFilePdf className="text-danger" />
