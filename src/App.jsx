@@ -38,6 +38,7 @@ import SavedReports from './components/reports/SavedReports';
 import RewardReports from './components/rewards/RewardReports';
 import AddDepartment from './components/department/AddDepartment';
 import MarkAttendance from './components/attendance/MarkAttendance';
+import LeaveBalance from './components/leave/LeaveBalance';
 function App() {
   return (
     <ThemeProvider>
@@ -103,6 +104,13 @@ function App() {
                 <Route path="/leave" element={
                   <PrivateRoute>
                     <Leave />
+                  </PrivateRoute>
+                } />
+
+
+                <Route path="/leave/balance" element={
+                  <PrivateRoute>
+                    <LeaveBalance />
                   </PrivateRoute>
                 } />
                 

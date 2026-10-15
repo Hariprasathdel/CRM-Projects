@@ -1,0 +1,307 @@
+/* ============================
+   Leave Balance Card
+   ============================ */
+   .leave-balance-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+    background: #ffffff;
+    height: 100%;
+  }
+  
+  .leave-balance-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  }
+  
+  .leave-balance-card .card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  /* ============================
+     Card Header
+     ============================ */
+  .balance-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 14px;
+  }
+  
+  .balance-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  
+  .balance-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .balance-card-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 3px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .balance-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 2px;
+  }
+  
+  .meta-dot {
+    color: #cbd5e1;
+  }
+  
+  .balance-card-position {
+    font-size: 0.72rem;
+    color: #94a3b8;
+  }
+  
+  .balance-card-badge-wrapper {
+    flex-shrink: 0;
+  }
+  
+  .balance-card-pending-badge {
+    font-size: 0.68rem;
+    padding: 4px 10px;
+  }
+  
+  /* ============================
+     Balance List
+     ============================ */
+  .balance-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    flex: 1;
+  }
+  
+  .balance-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .balance-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .balance-item-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .balance-item-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+  
+  .icon-blue   { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .icon-red    { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .icon-cyan   { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+  .icon-yellow { background: linear-gradient(135deg, #eab308, #ca8a04); }
+  .icon-green  { background: linear-gradient(135deg, #22c55e, #16a34a); }
+  .icon-gray   { background: linear-gradient(135deg, #64748b, #475569); }
+  
+  .balance-item-label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #334155;
+  }
+  
+  .balance-item-right {
+    text-align: right;
+  }
+  
+  .balance-item-remaining {
+    font-size: 0.82rem;
+    color: #334155;
+  }
+  
+  .balance-item-remaining strong {
+    color: #16a34a;
+    font-weight: 700;
+  }
+  
+  .balance-item-remaining small {
+    color: #94a3b8;
+    font-weight: 400;
+  }
+  
+  /* Progress Bar */
+  .balance-progress {
+    height: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f1f5f9;
+  }
+  
+  .balance-progress .progress-bar {
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 8px;
+  }
+  
+  .balance-item-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: #64748b;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .detail-used    { color: #dc2626; }
+  .detail-pending { color: #ca8a04; }
+  .detail-left    { color: #16a34a; margin-left: auto; }
+  
+  /* ============================
+     Card Footer
+     ============================ */
+  .balance-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+  }
+  
+  .footer-stats {
+    display: flex;
+    gap: 18px;
+  }
+  
+  .footer-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .footer-stat small {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 500;
+  }
+  
+  .footer-stat strong {
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+  
+  .view-history-btn {
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  
+  /* ============================
+     Dark Mode
+     ============================ */
+  @media (prefers-color-scheme: dark) {
+    .leave-balance-card {
+      background: #1e293b;
+    }
+  
+    .balance-card-header {
+      border-bottom-color: #334155;
+    }
+  
+    .balance-card-name { color: #f1f5f9; }
+    .balance-card-meta { color: #94a3b8; }
+    .balance-card-position { color: #64748b; }
+  
+    .balance-item-label { color: #cbd5e1; }
+    .balance-item-remaining { color: #cbd5e1; }
+  
+    .balance-progress { background: #334155; }
+  
+    .balance-item-detail { color: #94a3b8; }
+  
+    .balance-card-footer {
+      border-top-color: #334155;
+    }
+  
+    .footer-stat small { color: #64748b; }
+  
+    .view-history-btn {
+      color: #60a5fa;
+      border-color: #475569;
+    }
+  
+    .view-history-btn:hover {
+      background: #334155;
+      color: #93c5fd;
+    }
+  }
+  
+  /* ============================
+     Responsive
+     ============================ */
+  @media (max-width: 576px) {
+    .balance-card-header {
+      gap: 10px;
+    }
+  
+    .balance-card-avatar {
+      width: 38px;
+      height: 38px;
+      font-size: 0.75rem;
+    }
+  
+    .balance-card-name {
+      font-size: 0.88rem;
+    }
+  
+    .balance-card-footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .footer-stats {
+      justify-content: space-between;
+    }
+  
+    .view-history-btn {
+      width: 100%;
+    }
+  }
