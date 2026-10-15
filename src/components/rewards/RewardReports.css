@@ -6,13 +6,24 @@
 
 /* Keep the report preview compact and let the page handle overflow. */
 .award-report-modal {
-  width: calc(100vw - 3rem);
-  max-width: 1100px;
+  width: calc(100vw - 4rem);
+  max-width: 1400px;
+  max-height: 90vh;
+  margin: 5vh auto;
+}
+
+.award-report-modal .modal-content {
+  max-height: 90vh;
+  overflow: hidden;
 }
 
 .award-report-modal .modal-body {
-  padding: 1rem 1.25rem;
-  overflow: visible;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.award-report-modal .modal-body {
+  padding: 0.875rem 1.1rem;
 }
 
 .award-report-modal .modal-body > div > .row {
@@ -31,7 +42,12 @@
 @media (max-width: 767.98px) {
   .award-report-modal {
     width: calc(100vw - 1rem);
+    max-height: calc(100vh - 1rem);
     margin: 0.5rem auto;
+  }
+
+  .award-report-modal .modal-content {
+    max-height: calc(100vh - 1rem);
   }
 
   .award-report-modal .modal-body {
