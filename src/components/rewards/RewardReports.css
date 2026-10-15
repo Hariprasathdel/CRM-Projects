@@ -146,6 +146,17 @@
   
   .action-buttons { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
   .action-buttons .btn { padding: 4px 8px; font-size: 0.78rem; }
+
+  .award-report-actions {
+    display: inline-flex;
+    align-items: stretch;
+  }
+
+  .award-report-view-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
   
   .table-footer {
     display: flex;
@@ -268,4 +279,36 @@
     .reports-table { font-size: 0.78rem; }
     .action-buttons { flex-direction: column; gap: 2px; }
     .detail-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 576px) {
+    .award-report-actions {
+      flex-wrap: nowrap;
+      gap: 2px;
+    }
+
+    .award-report-actions .btn {
+      box-sizing: border-box;
+      min-height: 66px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+    }
+
+    .award-report-actions .award-report-view {
+      width: 136px;
+      border-radius: 8px;
+      font-size: 1.25rem;
+    }
+
+    .award-report-view-content {
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .award-report-actions .award-report-delete {
+      width: 64px;
+      border-radius: 8px;
+    }
   }

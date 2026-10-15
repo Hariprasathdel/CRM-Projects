@@ -668,21 +668,23 @@ const RewardReports = () => {
                                     </Badge>
                                   </td>
                                   <td className="text-end">
-                                    <div className="btn-group btn-group-sm">
+                                    <div className="award-report-actions">
                                       <Button
                                         variant="outline-primary"
                                         size="sm"
+                                        className="award-report-view"
                                         title="View Full Report Details"
                                         onClick={() => {
                                           setSelectedReport(report);
                                           setShowViewReportModal(true);
                                         }}
                                       >
-                                        <FaEye /> View
+                                        <span className="award-report-view-content"><FaEye /> <span>View</span></span>
                                       </Button>
                                       <Button
                                         variant="outline-danger"
                                         size="sm"
+                                        className="award-report-delete"
                                         title="Delete from MongoDB"
                                         onClick={() => handleDeleteReport(reportId, report.title)}
                                       >
